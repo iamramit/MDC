@@ -1,5 +1,19 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin language editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "general": {
+    "404": {
+      "title": "404 Siden ble ikke funnet",
+      "subtext": "Siden du prøvde å åpne finnes ikke.",
+      "link": "Fortsett å handle"
+    },
     "meta": {
       "tags": "Merket med «{{ tags }}»",
       "page": "Side {{ page }}"
@@ -12,11 +26,6 @@
       "show_more": "Vis mer",
       "products_showing": "Viser",
       "products_showing_of": "av"
-    },
-    "404": {
-      "title": "404 Siden ble ikke funnet",
-      "subtext": "Siden du prøvde å åpne finnes ikke.",
-      "link": "Fortsett å handle"
     },
     "newsletter_form": {
       "newsletter_email": "email@example.com",
@@ -84,7 +93,6 @@
       "loading_thumbnail": "Laster miniatyrbilde: {{ alt }}"
     }
   },
-
   "sections": {
     "events": {
       "name": "Arrangementnavn",
@@ -105,7 +113,6 @@
       "seconds": "Sekunder"
     }
   },
-
   "blogs": {
     "blog": {
       "all": "Alle",
@@ -132,7 +139,6 @@
       }
     }
   },
-
   "cart": {
     "general": {
       "title": "Handlekurv",
@@ -177,7 +183,6 @@
       "goal_reached_html": "Gratulerer! Du får <b>gratis</b> frakt."
     }
   },
-
   "collections": {
     "general": {
       "all_collections": "Kolleksjoner",
@@ -216,7 +221,6 @@
       "other": "{{ count }} produkter"
     }
   },
-
   "contact": {
     "form": {
       "name": "Navn",
@@ -227,14 +231,12 @@
       "post_success": "Takk for at du kontakter oss. Vi svarer så snart som mulig."
     }
   },
-
   "faq": {
     "general": {
       "categories_title": "Kategorier",
       "search_placeholder": "Begynn å skrive..."
     }
   },
-
   "homepage": {
     "onboarding": {
       "product_title": "Eksempel på produkttittel",
@@ -249,7 +251,6 @@
       "no_content": "Denne seksjonen inneholder for øyeblikket ikke noe innhold."
     }
   },
-
   "layout": {
     "navigation": {
       "menu": "Meny",
@@ -275,7 +276,6 @@
       "create_account": "Opprett konto"
     }
   },
-
   "products": {
     "general": {
       "sale_price": "Salgspris",
@@ -322,7 +322,6 @@
       "grid_show_less_images": "Vis færre"
     }
   },
-
   "store_availability": {
     "general": {
       "view_store_info": "Vis butikkinformasjon",
@@ -334,7 +333,6 @@
       "pick_up_unavailable_at_html": "Henting ikke tilgjengelig hos <strong>{{ location_name }}</strong>"
     }
   },
-
   "gift_cards": {
     "issued": {
       "title_html": "Her er gavekortet ditt på {{ value }} fra {{ shop }}!",
@@ -349,7 +347,6 @@
       "add_to_apple_wallet": "Legg til i Apple Wallet"
     }
   },
-
   "recipient": {
     "form": {
       "checkbox": "Jeg vil sende dette som gave",
@@ -365,7 +362,6 @@
       "send_on": "Send"
     }
   },
-
   "customer": {
     "account": {
       "title": "Min konto",
@@ -467,15 +463,58 @@
       "cancel": "Tilbake til butikken"
     }
   },
-
   "date_formats": {
     "month_day_year": "%d. %B %Y"
   },
-
   "accessibility": {
     "skip_to_text": "Hopp til innhold",
     "star_reviews_info": "{{ rating_value }} av {{ rating_max }} stjerner",
     "total_reviews": "totalt antall anmeldelser",
     "error_products": "Kunne ikke laste produkter"
+  },
+  "pagefly": {
+    "products": {
+      "product": {
+        "regular_price": "Regular price",
+        "sold_out": "Sold out",
+        "unavailable": "Unavailable",
+        "on_sale": "Sale",
+        "quantity": "Quantity",
+        "add_to_cart": "Add to cart",
+        "back_to_collection": "Back to {{ title }}",
+        "view_details": "View details"
+      }
+    },
+    "article": {
+      "tags": "Tags:",
+      "all_topics": "All topics",
+      "by_author": "by {{ author }}",
+      "posted_in": "Posted in",
+      "read_more": "Read more",
+      "back_to_blog": "Back to {{ title }}"
+    },
+    "comments": {
+      "title": "Leave a comment",
+      "name": "Name",
+      "email": "Email",
+      "message": "Message",
+      "post": "Post comment",
+      "moderated": "Please note, comments must be approved before they are published",
+      "success_moderated": "Your comment was posted successfully. We will publish it in a little while, as our blog is moderated.",
+      "success": "Your comment was posted successfully! Thank you!",
+      "comments_with_count": {
+        "one": "{{ count }} comment",
+        "other": "{{ count }} comments"
+      }
+    },
+    "password_page": {
+      "login_form_message": "Enter store using password:",
+      "login_form_password_label": "Password",
+      "login_form_password_placeholder": "Your password",
+      "login_form_submit": "Enter",
+      "signup_form_email_label": "Email",
+      "signup_form_success": "We will send you an email right before we open!",
+      "password_link": "Enter using password"
+    }
   }
 }
