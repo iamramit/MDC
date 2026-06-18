@@ -1,0 +1,106 @@
+.editorial-specs-image {
+  background: var(--section-bg);
+}
+
+.editorial-specs-image__inner {
+  display: grid;
+  grid-template-columns: minmax(0, var(--specs-width)) minmax(0, 1fr);
+  min-height: var(--section-height-mobile);
+}
+
+.editorial-specs-image--image-left .editorial-specs-image__specs {
+  order: 2;
+}
+
+.editorial-specs-image--image-left .editorial-specs-image__media {
+  order: 1;
+}
+
+.editorial-specs-image__specs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px clamp(20px, 4vw, 56px);
+}
+
+.editorial-specs-image__specs-inner {
+  display: grid;
+  grid-template-columns: repeat(var(--spec-count), minmax(0, 1fr));
+  width: 100%;
+  max-width: var(--specs-max-width);
+}
+
+.editorial-specs-image__spec {
+  padding: 0 18px;
+  text-align: center;
+  color: var(--text-color);
+  font-size: var(--text-size-mobile);
+  line-height: var(--text-line-height);
+  letter-spacing: var(--text-letter-spacing);
+  text-transform: uppercase;
+}
+
+.editorial-specs-image__spec:not(:first-child) {
+  border-left: 1px solid var(--divider-color);
+}
+
+.editorial-specs-image__spec-text {
+  white-space: pre-line;
+}
+
+.editorial-specs-image__media {
+  position: relative;
+  min-height: var(--section-height-mobile);
+}
+
+.editorial-specs-image__media img,
+.editorial-specs-image__media .placeholder-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.editorial-specs-image__media img {
+  object-fit: cover;
+}
+
+@media screen and (min-width: 981px) {
+  .editorial-specs-image__inner {
+    min-height: var(--section-height-desktop);
+  }
+
+  .editorial-specs-image__media {
+    min-height: var(--section-height-desktop);
+  }
+
+  .editorial-specs-image__spec {
+    font-size: var(--text-size-desktop);
+  }
+}
+
+@media screen and (max-width: 980px) {
+  .editorial-specs-image__inner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .editorial-specs-image--image-left .editorial-specs-image__specs,
+  .editorial-specs-image--image-left .editorial-specs-image__media {
+    order: initial;
+  }
+
+  .editorial-specs-image__specs-inner {
+    gap: 18px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .editorial-specs-image__spec {
+    padding: 0;
+  }
+
+  .editorial-specs-image__spec:not(:first-child) {
+    border-left: 0;
+    border-top: 1px solid var(--divider-color);
+    padding-top: 18px;
+  }
+}

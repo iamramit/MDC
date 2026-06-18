@@ -1,0 +1,93 @@
+.editorial-image-copy {
+  background: var(--section-bg);
+}
+
+.editorial-image-copy__inner {
+  display: grid;
+  gap: clamp(24px, 4vw, 72px);
+  align-items: var(--content-align);
+  grid-template-columns: minmax(0, var(--image-column-width)) minmax(0, 1fr);
+}
+
+.editorial-image-copy--image-right .editorial-image-copy__media {
+  order: 2;
+}
+
+.editorial-image-copy--image-right .editorial-image-copy__text {
+  order: 1;
+}
+
+.editorial-image-copy__media {
+  display: flex;
+  justify-content: var(--image-align);
+}
+
+.editorial-image-copy__media-wrap {
+  width: 100%;
+  max-width: var(--image-max-width);
+}
+
+.editorial-image-copy__media-wrap--full {
+  max-width: none;
+}
+
+.editorial-image-copy__media img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.editorial-image-copy__text {
+  max-width: var(--text-max-width);
+  justify-self: var(--text-justify);
+  text-align: var(--text-align);
+}
+
+.editorial-image-copy__text.rte,
+.editorial-image-copy__text.rte p {
+  color: var(--text-color);
+  font-size: var(--text-size-mobile);
+  line-height: var(--text-line-height);
+  letter-spacing: var(--text-letter-spacing);
+}
+
+.editorial-image-copy__text.rte p:last-child {
+  margin-bottom: 0;
+}
+
+.editorial-image-copy__text--uppercase,
+.editorial-image-copy__text--uppercase p {
+  text-transform: uppercase;
+}
+
+@media screen and (min-width: 981px) {
+  .editorial-image-copy__text.rte,
+  .editorial-image-copy__text.rte p {
+    font-size: var(--text-size-desktop);
+  }
+}
+
+@media screen and (max-width: 980px) {
+  .editorial-image-copy__inner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .editorial-image-copy--image-right .editorial-image-copy__media,
+  .editorial-image-copy--image-right .editorial-image-copy__text {
+    order: initial;
+  }
+
+  .editorial-image-copy__media {
+    justify-content: center;
+  }
+
+  .editorial-image-copy__media-wrap {
+    max-width: min(100%, var(--image-max-width-mobile));
+  }
+
+  .editorial-image-copy__text {
+    max-width: none;
+    justify-self: stretch;
+    text-align: var(--text-align-mobile);
+  }
+}

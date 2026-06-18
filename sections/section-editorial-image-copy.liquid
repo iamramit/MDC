@@ -1,0 +1,343 @@
+{% if section.index > 2 or section.location == 'footer' %}
+  <link
+    rel="stylesheet"
+    href="{{ 'section-editorial-image-copy.css' | asset_url }}"
+    media="print"
+    onload="this.media='all'"
+  >
+  <noscript>
+    {{ 'section-editorial-image-copy.css' | asset_url | stylesheet_tag }}
+  </noscript>
+{% else %}
+  {{ 'section-editorial-image-copy.css' | asset_url | stylesheet_tag }}
+{% endif %}
+
+{%- liquid
+  assign image_sizes = '(min-width: 981px) 40vw, 100vw'
+  assign loading = 'lazy'
+  if section.location == 'template' and section.index == 1
+    assign loading = 'eager'
+  endif
+
+  assign image_align = 'flex-start'
+  case section.settings.image_alignment
+    when 'center'
+      assign image_align = 'center'
+    when 'right'
+      assign image_align = 'flex-end'
+  endcase
+
+  assign content_align = 'center'
+  case section.settings.vertical_alignment
+    when 'top'
+      assign content_align = 'start'
+    when 'bottom'
+      assign content_align = 'end'
+  endcase
+
+  assign text_justify = 'start'
+  case section.settings.text_alignment
+    when 'center'
+      assign text_justify = 'center'
+    when 'right'
+      assign text_justify = 'end'
+  endcase
+-%}
+
+<section
+  class="
+    section
+    section--padded
+    section--{{ section.id }}
+    editorial-image-copy
+    editorial-image-copy--image-{{ section.settings.image_position }}
+    {% if section.settings.section_bottom_margin or request.visual_preview_mode %}section--mb-0{% endif %}
+  "
+  data-section-id="{{ section.id }}"
+  data-section-type="editorial-image-copy"
+  style="
+    --space-top: {{ section.settings.padding_top }}px;
+    --space-bottom: {{ section.settings.padding_bottom }}px;
+    --section-bg: {{ section.settings.background_color }};
+    --image-column-width: {{ section.settings.image_width_desktop }}%;
+    --image-max-width: {{ section.settings.image_max_width_desktop }}px;
+    --image-max-width-mobile: {{ section.settings.image_max_width_mobile }}px;
+    --text-max-width: {{ section.settings.text_max_width_desktop }}px;
+    --text-size-desktop: {{ section.settings.text_size_desktop }}px;
+    --text-size-mobile: {{ section.settings.text_size_mobile }}px;
+    --text-line-height: {{ section.settings.text_line_height }};
+    --text-letter-spacing: {{ section.settings.text_letter_spacing }}em;
+    --text-color: {{ section.settings.text_color }};
+    --image-align: {{ image_align }};
+    --content-align: {{ content_align }};
+    --text-justify: {{ text_justify }};
+    --text-align: {{ section.settings.text_alignment }};
+    --text-align-mobile: {{ section.settings.text_alignment_mobile }};
+  "
+>
+  <div class="container container--{{ section.settings.container }}">
+    <div class="editorial-image-copy__inner">
+      <div class="editorial-image-copy__media">
+        <div class="editorial-image-copy__media-wrap{% if section.settings.image_scale_mode == 'full_column' %} editorial-image-copy__media-wrap--full{% endif %}">
+          {% if section.settings.image != blank %}
+            {% render 'image',
+              image: section.settings.image,
+              alt_string: section.settings.image.alt,
+              image_ratio: 'natural',
+              image_srcset_widths: '180, 240, 360, 540, 720, 900, 1080, 1296',
+              image_sizes: image_sizes,
+              render_skeleton: true,
+              loading: loading
+            %}
+          {% else %}
+            {{ 'image' | placeholder_svg_tag: 'placeholder-svg placeholder-svg--light' }}
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="editorial-image-copy__text rte{% if section.settings.uppercase_text %} editorial-image-copy__text--uppercase{% endif %}">
+        {{ section.settings.text }}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Editorial image + copy",
+  "class": "js-section__editorial-image-copy",
+  "settings": [
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Use this section for quiet editorial layouts with a natural-size image and room for longer copy.</p>"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "container",
+      "label": "Section width",
+      "default": "large",
+      "options": [
+        { "value": "small", "label": "Small" },
+        { "value": "medium", "label": "Medium" },
+        { "value": "large", "label": "Large" },
+        { "value": "full", "label": "Full width" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Image position",
+      "default": "left",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "right", "label": "Right" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "image_width_desktop",
+      "label": "Image column width on desktop",
+      "unit": "%",
+      "min": 20,
+      "max": 70,
+      "step": 1,
+      "default": 28
+    },
+    {
+      "type": "select",
+      "id": "image_scale_mode",
+      "label": "Image sizing",
+      "default": "natural",
+      "options": [
+        { "value": "natural", "label": "Natural size inside column" },
+        { "value": "full_column", "label": "Fill image column" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "image_max_width_desktop",
+      "label": "Natural image max width on desktop",
+      "unit": "px",
+      "min": 120,
+      "max": 900,
+      "step": 10,
+      "default": 240
+    },
+    {
+      "type": "range",
+      "id": "image_max_width_mobile",
+      "label": "Natural image max width on mobile",
+      "unit": "px",
+      "min": 80,
+      "max": 480,
+      "step": 10,
+      "default": 180
+    },
+    {
+      "type": "select",
+      "id": "image_alignment",
+      "label": "Image alignment inside column",
+      "default": "left",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "vertical_alignment",
+      "label": "Vertical alignment",
+      "default": "center",
+      "options": [
+        { "value": "top", "label": "Top" },
+        { "value": "center", "label": "Center" },
+        { "value": "bottom", "label": "Bottom" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "text_max_width_desktop",
+      "label": "Text max width on desktop",
+      "unit": "px",
+      "min": 260,
+      "max": 1000,
+      "step": 10,
+      "default": 760
+    },
+    {
+      "type": "header",
+      "content": "Text style"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#4f4a45"
+    },
+    {
+      "type": "checkbox",
+      "id": "uppercase_text",
+      "label": "Uppercase text",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "text_size_desktop",
+      "label": "Text size on desktop",
+      "unit": "px",
+      "min": 12,
+      "max": 32,
+      "step": 1,
+      "default": 19
+    },
+    {
+      "type": "range",
+      "id": "text_size_mobile",
+      "label": "Text size on mobile",
+      "unit": "px",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "text_line_height",
+      "label": "Line height",
+      "min": 1,
+      "max": 2,
+      "step": 0.1,
+      "default": 1.7
+    },
+    {
+      "type": "range",
+      "id": "text_letter_spacing",
+      "label": "Letter spacing",
+      "unit": "em",
+      "min": 0,
+      "max": 0.4,
+      "step": 0.01,
+      "default": 0.13
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text alignment on desktop",
+      "default": "left",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "text_alignment_mobile",
+      "label": "Text alignment on mobile",
+      "default": "left",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Colors and spacing"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#f8f4ef"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "unit": "px",
+      "min": 0,
+      "max": 180,
+      "step": 6,
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "unit": "px",
+      "min": 0,
+      "max": 180,
+      "step": 6,
+      "default": 24
+    },
+    {
+      "type": "checkbox",
+      "id": "section_bottom_margin",
+      "label": "Reduce bottom margin",
+      "default": false
+    }
+  ],
+  "presets": [
+    {
+      "name": "Editorial image + copy"
+    }
+  ],
+  "enabled_on": {
+    "templates": ["*"],
+    "groups": ["header", "footer"]
+  }
+}
+{% endschema %}

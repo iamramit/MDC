@@ -1,0 +1,269 @@
+{% if section.index > 2 or section.location == 'footer' %}
+  <link
+    rel="stylesheet"
+    href="{{ 'section-editorial-specs-image.css' | asset_url }}"
+    media="print"
+    onload="this.media='all'"
+  >
+  <noscript>
+    {{ 'section-editorial-specs-image.css' | asset_url | stylesheet_tag }}
+  </noscript>
+{% else %}
+  {{ 'section-editorial-specs-image.css' | asset_url | stylesheet_tag }}
+{% endif %}
+
+{%- liquid
+  assign loading = 'lazy'
+  if section.location == 'template' and section.index == 1
+    assign loading = 'eager'
+  endif
+
+  assign spec_count = 0
+  if section.settings.spec_1 != blank
+    assign spec_count = spec_count | plus: 1
+  endif
+  if section.settings.spec_2 != blank
+    assign spec_count = spec_count | plus: 1
+  endif
+  if section.settings.spec_3 != blank
+    assign spec_count = spec_count | plus: 1
+  endif
+  if section.settings.spec_4 != blank
+    assign spec_count = spec_count | plus: 1
+  endif
+
+  if spec_count == 0
+    assign spec_count = 1
+  endif
+-%}
+
+<section
+  class="
+    section
+    section--{{ section.id }}
+    editorial-specs-image
+    editorial-specs-image--image-{{ section.settings.image_position }}
+    {% if section.settings.section_bottom_margin or request.visual_preview_mode %}section--mb-0{% endif %}
+  "
+  data-section-id="{{ section.id }}"
+  data-section-type="editorial-specs-image"
+  style="
+    --section-bg: {{ section.settings.background_color }};
+    --specs-width: {{ section.settings.specs_width_desktop }}%;
+    --section-height-desktop: {{ section.settings.height_desktop }}px;
+    --section-height-mobile: {{ section.settings.height_mobile }}px;
+    --specs-max-width: {{ section.settings.specs_max_width }}px;
+    --text-color: {{ section.settings.text_color }};
+    --divider-color: {{ section.settings.divider_color }};
+    --text-size-desktop: {{ section.settings.text_size_desktop }}px;
+    --text-size-mobile: {{ section.settings.text_size_mobile }}px;
+    --text-line-height: {{ section.settings.text_line_height }};
+    --text-letter-spacing: {{ section.settings.text_letter_spacing }}em;
+    --spec-count: {{ spec_count }};
+  "
+>
+  <div class="editorial-specs-image__inner">
+    <div class="editorial-specs-image__specs">
+      <div class="editorial-specs-image__specs-inner">
+        {% for i in (1..4) %}
+          {%- liquid
+            assign spec_key = 'spec_' | append: i
+            assign spec_value = section.settings[spec_key]
+          -%}
+          {% if spec_value != blank %}
+            <div class="editorial-specs-image__spec">
+              <div class="editorial-specs-image__spec-text">{{ spec_value | escape | newline_to_br }}</div>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="editorial-specs-image__media">
+      {% if section.settings.image != blank %}
+        {% render 'image',
+          image: section.settings.image,
+          alt_string: section.settings.image.alt,
+          image_ratio: 'natural',
+          image_srcset_widths: '540, 720, 900, 1080, 1296, 1512, 1728, 2048, 2260',
+          image_sizes: '100vw',
+          render_skeleton: true,
+          loading: loading
+        %}
+      {% else %}
+        {{ 'image' | placeholder_svg_tag: 'placeholder-svg placeholder-svg--light' }}
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Editorial specs + image",
+  "class": "js-section__editorial-specs-image",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "header",
+      "content": "Specs"
+    },
+    {
+      "type": "textarea",
+      "id": "spec_1",
+      "label": "Spec 1",
+      "default": "40% ABV"
+    },
+    {
+      "type": "textarea",
+      "id": "spec_2",
+      "label": "Spec 2",
+      "default": "Fire pit smoked\nand fermented"
+    },
+    {
+      "type": "textarea",
+      "id": "spec_3",
+      "label": "Spec 3",
+      "default": "750 ml"
+    },
+    {
+      "type": "textarea",
+      "id": "spec_4",
+      "label": "Spec 4"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Image position",
+      "default": "right",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "right", "label": "Right" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "specs_width_desktop",
+      "label": "Specs panel width on desktop",
+      "unit": "%",
+      "min": 20,
+      "max": 70,
+      "step": 1,
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "specs_max_width",
+      "label": "Specs content max width",
+      "unit": "px",
+      "min": 240,
+      "max": 1000,
+      "step": 10,
+      "default": 520
+    },
+    {
+      "type": "range",
+      "id": "height_desktop",
+      "label": "Section height on desktop",
+      "unit": "px",
+      "min": 120,
+      "max": 600,
+      "step": 10,
+      "default": 220
+    },
+    {
+      "type": "range",
+      "id": "height_mobile",
+      "label": "Section height on mobile",
+      "unit": "px",
+      "min": 120,
+      "max": 500,
+      "step": 10,
+      "default": 180
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#f8f4ef"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#b48a84"
+    },
+    {
+      "type": "color",
+      "id": "divider_color",
+      "label": "Divider color",
+      "default": "#d9c2bc"
+    },
+    {
+      "type": "range",
+      "id": "text_size_desktop",
+      "label": "Text size on desktop",
+      "unit": "px",
+      "min": 10,
+      "max": 26,
+      "step": 1,
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "text_size_mobile",
+      "label": "Text size on mobile",
+      "unit": "px",
+      "min": 10,
+      "max": 20,
+      "step": 1,
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "text_line_height",
+      "label": "Line height",
+      "min": 1,
+      "max": 2,
+      "step": 0.1,
+      "default": 1.4
+    },
+    {
+      "type": "range",
+      "id": "text_letter_spacing",
+      "label": "Letter spacing",
+      "unit": "em",
+      "min": 0,
+      "max": 0.4,
+      "step": 0.01,
+      "default": 0.12
+    },
+    {
+      "type": "checkbox",
+      "id": "section_bottom_margin",
+      "label": "Reduce bottom margin",
+      "default": false
+    }
+  ],
+  "presets": [
+    {
+      "name": "Editorial specs + image"
+    }
+  ],
+  "enabled_on": {
+    "templates": ["*"],
+    "groups": ["header", "footer"]
+  }
+}
+{% endschema %}
