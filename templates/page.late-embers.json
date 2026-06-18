@@ -121,7 +121,7 @@
         "text_letter_spacing": 0.1,
         "text_alignment": "left",
         "text_alignment_mobile": "left",
-        "background_color": "#FFFFFF",
+        "background_color": "#ffffff",
         "padding_top": 0,
         "padding_bottom": 0,
         "section_bottom_margin": false
@@ -146,7 +146,7 @@
         "divider_color": "#d9c2bc",
         "text_size_desktop": 14,
         "text_size_mobile": 12,
-        "text_line_height": 1.4,
+        "text_line_height": 1,
         "text_letter_spacing": 0.1,
         "section_bottom_margin": true
       }
