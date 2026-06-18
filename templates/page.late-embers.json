@@ -52,9 +52,9 @@
         "text_color": "#ffffff",
         "overlay_color": "#000000",
         "overlay_strength": 10,
-        "text_style": "body",
         "text_heading_color": false,
         "text_border_color": true,
+        "text_style": "body",
         "title_size": 3,
         "section_bottom_margin": false
       }
@@ -232,10 +232,15 @@
       "block_order": [
         "image_TYN7UD"
       ],
+      "custom_css": [
+        ".section__title-text {text-align: center; padding: 4rem 0; font-family: \"Archivo Narrow\"; letter-spacing: 6px; font-size: 0.9rem;}",
+        ".section__title-text:after {display: none;}",
+        ".h2,.home-carousel__content {margin: 0 auto; max-width: none;}"
+      ],
       "name": "Slideshow",
       "settings": {
-        "slideshow_height": "small",
-        "slideshow_height_mobile": "small",
+        "slideshow_height": "auto",
+        "slideshow_height_mobile": "auto",
         "slideshow_width": "full",
         "nav_style": "solid-brand",
         "hide_nav_arrows": true,
@@ -248,6 +253,7 @@
         "overlay_strength": 10,
         "text_heading_color": false,
         "text_border_color": true,
+        "text_style": "heading",
         "title_size": 1,
         "section_bottom_margin": false
       }
