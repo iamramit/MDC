@@ -173,8 +173,15 @@
         "text_FqFdh4",
         "text_RzaxBB"
       ],
+      "custom_css": [
+        "ul {list-style: none; padding-left: 0; margin-left: 0;}",
+        "ul li {line-height: 1.5;font-family:\"Archivo Narrow\", sans-serif;color:#aaa}",
+        "h3 {color: #666;}"
+      ],
       "name": "Multicolumn with icons",
       "settings": {
+        "custom_font_family": "",
+        "custom_letter_spacing": 0.1,
         "title": "",
         "desc": "",
         "heading_alignment": "left",
