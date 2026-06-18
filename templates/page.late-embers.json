@@ -175,7 +175,7 @@
       ],
       "custom_css": [
         "ul {list-style: none; padding-left: 0; margin-left: 0;}",
-        "ul li {line-height: 1.5;font-family:\"Archivo Narrow\", sans-serif;color:#aaa}",
+        "ul li {line-height: 1.5; font-family: \"Archivo Narrow\", sans-serif; color: #aaa;}",
         "h3 {color: #666;}"
       ],
       "name": "Multicolumn with icons",
@@ -215,7 +215,7 @@
         "image_TYN7UD": {
           "type": "image",
           "settings": {
-            "image": "shopify://shop_images/Screenshot_2026-06-18_at_6.58.24_PM.png",
+            "image": "shopify://shop_images/TextureForFooter.jpg",
             "title": "MATCHBOOK DISTILLING • GREENPORT, NY",
             "text": "",
             "alignment": "center",
