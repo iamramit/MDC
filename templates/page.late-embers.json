@@ -58,46 +58,6 @@
         "section_bottom_margin": false
       }
     },
-    "section_image_with_text_overlap_HqraML": {
-      "type": "section-image-with-text-overlap",
-      "blocks": {
-        "image_nwbCyh": {
-          "type": "image",
-          "settings": {
-            "image": "shopify://shop_images/SunchokeIllustration_transparent.png",
-            "video": "",
-            "video_button_color": "primary",
-            "title": "Image with text",
-            "desc": "<p>Use these blocks to share your brand's story. You can focus on a particular collection, a product detail, or even embed a video.</p>",
-            "horizontal_align": "left",
-            "link_title": "Learn more",
-            "link": "",
-            "bg_color_block": "#f2f2f2",
-            "bg_color_content": "#ffffff",
-            "color_text": "#212121",
-            "text_heading_color": true,
-            "text_border_color": true
-          }
-        }
-      },
-      "block_order": [
-        "image_nwbCyh"
-      ],
-      "name": "Image with text overlap",
-      "settings": {
-        "image_ratio": "2:3",
-        "block_align": "left",
-        "container": "small",
-        "block_spacing": 0,
-        "block_layout": "2/3",
-        "text_style": "solid",
-        "heading_size": 3,
-        "link_style": "hollow",
-        "padding_top": 0,
-        "padding_bottom": 0,
-        "section_bottom_margin": false
-      }
-    },
     "section_editorial_image_copy_GLKVaa": {
       "type": "section-editorial-image-copy",
       "name": "Editorial image + copy",
@@ -281,14 +241,13 @@
         "text_heading_color": false,
         "text_border_color": true,
         "title_size": 1,
-        "section_bottom_margin": true
+        "section_bottom_margin": false
       }
     }
   },
   "order": [
     "main",
     "section_slideshow_cKAhqd",
-    "section_image_with_text_overlap_HqraML",
     "section_editorial_image_copy_GLKVaa",
     "section_editorial_specs_image_9KrL3W",
     "section_multi_column_icons_pBw4m3",
