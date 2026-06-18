@@ -40,8 +40,8 @@
       ],
       "name": "Slideshow",
       "settings": {
-        "slideshow_height": "auto",
-        "slideshow_height_mobile": "auto",
+        "slideshow_height": "small",
+        "slideshow_height_mobile": "small",
         "slideshow_width": "full",
         "nav_style": "solid-brand",
         "hide_nav_arrows": true,
