@@ -40,12 +40,12 @@
   text-transform: uppercase;
 }
 
-.editorial-specs-image__spec:not(:first-child),.editorial-specs-image__spec:not(:last-child) {
+.editorial-specs-image__spec{
   border-left: 1px solid var(--divider-color);
     border-right: 1px solid var(--divider-color);
 }
 
-
+.editorial-specs-image__spec:first-child,.editorial-specs-image__spec:last-child{border:none}
 .editorial-specs-image__spec-text {
   white-space: pre-line;
 }
