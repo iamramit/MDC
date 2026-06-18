@@ -20,7 +20,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px clamp(20px, 4vw, 56px);
+  padding: 24px clamp(20px, 0vw, 56px);
 }
 
 .editorial-specs-image__specs-inner {
