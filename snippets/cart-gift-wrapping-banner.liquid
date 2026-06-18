@@ -1,0 +1,53 @@
+{%- comment -%}
+  Cart gift wrapping banner
+
+  - hidden: {Boolean} Whether or not to hide the banner
+{%- endcomment -%}
+{%- liquid
+  assign gift_wrapping = false
+  if settings.cart_gift_wrapping_product.variants.first.inventory_management == null and settings.cart_gift_wrapping_product != blank
+    assign gift_wrapping = true
+  endif
+  if settings.cart_gift_wrapping_product.variants.first.inventory_policy != 'deny' and settings.cart_gift_wrapping_product.variants.first.inventory_management == 'shopify' and settings.cart_gift_wrapping_product != blank
+    assign gift_wrapping = true
+  endif
+
+  if gift_wrapping
+    assign gift_wrapping = true
+    assign gift_wrapping_variant = settings.cart_gift_wrapping_product.variants.first
+    assign variant_price = gift_wrapping_variant.price | money_without_trailing_zeros
+    if settings.cart_gift_wrapping_individual
+      assign gift_wrapping_text = 'cart.general.gift_wrapping.individual_html' | t: amount: variant_price
+    else
+      assign gift_wrapping_text = 'cart.general.gift_wrapping.whole_html' | t: amount: variant_price
+    endif
+  endif
+-%}
+{%- if gift_wrapping -%}
+  <cart-gift-wrapping-banner
+    class="action-banner"
+    {% if hidden %}
+      hidden
+    {% endif %}
+  >
+    <div class="action-banner__wrapper">
+      <cart-gift-wrapping-banner-content class="action-banner__content">
+        {% render 'icons-theme', icon: 'gift' -%}
+        <span>{{- gift_wrapping_text -}}</span>
+      </cart-gift-wrapping-banner-content>
+      <button type="button" class="action-banner__button c-btn c-btn--primary">
+        <staged-action class="staged-action">
+          <staged-action-text class="staged-action__text">
+            {{- 'products.product.add_to_cart' | t -}}
+          </staged-action-text>
+          <staged-action-tick class="staged-action__tick">
+            {% render 'icons-theme', icon: 'check' %}
+          </staged-action-tick>
+          <staged-action-spinner class="staged-action__spinner">
+            {% render 'theme-spinner' %}
+          </staged-action-spinner>
+        </staged-action>
+      </button>
+    </div>
+  </cart-gift-wrapping-banner>
+{%- endif -%}

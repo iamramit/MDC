@@ -1,0 +1,23 @@
+/* ==========================================================================
+   #PAYMENT ICONS
+   ========================================================================== */
+.payment-icons--left {
+  justify-content: flex-start;
+}
+.payment-icons--center {
+  justify-content: center;
+}
+.payment-icons--right {
+  justify-content: flex-end;
+}
+.payment-icons .payment-icon {
+  width: var(--icon-size_desktop);
+  height: var(--icon-size_desktop);
+}
+@media (max-width: 47.9275em) {
+  .payment-icons .payment-icon {
+    width: var(--icon-size_mobile);
+    height: var(--icon-size_mobile);
+  }
+}
+/*# sourceMappingURL=component-payment-icons.css.map */

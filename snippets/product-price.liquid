@@ -1,0 +1,150 @@
+<!-- snippet/product-price.liquid -->
+
+{% comment %}
+  Renders the product price
+
+  Accepts:
+  - product: {Object} Product Liquid object
+  - section_id: {String} Unique section id
+  - id: {String} Unique price element id
+  - from_price: {Boolean} Determines whether or not to output a generalised or specific price.
+  - use_variant: {Boolean} Renders selected or first variant price instead of overall product pricing (optional)
+  - show_price_notes: {Boolean} Renders price notes. Default: true
+  - show_tax_notice: {Boolean} Renders tax notice. Default: false,
+  - show_label: {Boolean} Renders on sale label
+  - label_type: {String}
+  - label_color: {String}
+  - label_text_color: {String}
+  - label_border {Boolean}
+
+  Usage:
+  {% render 'product-price',
+      product: product,
+      from_price: true
+  %}
+
+  !!! NOTE: When changing this element, update the HTML in
+  VariantSelects.onVariantChange()
+{% endcomment %}
+
+{%- liquid
+  if show_price_notes == null
+    assign show_price_notes = true
+  endif
+
+  if show_tax_notice == null
+    assign show_tax_notice = false
+  endif
+
+  if show_label == null
+    assign show_label = false
+  endif
+-%}
+
+{% if from_price %}
+  {%- liquid
+    if product.title
+      assign compare_at_price = product.compare_at_price
+      assign price = product.price
+      assign price_varies = product.price_varies
+    else
+      assign compare_at_price = 1999
+      assign price = 1999
+      assign price_varies = false
+    endif
+
+    assign money_price = price | money
+    if settings.currency_codes_on_products_enabled
+      assign money_price = price | money_with_currency
+    endif
+  -%}
+
+  <span id="{{ id }}" class="price">
+    {%- if compare_at_price > price -%}
+      <span class="price__number price__number--sale">
+        {% if price_varies %}{{ 'products.general.from_price' | t }} {% endif %}
+        <span class="money">{{ money_price }}</span>
+      </span>
+      <span class="price__compare">
+        <span class="money">{{ compare_at_price | money }}</span>
+      </span>
+    {%- else -%}
+      <span class="price__number">
+        {%- if price_varies %}{{ 'products.general.from_price' | t }} {% endif -%}
+        <span class="money">{{ money_price }}</span></span
+      >
+    {%- endif -%}
+  </span>
+
+{% else %}
+  {%- liquid
+    if use_variant
+      assign variant = product.selected_or_first_available_variant
+      assign compare_at_price = variant.compare_at_price
+      assign price = variant.price
+
+      assign unit_price = variant.unit_price
+    else
+      assign compare_at_price = product.compare_at_price_max
+      assign price = product.price
+
+      assign unit_price = product.selected_or_first_available_variant.unit_price
+    endif
+
+    assign money_price = price | money
+    if settings.currency_codes_on_products_enabled
+      assign money_price = price | money_with_currency
+    endif
+  -%}
+
+  <div class="price">
+    <div id="{{ id }}" class="price__text">
+      <span class="u-hidden-visually">{{ 'products.general.sale_price' | t }}</span>
+      <span class="price__number{% if compare_at_price > price %} price__number--sale{% endif %}">
+        <span class="money">{{ money_price }}</span>
+      </span>
+      {%- if compare_at_price > price -%}
+        <span class="u-hidden-visually">{{ 'products.general.regular_price' | t }}</span>
+        <s class="price__compare"
+          ><span class="money">{{ compare_at_price | money }}</span></s
+        >
+      {%- endif -%}
+    </div>
+
+    {%- if show_label -%}
+      {%- liquid
+        assign label_id = 'label-' | append: section_id
+      -%}
+      {% render 'product-label',
+        product: product,
+        id: label_id,
+        color: label_color,
+        text_color: label_text_color,
+        type: label_type,
+        border: label_border
+      %}
+    {%- endif -%}
+  </div>
+
+  {%- if show_price_notes or show_tax_notice -%}
+    <div class="price__notes">
+      <p id="unit-{{ id }}" class="price__note price__note--unit">
+        {%- if unit_price -%}
+          {% render 'product-unit-price', product: product, variant: product.selected_or_first_available_variant %}
+        {%- endif -%}
+      </p>
+      {%- if show_tax_notice == true -%}
+        {%- if cart.taxes_included and settings.price_details_tax_show -%}
+          <p class="price__note price__note--tax">
+            {{ 'products.general.include_taxes' | t }}
+          </p>
+        {%- endif -%}
+        {%- if shop.shipping_policy.body != blank and settings.price_details_shipping_show -%}
+          <p class="price__note price__note--tax">
+            {{ 'products.general.shipping_policy_html' | t: link: shop.shipping_policy.url }}
+          </p>
+        {%- endif -%}
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+{% endif %}

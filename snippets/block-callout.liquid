@@ -1,0 +1,77 @@
+{% comment %}
+  Renders callout block
+
+  Accepts:
+  - icon: {String}
+  - icon_custom_svg: {String}
+  - icon_size: {String}
+  - title: {String}
+  - title_bold: {Boolean}
+  - text: {String}
+  - bg_color: {String}
+  - text_color: {String}
+  - show_border: {Boolean}
+{% endcomment %}
+
+{%- liquid
+  assign bg_color_block = bg_color | upcase
+  assign bg_color_global = settings.color_bg | upcase
+  if show_border == false
+    if bg_color.alpha == 0 or bg_color_block == bg_color_global
+      assign section_bg = false
+    else
+      assign section_bg = true
+    endif
+  else
+    assign section_bg = true
+  endif
+-%}
+<link rel="stylesheet" href="{{ 'component-callout.css' | asset_url }}" media="print" onload="this.media='all'">
+<noscript>
+  {{ 'component-callout.css' | asset_url | stylesheet_tag }}
+</noscript>
+<div
+  class="callout section--{% if section_bg %}has{% else %}no{% endif %}-bg"
+  style="
+    --bg-color: {{ bg_color }};
+    {% if show_border %}
+      --border-color: {{ settings.color_text | color_modify: 'alpha', 0.2 }};
+    {% endif %}
+  "
+>
+  <div
+    class="callout__content"
+    style="--color: {{ text_color }};"
+  >
+    {% unless icon == 'none' and icon_custom_svg == blank %}
+      <div
+        class="callout__icon"
+      >
+        {%- liquid
+          assign custom_svg = null
+          if icon_custom_svg != blank
+            assign custom_svg = icon_custom_svg
+          endif
+
+          assign icon_size = icon_size | times: 6 | plus: 18 | append: 'px'
+        -%}
+
+        {% render 'icons-selection', icon: icon, icon_size: icon_size, custom_svg: custom_svg %}
+      </div>
+    {% endunless %}
+
+    <div class="callout__text-container">
+      {% if title != blank %}
+        <h3 class="callout__heading{% if title_bold %} callout__heading--bold{% endif %} f-family--body">
+          {{ title }}
+        </h3>
+      {% endif %}
+
+      {% if text != blank %}
+        <div class="callout__text rte f-family--body">
+          {{ text }}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>

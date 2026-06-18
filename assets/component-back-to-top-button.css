@@ -1,0 +1,79 @@
+/* ==========================================================================
+   #BACK TO TOP BUTTON
+   ========================================================================== */
+.back-to-top-button,
+.back-to-top-button__icon {
+  -webkit-transition: all 0.3s ease;
+  -moz-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+.back-to-top-button {
+  position: fixed;
+  bottom: 24px;
+  width: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 42px;
+  font-size: 16px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  text-align: center;
+  line-height: 42px;
+  opacity: 0;
+  visibility: hidden;
+}
+.back-to-top-button.back-to-top-button--dark {
+  background-color: rgb(33, 33, 33);
+  color: rgb(255, 255, 255);
+}
+.back-to-top-button.back-to-top-button--light {
+  background-color: rgb(255, 255, 255);
+  color: rgb(33, 33, 33);
+}
+.back-to-top-button.back-to-top-button--brand {
+  background-color: var(--color--brand);
+  color: var(--color--btn);
+}
+.back-to-top-button[align-left] {
+  left: 24px;
+}
+.back-to-top-button[align-right] {
+  right: 24px;
+}
+.back-to-top-button[align-center] {
+  left: 0;
+  right: 0;
+  margin: auto;
+}
+.back-to-top-button.visible {
+  opacity: 1 !important;
+  visibility: visible;
+  transform: scale(1);
+}
+.back-to-top-button.visible:hover {
+  transform: scale(1.05);
+}
+.back-to-top-button.hidden {
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(0);
+}
+.back-to-top-button.visible:hover .back-to-top-button__icon::before {
+  transform: scale(1.05);
+}
+
+@media (max-width: 47.9275em) {
+  .back-to-top-button {
+    bottom: 18px;
+  }
+  .back-to-top-button[align-left] {
+    left: 18px;
+  }
+  .back-to-top-button[align-right] {
+    right: 18px;
+  }
+}
+/*# sourceMappingURL=component-back-to-top-button.css.map */

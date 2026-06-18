@@ -1,0 +1,203 @@
+.template-giftcard {
+  background-color: var(--bg-color);
+  padding: 0 12px;
+}
+.template-giftcard .site-header__logo {
+  padding-left: 0;
+  margin: 36px 0;
+}
+
+.giftcard-wrapper {
+  max-width: 600px;
+  margin: 0 auto 48px;
+  background-color: white;
+  padding: 60px 18px;
+}
+
+.giftcard {
+  margin: 0 auto;
+  max-width: 480px;
+}
+
+.giftcard__header,
+.giftcard__header h2 {
+  color: #111;
+}
+.giftcard__header h2 {
+  margin-bottom: 0;
+}
+
+.giftcard__tag {
+  color: #c00000;
+  font-size: 1rem;
+  margin-bottom: 0;
+}
+
+.giftcard__image {
+  position: relative;
+  margin: 38px 0;
+}
+.giftcard__image img {
+  position: relative;
+  display: block;
+}
+
+.giftcard__code {
+  text-align: center;
+}
+
+.giftcard__code--medium {
+  font-size: 0.875em;
+}
+
+.giftcard__code--small {
+  font-size: 0.75em;
+}
+
+.giftcard__code__inner {
+  display: inline-block;
+  vertical-align: baseline;
+}
+
+.giftcard__code__text {
+  font-weight: 400;
+  font-size: 1.875em;
+  text-transform: uppercase;
+  border: 2px dashed #ddd;
+  padding: 12px 30px;
+  display: inline-block;
+  vertical-align: baseline;
+  line-height: 1;
+  color: #111;
+  border-radius: 4px;
+}
+.giftcard__code__text.disabled {
+  color: #999;
+  text-decoration: line-through;
+}
+
+.giftcard__text {
+  font-size: 0.9em;
+  opacity: 0.7;
+  max-width: 360px;
+  margin: 9px auto 0;
+  line-height: 1.5;
+  color: #111;
+}
+
+.giftcard__actions {
+  max-width: 360px;
+  margin: 38px auto 0;
+}
+
+.giftcard__print-link svg {
+  margin-right: 9px;
+}
+
+.giftcard__shop-link {
+  display: block;
+  margin-top: 30px;
+  color: #111;
+}
+
+.giftcard__amount {
+  font-size: 3em;
+  line-height: 1.2;
+}
+.giftcard__amount strong {
+  display: block;
+}
+
+.giftcard__amount--medium {
+  font-size: 2.5em;
+}
+
+.giftcard__qr-code {
+  margin-top: 38px;
+}
+.giftcard__qr-code img {
+  padding: 0;
+  margin: 0 auto;
+}
+
+.giftcard__apple-wallet-image {
+  display: block;
+  margin: 0 auto;
+}
+
+@media screen and (max-width: 580px) {
+  .template-giftcard .site-header__logo {
+    margin: 24px 0;
+  }
+  .giftcard__image {
+    margin: 30px 0;
+  }
+  .giftcard-wrapper {
+    padding: 36px 18px;
+  }
+  .giftcard__qr-code,
+  .giftcard__actions {
+    margin-top: 30px;
+  }
+  .giftcard__print-link {
+    display: none;
+  }
+}
+@media screen and (max-width: 400px) {
+  .giftcard__code {
+    font-size: 0.75em;
+  }
+
+  .giftcard__code--medium {
+    font-size: 0.65em;
+  }
+
+  .giftcard__code--small {
+    font-size: 0.55em;
+  }
+}
+/*============================================================================
+  #Print Styles
+==============================================================================*/
+@media print {
+  @page {
+    margin: 0.5cm;
+  }
+  html,
+  body {
+    background-color: #bbb;
+    color: var(--color--text);
+    -webkit-print-color-adjust: exact;
+  }
+
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+
+  .site-header__link {
+    text-decoration: none;
+    font-size: 18px;
+  }
+
+  .giftcard__actions,
+  .giftcard__shop-link,
+  .giftcard__print-link,
+  .giftcard__apple-wallet {
+    display: none;
+  }
+
+  .qr-code {
+    display: block;
+  }
+
+  .giftcard__code__inner,
+  .giftcard__code__text,
+  .giftcard__amount {
+    background: #fff;
+  }
+  .giftcard__code {
+    position: relative;
+    margin-top: 30px;
+  }
+}

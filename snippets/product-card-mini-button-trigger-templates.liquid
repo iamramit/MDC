@@ -1,0 +1,50 @@
+{%- comment -%}
+  Render mini product card button trigger templates
+
+  Accepts:
+    - id: {String} Unique id
+    - notify_on_add: {Boolean} Show notification
+
+  TODO: Sync with product-card
+{%- endcomment -%}
+<template id="{{ id }}--template-sold-out-button">
+  <button type="button" class="link" disabled="disabled">{{ 'products.product.sold_out' | t }}</button>
+</template>
+<template id="{{ id }}--template-quick-shop-button">
+  <button
+    type="button"
+    class="link link--underline"
+    aria-hidden="true"
+    tabindex="-1"
+    data-trigger-quick-shop
+  >
+    {{ 'products.product.select_options' | t }}
+  </button>
+</template>
+<template id="{{ id }}--template-add-to-cart-form">
+  <product-form
+    {% if settings.cart_type == 'page' %}
+      redirect-on-add="{{ routes.cart_url }}"
+    {% elsif notify_on_add %}
+      notify-on-add
+    {% endif %}
+  >
+    <form action="{{ routes.cart_add_url }}" method="post" enctype="multipart/form-data">
+      <input type="hidden" name="form_type" value="product">
+      <input type="hidden" name="id" value="">
+      <button type="submit" class="link link--underline" name="add" aria-hidden="true" tabindex="-1">
+        <staged-action class="staged-action">
+          <staged-action-text class="staged-action__text">
+            +&nbsp;{{ 'products.product.add_to_cart' | t }}
+          </staged-action-text>
+          <staged-action-tick class="staged-action__tick">
+            {% render 'icons-theme', icon: 'check' %}
+          </staged-action-tick>
+          <staged-action-spinner class="staged-action__spinner">
+            {% render 'theme-spinner' %}
+          </staged-action-spinner>
+        </staged-action>
+      </button>
+    </form>
+  </product-form>
+</template>

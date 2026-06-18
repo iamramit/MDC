@@ -1,0 +1,185 @@
+{% comment %}Create variable so delay can be re-set if form has message{% endcomment %}
+{%- liquid
+  assign popup_delay = section.settings.delay
+  assign promo_form = ''
+
+  if settings.design_radius_button != '0' or settings.design_radius_form != '0'
+    assign radius_form_value = 'true'
+  else
+    assign radius_form_value = 'false'
+  endif
+-%}
+
+{% if section.settings.enable_newsletter %}
+  {% capture promo_form %}
+  <div class="promo-pop__form">
+    {% form 'customer', class: 'promo-pop__form-form' %}
+      {{ form.errors | default_errors }}
+      {% if form.posted_successfully? %}
+        {% comment %}Set delay to 0 so form message is visible instanlty{% endcomment %}
+        {%- assign popup_delay = 0 -%}
+        <div class="newsletter__form-message newsletter__form-message--popup">
+          <h3 class="newsletter__form-message__text f-family--body f-caps--false">
+            {%- render 'icons-theme', icon: 'check' -%}
+            {{ 'general.newsletter_form.confirmation' | t }}
+          </h3>
+        </div>
+      {% else %}
+        <div class="promo-pop__fieldset">
+          <input type="hidden" name="contact[tags]" value="newsletter">
+          <label for="Email" class="u-hidden-visually">Email</label>
+          <input
+            type="email"
+            name="contact[email]"
+            id="Email"
+            class="promo-pop__fieldset-item promo-pop__input"
+            value="{% if customer %}{{ customer.email }}{% endif %}"
+            placeholder="{{ 'general.newsletter_form.newsletter_email' | t }}"
+            autocorrect="off"
+            autocapitalize="off"
+          >
+
+          <button
+            type="submit"
+            class="c-btn c-btn--primary promo-pop__fieldset-item promo-pop__btn"
+            name="commit"
+            id="Subscribe"
+          >
+            {{ 'general.newsletter_form.submit' | t }}
+          </button>
+        </div>
+      {% endif %}
+    {% endform %}
+  </div>
+{% endcapture %}
+{% endif %}
+
+{{ 'section-promo-pop.css' | asset_url | stylesheet_tag }}
+<popup-dialog
+  id="promo-popup"
+  class="
+    popup
+    popup--promo
+    popup--right
+    popup--bottom
+  "
+  data-open-on-page-load="{{ popup_delay }}000"
+  data-remember-state="{{ section.settings.expiry }}"
+  data-radius-form="{{ radius_form_value }}"
+  aria-hidden="true"
+  aria-labelledby="promo-popup-title"
+  data-a11y-dialog-no-focus-trap
+>
+  <div class="popup__wrapper">
+    <div
+      class="popup__content"
+      role="document"
+    >
+      <div class="promo-pop__wrapper">
+        <div class="promo-pop__content">
+          {% unless section.settings.title == blank %}
+            <div class="section__title promo-pop__title js-animate-single" data-animation-displacement="5">
+              <h4 id="promo-popup-title" class="section__title-text">
+                {{ section.settings.title | escape }}
+              </h4>
+            </div>
+          {% endunless %}
+
+          <button
+            title="{{ 'layout.drawers.close' | t }}"
+            type="button"
+            class="popup__close"
+            aria-label="{{ 'layout.drawers.close' | t }}"
+            data-a11y-dialog-hide
+          >
+            {% render 'icons-theme', icon: 'close' %}
+          </button>
+
+          {% unless section.settings.text == blank %}
+            <div class="promo-pop__desc rte">{{ section.settings.text }}</div>
+          {% endunless %}
+
+          {{ promo_form }}
+
+          {% unless section.settings.link == blank %}
+            <a href="{{ section.settings.link }}" class="c-btn c-btn--primary c-btn--full promo-pop__link">
+              {{- section.settings.link_title | escape -}}
+            </a>
+          {% endunless %}
+        </div>
+      </div>
+    </div>
+  </div>
+</popup-dialog>
+
+{% schema %}
+{
+  "name": "Pop-up",
+  "class": "js-section__promo-pop",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Newsletter",
+      "info": "Every sign up will create a 'Customer account' in this store. [Manage customers](/admin/customers?query=&accepts_marketing=1)"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_newsletter",
+      "label": "Enable newsletter sign up",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Pop-up"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Use this pop-up to embed a mailing list sign up form. Alternatively use it as a simple call to action with a link to a product or a page.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Button"
+    },
+    {
+      "type": "text",
+      "id": "link_title",
+      "label": "Label",
+      "default": "More info"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "Link"
+    },
+    {
+      "type": "header",
+      "content": "Visibility"
+    },
+    {
+      "type": "range",
+      "id": "delay",
+      "label": "Pop-up delay",
+      "unit": "sec",
+      "min": 1,
+      "max": 15,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "range",
+      "id": "expiry",
+      "label": "Pop-up expiry",
+      "info": "Number of days before pop-up re-appears",
+      "unit": "day",
+      "min": 3,
+      "max": 30,
+      "step": 1,
+      "default": 7
+    }
+  ]
+}
+{% endschema %}

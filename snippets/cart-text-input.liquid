@@ -1,0 +1,40 @@
+{%- comment -%}
+  Cart text input with status updates
+
+  Accepts:
+  - value: {Srting} Input value
+  - form_id: {String} Form id
+  - input_id: {String} Input id
+  - input_name: {String} Input name
+  - class: {String} Main class
+  - input_field_class: {String} Input field class
+  - is_textarea: {Boolean} Is textarea, otherwise input[type="text"]
+{%- endcomment -%}
+<cart-text-input
+  {% if class %}
+    class="{{ class }}"
+  {% endif %}
+>
+  {%- if is_textarea -%}
+    <textarea
+      name="{{ input_name }}"
+      class="{{ input_field_class }} input-full"
+      id="{{ input_id }}"
+      {%- if form_id -%}
+        form="{{ form_id }}"
+      {%- endif -%}
+    >{{- value -}}</textarea>
+  {%- else -%}
+    <input
+      type="text"
+      name="{{ input_name }}"
+      class="{{ input_field_class }}"
+      id="{{ input_id }}"
+      {%- if form_id -%}
+        form="{{ form_id }}"
+      {%- endif -%}
+      value="{{ value }}"
+    >
+  {%- endif -%}
+  <cart-text-input-status></cart-text-input-status>
+</cart-text-input>

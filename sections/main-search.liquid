@@ -1,0 +1,1207 @@
+{% comment %}theme-check-disable TemplateLength, NestedSnippet{% endcomment %}
+{%- liquid
+  assign sort_by = search.sort_by | default: search.default_sort_by
+  assign limit = section.settings.maximum_products
+
+  assign filter_exists = false
+  if section.settings.show_sidebar
+    assign filter_exists = true
+  endif
+
+  assign show_main_sort = false
+  if section.settings.show_sidebar == false or filter_exists == false
+    if section.settings.sort_enable
+      assign show_main_sort = true
+    endif
+  endif
+
+  if settings.swatches_trigger != '' and section.settings.show_swatches and settings.swatches_enabled
+    assign swatches_enabled = true
+    assign triggers_raw = settings.swatches_trigger | newline_to_br | strip_newlines | split: '<br />'
+    assign triggers = '' | split: ','
+    for trigger in triggers_raw
+      assign t = trigger | strip | downcase | split: ','
+      assign triggers = triggers | concat: t
+    endfor
+  endif
+
+  assign dynamic_checkout_enabled = false
+  if settings.quick_shop_enabled and settings.quick_shop_payment_button
+    assign dynamic_checkout_enabled = true
+  endif
+
+  if show_main_sort == false
+    if section.settings.filter_style == 'sidebar'
+      if section.settings.sticky_filter_mobile
+        assign sticky_filters = 'desktop-down'
+      endif
+    elsif section.settings.sticky_filter_mobile or section.settings.sticky_filter
+      assign sticky_filters = true
+      if section.settings.sticky_filter_mobile and section.settings.sticky_filter == false
+        assign sticky_filters = 'mobile'
+      elsif section.settings.sticky_filter_mobile == false and section.settings.sticky_filter
+        assign sticky_filters = 'desktop'
+      endif
+    endif
+  endif
+-%}
+
+{% if section.index > 2 %}
+  <link
+    rel="stylesheet"
+    href="{{ 'component-collection.css' | asset_url }}"
+    media="print"
+    onload="this.media='all'"
+  >
+  <link
+    rel="stylesheet"
+    href="{{ 'component-search.css' | asset_url }}"
+    media="print"
+    onload="this.media='all'"
+  >
+  <noscript>
+    {{ 'component-collection.css' | asset_url | stylesheet_tag }}
+    {{ 'component-search.css' | asset_url | stylesheet_tag }}
+  </noscript>
+{% else %}
+  {{ 'component-collection.css' | asset_url | stylesheet_tag }}
+  {{ 'component-search.css' | asset_url | stylesheet_tag }}
+{% endif %}
+<section
+  class="section section--{{ section.id }} section--search search-page"
+  data-section-id="{{ section.id }}"
+  data-section-type="search-template"
+>
+  <script src="{{ 'filters-dialog.js' | asset_url }}" type="module"></script>
+  <script src="{{ 'dynamic-product-search.js' | asset_url }}" type="module"></script>
+  {% if section.settings.pagination_style == 'button' or section.settings.pagination_style == 'infinite' %}
+    <script src="{{ 'dynamic-product-search-infinite.js' | asset_url }}" type="module"></script>
+  {% endif %}
+  <dynamic-product-search
+    class="
+      collection
+      {% if  section.settings.filter_style == 'drawer' %}
+          collection--sidebar-drawer
+      {% else %}
+          collection--sidebar-sidebar
+      {% endif %}
+      {% if collection.image and section.settings.show_collection_image %}collection--img{% endif %}
+      {% if section.settings.center_title %} collection--center{% endif %}
+    "
+    {% if section.settings.pagination_style == 'button' or section.settings.pagination_style == 'infinite' %}
+      data-infinite="true"
+    {% endif %}
+    {% if section.settings.pagination_style == 'infinite' %}
+      data-infinite-scroll="true"
+    {% endif %}
+    data-section="{{ section.id }}"
+    data-url="{{ routes.search_url }}"
+    data-quick-shop-dynamic-checkout="{{ dynamic_checkout_enabled }}"
+    data-page-title="{% render 'seo-title' %}"
+    {% if sticky_filters %}
+      data-sticky-filter="{{ sticky_filters }}"
+    {% endif %}
+  >
+    {%- liquid
+      assign mobile_sizes = 100 | divided_by: section.settings.grid_mobile
+      assign sizes = mobile_sizes
+      case section.settings.grid
+        when 2
+          assign grid_item_width = 'u-1/2@phab'
+          assign sizes = '(min-width: 561px) 50vw, ' | append: mobile_sizes | append: 'vw'
+          if section.settings.show_sidebar
+            assign container_size = 'default'
+          else
+            assign container_size = 'large'
+          endif
+        when 3
+          assign grid_item_width = 'u-1/2@phab u-1/3@tab'
+          assign sizes = '(min-width: 561px) 50vw, (min-width: 768px) 33vw, ' | append: mobile_sizes | append: 'vw'
+          if section.settings.show_sidebar
+            assign container_size = 'default'
+          else
+            assign container_size = 'large'
+          endif
+        when 4
+          if section.settings.show_sidebar
+            assign grid_item_width = 'u-1/3@tab u-1/4-grid-desk'
+          else
+            assign grid_item_width = 'u-1/3@tab u-1/4@desk'
+          endif
+          assign container_size = 'default'
+          assign sizes = '(min-width: 768px) 33vw, (min-width: 981px) 25vw, ' | append: mobile_sizes | append: 'vw'
+      endcase
+    -%}
+
+    <div class="container container--{{ container_size }}">
+      <div class="section__title section__title--center js-animate-single" data-animation-displacement="5">
+        <h1 class="section__title-text h2 js-section-title">
+          {% if search.performed -%}
+            {{- 'general.search.title_results' | t -}}
+          {%- else -%}
+            {{- 'general.search.title' | t -}}
+          {%- endif %}
+        </h1>
+      </div>
+
+      {%- if settings.search_predictive_enable -%}
+        <link
+          rel="stylesheet"
+          href="{{ 'predictive-search.css' | asset_url }}"
+          media="print"
+          onload="this.media='all'"
+        >
+        <script src="{{ 'predictive-search.js' | asset_url }}" type="module"></script>
+        <predictive-search dropdown type="main" search-url="{{ routes.search_url }}">
+      {%- endif -%}
+      <script src="{{ 'search-form.js' | asset_url }}" type="module"></script>
+      <search-form add-recent-search-on-load>
+        <form
+          is="search-form"
+          action="{{ routes.search_url }}"
+          method="get"
+          class="search-page__form js-search-form js-animate-single"
+          data-animation-displacement="0"
+          data-animation-delay="0.1"
+          role="search"
+        >
+          <div class="search__form-input-wrapper">
+            <input
+              id="main-search"
+              type="search"
+              name="q"
+              value="{{ search.terms | escape }}"
+              placeholder="{{ 'general.search.placeholder' | t }}"
+              class="search-page__form-input"
+              aria-label="{{ 'general.search.placeholder' | t }}"
+              {% if settings.search_predictive_enable -%}
+                role="combobox"
+                aria-expanded="false"
+                aria-owns="main-predictive-search-results"
+                aria-controls="main-predictive-search-results"
+                aria-haspopup="listbox"
+                aria-autocomplete="list"
+                autocorrect="off"
+                autocomplete="off"
+                autocapitalize="off"
+                spellcheck="false"
+              {%- endif -%}
+            >
+
+            <button type="submit" class="search-page__form-submit" aria-label="{{ 'general.search.submit' | t }}">
+              {% render 'icons-theme', icon: 'search' %}
+            </button>
+          </div>
+
+          {%- if settings.search_predictive_enable -%}
+            <predictive-search-results tabindex="-1" hidden></predictive-search-results>
+          {%- endif -%}
+        </form>
+      </search-form>
+      {%- if settings.search_predictive_enable -%}
+        </predictive-search>
+      {%- endif -%}
+
+      <div class="js-main-content">
+        {%- if search.performed -%}
+          {%- if search.results_count < 1 and search.filters.size < 1 -%}
+            <div
+              class="search-page__info js-results-total js-animate-single"
+              data-animation-displacement="0"
+              data-animation-delay="0.1"
+            >
+              <p class="search-page__info__text">{{ 'general.search.no_results_html' | t: terms: search.terms }}</p>
+            </div>
+
+          {%- else -%}
+            <div class="search-page__info js-results-total">
+              <p class="search-page__info__text">
+                {% if search.results_count == 1 %}
+                  {{ 'general.search.result_count' | t: count: search.results_count }}
+                {% else %}
+                  {{ 'general.search.results_count' | t: count: search.results_count }}
+                {% endif %}
+              </p>
+            </div>
+
+            {% paginate search.results by limit %}
+              <div class="collection-main collection-main--search js-results-container" id="collection-main">
+                {%- liquid
+                  assign filters_sticky_classes = ''
+                  if show_main_sort == false
+                    if section.settings.filter_style == 'sidebar'
+                      if section.settings.sticky_filter_mobile
+                        assign filters_sticky_classes = 'collection-main__actions--sticky@desk-down'
+                        if section.settings.header_divider_mobile
+                          assign filters_sticky_classes = filters_sticky_classes | append: ' collection-main__actions--has-divider@desk-down'
+                        endif
+                      endif
+                    else
+                      if section.settings.sticky_filter_mobile
+                        assign filters_sticky_classes = 'collection-main__actions--sticky@mob'
+                        if section.settings.header_divider_mobile
+                          assign filters_sticky_classes = filters_sticky_classes | append: ' collection-main__actions--has-divider@mob'
+                        endif
+                      endif
+                      if section.settings.sticky_filter
+                        assign filters_sticky_classes = filters_sticky_classes | append: ' collection-main__actions--sticky@tab'
+                        if section.settings.header_divider
+                          assign filters_sticky_classes = filters_sticky_classes | append: ' collection-main__actions--has-divider@tab'
+                        endif
+                      endif
+                    endif
+                  endif
+                -%}
+
+                {%- if section.settings.show_sidebar or show_main_sort -%}
+                  <dynamic-product-search-scroll-observer></dynamic-product-search-scroll-observer>
+                  <dynamic-product-search-actions
+                    class="
+                      collection-main__actions
+                      {{ filters_sticky_classes }}
+                      {% if show_main_sort %} collection-main__actions--sort-only{% endif %}
+                      u-flex
+                      u-flex--{% if show_main_sort %}bottom{% else %}middle{% endif %}
+                    "
+                  >
+                    {% comment %}Sidebar blocks count{% endcomment %}
+                    {% if section.settings.show_sidebar %}
+                      <div class="collection-main__filter">
+                        <button
+                          class="
+                            collection-main__filter-btn
+                            u-flex
+                            u-flex--middle
+                          "
+                          data-a11y-dialog-show="filters"
+                        >
+                          {% render 'icons-theme', icon: 'filter' %}
+                          {%- if show_main_sort == false and section.settings.sort_enable -%}
+                            {{ 'collections.general.filter_sort_label' | t }}
+                          {%- else -%}
+                            {{ 'collections.general.filter_label' | t }}
+                          {%- endif -%}
+                        </button>
+                      </div>
+                    {% endif %}
+                    {% comment %}Sidebar blocks count{% endcomment %}
+
+                    {% if show_main_sort %}
+                      <form class="collection-main__sort-form js-sort-form" data-submit-on-change="true">
+                        <input type="hidden" name="q" value="{{ search.terms }}">
+
+                        <div class="collection-main__sort ">
+                          <div class="selector-wrapper collection-main__sort__selector">
+                            <label class="collection-filters__label" for="SortBy">
+                              {{- 'collections.sorting.title' | t -}}
+                            </label>
+
+                            {%- assign sort_by = search.sort_by | default: search.default_sort_by -%}
+                            <select name="sort_by" class="select__select js-collection-sort" id="SortBy">
+                              {%- for option in search.sort_options -%}
+                                <option
+                                  value="{{ option.value | escape }}"
+                                  {% if option.value == sort_by %}
+                                    selected="selected"
+                                  {% endif %}
+                                >
+                                  {{ option.name | escape }}
+                                </option>
+                              {%- endfor -%}
+                            </select>
+
+                            <noscript>
+                              <input
+                                type="submit"
+                                class="c-btn c-btn--primary"
+                                value="{{ 'collections.sorting.sort_button' | t }}"
+                              >
+                            </noscript>
+                            {%- render 'icons-theme', icon: 'chevron', additional_classes: 'icon--down' -%}
+                          </div>
+                        </div>
+                      </form>
+                    {% endif %}
+
+                    <div class="collection-main__count js-results-total">
+                      <p class="collection-main__count-text">
+                        {% if search.results_count == 1 %}
+                          {{ 'general.search.result_count' | t: count: search.results_count }}
+                        {% else %}
+                          {{ 'general.search.results_count' | t: count: search.results_count }}
+                        {% endif %}
+                      </p>
+                    </div>
+                  </dynamic-product-search-actions>
+                {%- endif -%}
+
+                <div class="collection-products{% if show_main_sort == false and section.settings.sort_enable %} collection-products--sort-enabled{% endif %}">
+                  <div
+                    class="collection__filters-active{% if section.settings.filter_style == 'sidebar' %} collection__filters-active--push-left{% endif %} js-active-filters js-animate-single"
+                    data-animation-displacement="0"
+                    data-animation-delay="0.05"
+                  >
+                    <div class="collection__filters-active__wrapper">
+                      <a
+                        href="{{ routes.search_url }}?types={{ search.types | join: ',' | url_encode }}&q={{ search.terms }}&sort_by={{ sort_by }}"
+                        class="collection__filters-active__filter collection__filters-active__filter--clear js-filter-trigger"
+                      >
+                        {{- 'collections.general.tags_clear_all' | t -}}
+                      </a>
+                      {%- for filter in search.filters -%}
+                        {%- for filter_value in filter.active_values -%}
+                          <a
+                            class="collection__filters-active__filter js-filter-trigger"
+                            href="{{ filter_value.url_to_remove }}"
+                          >
+                            {{- filter_value.label | escape -}}
+                            {% render 'icons-theme', icon: 'close' %}
+                          </a>
+                        {%- endfor -%}
+
+                        {% if filter.type == 'price_range' %}
+                          {%- if filter.min_value.value != null or filter.max_value.value != null -%}
+                            <a
+                              href="{{ filter.url_to_remove }}"
+                              class="collection__filters-active__filter js-filter-trigger"
+                            >
+                              <span>
+                                {% if filter.min_value.value %}
+                                  {{ filter.min_value.value | money }}
+                                {% else %}
+                                  {{ 0 | money }}
+                                {% endif %}
+                                -
+                                {% if filter.max_value.value %}
+                                  {{ filter.max_value.value | money }}
+                                {% else %}
+                                  {{ filter.range_max | money }}
+                                {% endif %}
+                              </span>
+                              {% render 'icons-theme', icon: 'close' %}
+                            </a>
+                          {%- endif -%}
+                        {%- endif -%}
+                      {%- endfor -%}
+                    </div>
+                  </div>
+
+                  {% comment %}Sidebar blocks count{% endcomment %}
+                  {% if section.settings.show_sidebar %}
+                    <div class="o-layout">
+                      <div class="o-layout__item u-1/1{% if section.settings.filter_style == 'sidebar' %}  u-1/4-sidebar-desk u-1/5-sidebar-wide{% endif %}">
+                        <filters-dialog
+                          {% if section.settings.filter_style == 'drawer' -%}
+                            class="
+                              modal
+                              modal--filters
+                            "
+                            aria-hidden="true"
+                          {%- else -%}
+                            data-disable-modal-on-desktop
+                          {%- endif %}
+                          style="--background-color: {{ settings.color_drawer_bg }};"
+                          id="filters"
+                          aria-labelledby="filters-title"
+                        >
+                          <div class="modal__overlay" data-a11y-dialog-hide></div>
+
+                          <aside
+                            class="
+                              modal__wrapper
+                              collection-sidebar
+                              collection-sidebar--desktop-{{ section.settings.filter_style }}
+                              collection-sidebar--{{ settings.color_drawer_style }}
+                            "
+                            {% if section.settings.filter_style == 'drawer' -%}
+                              role="document"
+                            {%- endif %}
+                          >
+                            <div class="collection-sidebar__header">
+                              <h3 id="filters-title" class="collection-sidebar__main-title">
+                                {%- if show_main_sort == false and section.settings.sort_enable -%}
+                                  {{ 'collections.general.filter_sort_label' | t }}
+                                {%- else -%}
+                                  {{ 'collections.general.filter_label' | t }}
+                                {%- endif -%}
+                              </h3>
+
+                              <button
+                                title="{{ 'layout.drawers.close' | t }}"
+                                type="button"
+                                class="modal__close"
+                                aria-label="{{ 'layout.drawers.close' | t }}"
+                                data-a11y-dialog-hide
+                              >
+                                {% render 'icons-theme', icon: 'close' %}
+                              </button>
+                            </div>
+
+                            <div class="collection-sidebar__wrapper js-filters">
+                              {%- assign filter_count = 0 -%}
+                              {%- for filter in search.filters -%}
+                                {%- assign filter_count = filter_count | plus: filter.active_values.size -%}
+                              {%- endfor -%}
+
+                              <div class="collection-sidebar__section collection-sidebar__section--filter collection-sidebar__filter{% if section.settings.square_check %} collection-sidebar__section--square-check{% endif %}">
+                                <form
+                                  class="collection-sidebar__filter-form js-filters-form"
+                                  data-submit-on-change="true"
+                                >
+                                  <input type="hidden" name="q" value="{{ search.terms }}">
+                                  {% if section.settings.sort_enable %}
+                                    <div class="collection-sidebar__filter__sort ">
+                                      <div class="selector-wrapper collection-sidebar__filter__sort__selector">
+                                        <label class="collection-filters__label" for="SortBy">
+                                          {{- 'collections.sorting.title' | t -}}
+                                        </label>
+
+                                        {%- assign sort_by = search.sort_by | default: search.default_sort_by -%}
+                                        <select
+                                          name="sort_by"
+                                          class="select__select collection-filters__sort js-collection-sort"
+                                          id="SortBy"
+                                        >
+                                          {%- for option in search.sort_options -%}
+                                            <option
+                                              value="{{ option.value | escape }}"
+                                              {% if option.value == sort_by %}
+                                                selected="selected"
+                                              {% endif %}
+                                            >
+                                              {{ option.name | escape }}
+                                            </option>
+                                          {%- endfor -%}
+                                        </select>
+
+                                        <noscript>
+                                          <input
+                                            type="submit"
+                                            class="c-btn c-btn--primary"
+                                            value="{{ 'collections.sorting.sort_button' | t }}"
+                                          >
+                                        </noscript>
+                                        {%- render 'icons-theme', icon: 'chevron', additional_classes: 'icon--down' -%}
+                                      </div>
+                                    </div>
+                                  {% endif %}
+
+                                  <accordion-group>
+                                    {%- for filter in search.filters -%}
+                                      {%- liquid
+                                        assign accordion_open = false
+                                        if section.settings.filter_visibility == 'three' and forloop.index < 4
+                                          assign accordion_open = true
+                                        elsif filter.active_values.size > 0 or section.settings.filter_visibility == 'all'
+                                          assign accordion_open = true
+                                        endif
+                                      -%}
+                                      {%- case filter.type -%}
+                                        {%- when 'list' -%}
+                                          {%- liquid
+                                            assign filter_label = filter.label | escape | strip | downcase
+                                          -%}
+
+                                          <details
+                                            {% if accordion_open %}
+                                              open
+                                            {% endif %}
+                                            id="{{ section.id }}-filter-{{ forloop.index }}"
+                                            class="collection-sidebar__filter-group"
+                                          >
+                                            <summary class="collection-sidebar__filter-trigger">
+                                              <span>{{ filter.label }}</span>
+                                              <summary-icon>
+                                                {% render 'icons-theme', icon: 'plus' %}
+                                              </summary-icon>
+                                            </summary>
+
+                                            <details-content class="collection-sidebar__filter__accordion">
+                                              <ul class="o-list-bare">
+                                                {%- for filter_value in filter.values -%}
+                                                  {% render 'collection-filter-item',
+                                                    filter: filter,
+                                                    filter_value: filter_value,
+                                                    filter_label: filter_label,
+                                                    swatches_enabled: swatches_enabled,
+                                                    triggers: triggers,
+                                                    show_count: section.settings.count,
+                                                    index: forloop.index
+                                                  %}
+                                                {%- endfor -%}
+                                              </ul>
+                                            </details-content>
+                                          </details>
+
+                                        {%- when 'price_range' -%}
+                                          <details
+                                            {% if accordion_open %}
+                                              open
+                                            {% endif %}
+                                            id="{{ section.id }}-filter-{{ forloop.index }}"
+                                            class="collection-sidebar__filter-group collection-sidebar__filter-group--price"
+                                          >
+                                            <summary class="collection-sidebar__filter-trigger">
+                                              <span>{{ filter.label }}</span>
+                                              <summary-icon>
+                                                {% render 'icons-theme', icon: 'plus' %}
+                                              </summary-icon>
+                                            </summary>
+
+                                            <details-content class="collection-sidebar__filter__accordion">
+                                              <div class="collection-sidebar__items">
+                                                <script src="{{ 'price-range.js' | asset_url }}" type="module"></script>
+                                                <price-range class="price-range">
+                                                  <div class="collection-sidebar__filter-price">
+                                                    <div class="collection-sidebar__filter-price__item collection-sidebar__filter-price__item--from">
+                                                      <span class="collection-sidebar__filter-price__currency">
+                                                        {{- cart.currency.symbol -}}
+                                                      </span>
+
+                                                      <input
+                                                        name="{{ filter.min_value.param_name }}"
+                                                        id="Filter-{{ filter.label }}-min-{{ forloop.index }}"
+                                                        class="collection-sidebar__filter-price__input price-range__number"
+                                                        {% if filter.min_value.value -%}
+                                                          value="{{ filter.min_value.value | money_without_currency | replace: '.00', '' | replace: ',', '' }}"
+                                                        {%- endif %}
+                                                        type="number"
+                                                        inputmode="numeric"
+                                                        placeholder="0"
+                                                        min="0"
+                                                        max="{{ filter.range_max | money_without_currency | replace: '.00', '' | replace: ',', '' }}"
+                                                      >
+                                                      <label
+                                                        for="Filter-{{ filter.label }}-min-{{ forloop.index }}"
+                                                        class="collection-sidebar__filter-price__label"
+                                                      >
+                                                        {{- 'collections.general.from' | t -}}
+                                                      </label>
+                                                    </div>
+
+                                                    <div class="collection-sidebar__filter-price__item collection-sidebar__filter-price__item--separator">
+                                                      -
+                                                    </div>
+
+                                                    <div class="collection-sidebar__filter-price__item collection-sidebar__filter-price__item--to">
+                                                      <span class="collection-sidebar__filter-price__currency">
+                                                        {{- cart.currency.symbol -}}
+                                                      </span>
+                                                      <input
+                                                        name="{{ filter.max_value.param_name }}"
+                                                        id="Filter-{{ filter.label }}-max-{{ forloop.index }}"
+                                                        class="collection-sidebar__filter-price__input price-range__number"
+                                                        {% if filter.max_value.value -%}
+                                                          value="{{ filter.max_value.value | money_without_currency | replace: '.00', '' | replace: ',', '' }}"
+                                                        {%- endif %}
+                                                        type="number"
+                                                        inputmode="numeric"
+                                                        placeholder="{{ filter.range_max | money_without_currency | replace: '.00', '' | replace: ',', '' }}"
+                                                        min="0"
+                                                        max="{{ filter.range_max | money_without_currency | replace: '.00', '' | replace: ',', '' }}"
+                                                      >
+
+                                                      <label
+                                                        for="Filter-{{ filter.label }}-max-{{ forloop.index }}"
+                                                        class="collection-sidebar__filter-price__label"
+                                                      >
+                                                        {{- 'collections.general.to' | t -}}
+                                                      </label>
+                                                    </div>
+                                                  </div>
+
+                                                  <div class="price-range__group">
+                                                    <div class="price-range__track">
+                                                      <input
+                                                        class="price-range__input"
+                                                        {%- if filter.min_value.value -%}
+                                                          value="{{ filter.min_value.value | money_without_currency | replace: '.00', '' | replace: ',', '' }}"
+                                                        {%- else -%}
+                                                          value="0"
+                                                        {%- endif -%}
+                                                        min="0"
+                                                        max="{{ filter.range_max | money_without_currency | replace: '.00', '' | replace: ',', '' }}"
+                                                        type="range"
+                                                        tabindex="-1"
+                                                      >
+                                                      <input
+                                                        class="price-range__input"
+                                                        {%- if filter.max_value.value -%}
+                                                          value="{{ filter.max_value.value | money_without_currency | replace: '.00', '' | replace: ',', '' }}"
+                                                        {%- else -%}
+                                                          value="{{ filter.range_max | money_without_currency | replace: '.00', '' | replace: ',', '' }}"
+                                                        {%- endif -%}
+                                                        min="0"
+                                                        max="{{ filter.range_max | money_without_currency | replace: '.00', '' | replace: ',', '' }}"
+                                                        type="range"
+                                                        tabindex="-1"
+                                                      >
+                                                    </div>
+                                                  </div>
+                                                </price-range>
+                                              </div>
+                                            </details-content>
+                                          </details>
+                                      {%- endcase -%}
+                                    {%- endfor -%}
+                                  </accordion-group>
+                                  <script src="{{ 'accordion-group.js' | asset_url }}" type="module"></script>
+
+                                  <noscript>
+                                    <input
+                                      type="submit"
+                                      class="collection-sidebar__filter-submit c-btn c-btn--primary"
+                                      value="{{ 'collections.general.apply' | t }}"
+                                    >
+                                  </noscript>
+                                </form>
+                              </div>
+                            </div>
+                            <div class="collection-sidebar__draw-actions js-actions">
+                              {%- liquid
+                                assign filters_present = false
+                                for filter in search.filters
+                                  for filter_value in filter.active_values
+                                    assign filters_present = true
+                                    break
+                                  endfor
+                                  if filters_present
+                                    break
+                                  endif
+                                  if filter.type == 'price_range'
+                                    if filter.min_value.value != null or filter.max_value.value != null
+                                      assign filters_present = true
+                                      break
+                                    endif
+                                  endif
+                                endfor
+                              -%}
+
+                              <button
+                                type="button"
+                                data-url="{{ routes.search_url }}?types={{ search.types | join: ',' | url_encode }}&q={{ search.terms }}&sort_by={{ sort_by }}"
+                                class="c-btn c-btn--hollow c-btn--full js-filter-trigger"
+                                {% if filters_present == false %}
+                                  disabled
+                                {% endif %}
+                              >
+                                {{ 'collections.general.tags_clear_all' | t }}
+                              </button>
+
+                              <button
+                                type="button"
+                                class="c-btn c-btn--primary c-btn--no-border c-btn--full"
+                                data-a11y-dialog-hide
+                              >
+                                {{ 'general.search.view_results' | t: count: search.results_count }}
+                              </button>
+                            </div>
+                          </aside>
+                        </filters-dialog>
+                      </div>
+                      <div
+                        class="o-layout__item u-1/1{% if section.settings.filter_style == 'sidebar' %} u-3/4-sidebar-desk u-4/5-sidebar-wide{% endif %}"
+                      >
+                  {% endif %}
+                  {% comment %}Sidebar blocks count{% endcomment %}
+                  {%- liquid
+                    assign animation_selectors = '.product-card > .product-card-top, .product-card > .product-card__details'
+                  -%}
+                  <div
+                    class="
+                      collection__cards
+                      o-layout
+                      {% if section.settings.grid == 4 %}o-layout--small{% endif %}
+                      {% if section.settings.grid_mobile == '2' %}o-layout--small@tab-down{% endif %}
+                      js-results
+                      js-animate-sequence
+                    "
+                    data-animation-selector="{{ animation_selectors }}"
+                    {% if settings.anim_load_style == 'interval' %}
+                      data-animation-interval="0.025"
+                    {% endif %}
+                  >
+                    {%- for item in search.results -%}
+                      {%- case item.object_type -%}
+                        {%- when 'product' -%}
+                          {%- liquid
+                            assign unique_id = section.id | append: '--' | append: product.id
+
+                            assign small_buttons_on_mobile = false
+                            if section.settings.grid_mobile == '2'
+                              assign small_buttons_on_mobile = true
+                            endif
+
+                            assign prioritize_image = false
+                            if forloop.index < 3 and section.location == 'template' and section.index < 3
+                              assign prioritize_image = true
+                            endif
+                          -%}
+                          <div class="o-layout__item u-1/{{ section.settings.grid_mobile }} {{ grid_item_width }}">
+                            {% render 'product-card',
+                              id: unique_id,
+                              current_product: item,
+                              section_id: section.id,
+                              image_sizes: sizes,
+                              prioritize_image: prioritize_image,
+                              small_buttons_on_mobile: small_buttons_on_mobile,
+                              quick_shop_type: 'remote'
+                            %}
+                          </div>
+
+                        {%- when 'article' -%}
+                          <div class="o-layout__item u-1/{{ section.settings.grid_mobile }} {{ grid_item_width }}">
+                            <a href="{{ item.url }}" class="search-grid-item__link">
+                              <div class="search-grid-item search-grid-item--article">
+                                <div class="label label--brand search-grid-item__label{% if settings.product_grid_label_position_left %} search-grid-item__label--position_left{% endif %}">
+                                  <p class="label__text">{{ 'general.search.blog_label' | t }}</p>
+                                </div>
+
+                                <div
+                                  class="o-ratio o-ratio--{{ settings.product_grid_image_size }}"
+                                  {% if settings.product_grid_image_size == 'natural' %}
+                                    style="padding-bottom:100%;"
+                                  {% endif %}
+                                >
+                                  <div class="o-ratio__content">
+                                    <div class="search-grid-item__wrapper">
+                                      <div class="search-grid-item__media">
+                                        {%- if item.image -%}
+                                          <picture>
+                                            <source
+                                              srcset="{% render 'bgset_mobile', image: item.image.src %}"
+                                              media="all and (max-width: 540px)"
+                                            >
+                                            <source
+                                              srcset="{% render 'bgset', image: item.image.src %}"
+                                              sizes="{{ sizes }}"
+                                              media="all and (min-width: 541px)"
+                                            >
+                                            {%- liquid
+                                              assign image_width = 300
+                                              assign image_height = 300 | divided_by: item.image.src.aspect_ratio | round
+
+                                              assign loading_alt = 'Loading image: ' | append: item.image.alt
+                                            -%}
+                                            {%- render 'image-skeleton',
+                                              alt: loading_alt,
+                                              width: image_width,
+                                              height: image_height
+                                            -%}
+                                            <img
+                                              class="search-grid-item__media__img"
+                                              src="{{ item.image.src | image_url: width: 300 }}"
+                                              width="{{ image_width }}"
+                                              height="{{ image_height }}"
+                                              alt="{{ item.image.alt }}"
+                                              loading="lazy"
+                                            >
+                                          </picture>
+                                        {%- else -%}
+                                          <div class="search-grid-item__media__icon">
+                                            <svg
+                                              width="20"
+                                              height="20"
+                                              viewBox="0 0 20 20"
+                                              fill="none"
+                                              xmlns="http://www.w3.org/2000/svg"
+                                            >
+                                              <g id="Polaris-icon/Major/Mono/Text Block"><path id="Icon" fill-rule="evenodd" clip-rule="evenodd" d="M19 0H1C0.448 0 0 0.448 0 1V19C0 19.552 0.448 20 1 20H19C19.552 20 20 19.552 20 19V1C20 0.448 19.552 0 19 0ZM2 18H18V2H2V18ZM5 11H15C15.552 11 16 10.552 16 10C16 9.448 15.552 9 15 9H5C4.448 9 4 9.448 4 10C4 10.552 4.448 11 5 11ZM5 7H15C15.552 7 16 6.552 16 6C16 5.448 15.552 5 15 5H5C4.448 5 4 5.448 4 6C4 6.552 4.448 7 5 7ZM10 13H5C4.448 13 4 13.448 4 14C4 14.552 4.448 15 5 15H9C9.552 15 10 14.552 10 14C10 13.448 9.552 13 9 13" fill="#637381"/><mask id="mask0_0:6439" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="20" height="20"><path id="Icon_2" fill-rule="evenodd" clip-rule="evenodd" d="M19 0H1C0.448 0 0 0.448 0 1V19C0 19.552 0.448 20 1 20H19C19.552 20 20 19.552 20 19V1C20 0.448 19.552 0 19 0ZM2 18H18V2H2V18ZM5 11H15C15.552 11 16 10.552 16 10C16 9.448 15.552 9 15 9H5C4.448 9 4 9.448 4 10C4 10.552 4.448 11 5 11ZM5 7H15C15.552 7 16 6.552 16 6C16 5.448 15.552 5 15 5H5C4.448 5 4 5.448 4 6C4 6.552 4.448 7 5 7ZM10 13H5C4.448 13 4 13.448 4 14C4 14.552 4.448 15 5 15H9C9.552 15 10 14.552 10 14C10 13.448 9.552 13 9 13" fill="white"/></mask><g mask="url(#mask0_0:6439)"></g></g>
+                                            </svg>
+                                          </div>
+                                        {%- endif -%}
+                                      </div>
+                                      <div class="search-grid-item__content">
+                                        {%- if section.settings.article_show_date
+                                          or section.settings.article_show_author
+                                        -%}
+                                          <div class="search-grid-item__content__meta">
+                                            {%- if section.settings.article_show_date -%}
+                                              <p class="search-grid-item__content__meta__item">
+                                                {{ item.published_at | time_tag: format: 'date' }}
+                                              </p>
+                                            {%- endif -%}
+                                            {%- if section.settings.article_show_author -%}
+                                              <p class="search-grid-item__content__meta__item">{{ item.author }}</p>
+                                            {%- endif -%}
+                                          </div>
+                                        {%- endif -%}
+                                        <h2 class="search-grid-item__content__title h5">
+                                          {{ item.title | truncate: 250 | escape }}
+                                        </h2>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </a>
+                          </div>
+
+                        {%- when 'page' -%}
+                          <div class="o-layout__item u-1/{{ section.settings.grid_mobile }} {{ grid_item_width }}">
+                            <a href="{{ item.url }}" class="search-grid-item__link">
+                              <div class="search-grid-item search-grid-item--page">
+                                <div class="label label--brand search-grid-item__label{% if settings.product_grid_label_position_left %} search-grid-item__label--position_left{% endif %}">
+                                  <p class="label__text">{{ 'general.search.page_label' | t }}</p>
+                                </div>
+
+                                <div
+                                  class="o-ratio o-ratio--{{ settings.product_grid_image_size }}"
+                                  {% if settings.product_grid_image_size == 'natural' %}
+                                    style="padding-bottom:100%;"
+                                  {% endif %}
+                                >
+                                  <div class="o-ratio__content">
+                                    <div class="search-grid-item__wrapper">
+                                      <div class="search-grid-item__media">
+                                        <div class="search-grid-item__media__icon">
+                                          <svg
+                                            width="20"
+                                            height="20"
+                                            viewBox="0 0 20 20"
+                                            fill="none"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                          >
+                                            <g id="Polaris-icon/Major/Mono/Page"><path id="Icon" fill-rule="evenodd" clip-rule="evenodd" d="M4 18H16V5.414L12.586 2H4V18ZM17 20H3C2.447 20 2 19.553 2 19V1C2 0.447 2.447 0 3 0H13C13.266 0 13.52 0.105 13.707 0.293L17.707 4.293C17.895 4.48 18 4.734 18 5V19C18 19.553 17.553 20 17 20Z" fill="#637381"/><mask id="mask0_0:5785" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="2" y="0" width="16" height="20"><path id="Icon_2" fill-rule="evenodd" clip-rule="evenodd" d="M4 18H16V5.414L12.586 2H4V18ZM17 20H3C2.447 20 2 19.553 2 19V1C2 0.447 2.447 0 3 0H13C13.266 0 13.52 0.105 13.707 0.293L17.707 4.293C17.895 4.48 18 4.734 18 5V19C18 19.553 17.553 20 17 20Z" fill="white"/></mask><g mask="url(#mask0_0:5785)"></g></g>
+                                          </svg>
+                                        </div>
+                                      </div>
+                                      <div class="search-grid-item__content">
+                                        <h2 class="search-grid-item__content__title h5">
+                                          {{ item.title | truncate: 250 | escape }}
+                                        </h2>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </a>
+                          </div>
+                      {%- endcase -%}
+
+                    {%- else -%}
+                      <div class="o-layout__item u-1/1">
+                        <div
+                          class="collection-empty js-animate-single"
+                          data-animation-displacement="0"
+                          data-animation-delay="0.05"
+                        >
+                          {%- if filter_count > 0 -%}
+                            <a
+                              href="{{ routes.search_url }}?q={{ search.terms }}&sort_by={{ sort_by }}"
+                              class="link link--underline"
+                            >
+                              {{- 'collections.general.filter_reset' | t -}}
+                            </a>
+                          {%- endif -%}
+                          <h5 class="collection-empty__title">{{ 'collections.general.no_matches' | t }}</h5>
+                        </div>
+                      </div>
+                    {%- endfor -%}
+
+                    {%- if section.settings.pagination_style == 'button'
+                      or section.settings.pagination_style == 'infinite'
+                    -%}
+                      {%- if paginate.next -%}
+                        <div class="js-infinite-pagination" hidden>
+                          <a href="{{ paginate.next.url }}" rel="next"></a>
+                        </div>
+                      {%- endif -%}
+                      <div
+                        class="js-infinite-products-count"
+                        data-products-count="{{ search.results_count }}"
+                        hidden
+                      ></div>
+                    {%- endif -%}
+                  </div>
+
+                  {%- comment -%}Sidebar blocks count{%- endcomment -%}
+                  {%- if section.settings.show_sidebar -%}
+                    </div>
+                    </div>
+                  {%- endif -%}
+                  {%- comment -%}Sidebar blocks count{%- endcomment -%}
+                </div>
+              </div>
+
+              {%- if section.settings.pagination_style == 'button'
+                or section.settings.pagination_style == 'infinite'
+              -%}
+                <div
+                  class="collection__infinite-control u-text-center js-animate-single"
+                  data-animation-displacement="0"
+                  data-animation-delay="0.05"
+                >
+                  {%- if section.settings.show_infinite_count %}
+                    <div
+                      class="collection__infinite-count js-infinite-counter"
+                    >
+                      {% liquid
+                        if limit > search.results_count
+                          assign init_showing = search.results_count
+                        else
+                          assign init_showing = limit
+                        endif
+                      %}
+                      {{ 'general.pagination.products_showing' | t }}
+                      <span class="js-infinite-showing-count">{{ init_showing }}</span>
+                      {{ 'general.pagination.products_showing_of' | t }}
+                      <span class="js-infinite-total-count">{{ search.results_count }}</span>
+                    </div>
+                  {%- endif -%}
+
+                  {%- if paginate.next -%}
+                    <button
+                      type="button"
+                      class="c-btn c-btn--hollow infinite-button collection__infinite-button js-infinite-load-button"
+                    >
+                      <span class="infinite-button__text js-infinite-load-button-text">
+                        {{- 'general.pagination.show_more' | t -}}
+                      </span>
+                      <div class="infinite-button__loader js-infinite-load-button-loader theme-dot-loader">
+                        <div class="theme-dot-loader__dot"></div>
+                      </div>
+                    </button>
+                  {%- endif -%}
+                </div>
+              {%- else -%}
+                {% if paginate.pages > 1 %}
+                  <div
+                    class="collection-pagination js-pagination js-animate-single"
+                    data-animation-displacement="0"
+                    data-animation-delay="0.05"
+                  >
+                    <div class="pagination">
+                      <div class="pagination__items">
+                        {%- capture previous -%}
+                    {%- render 'icons-theme', icon: 'chevron', additional_classes: 'icon--left', title: 'Previous Page' -%}
+                  {%- endcapture -%}
+                        {%- capture next -%}
+                    {%- render 'icons-theme', icon: 'chevron', title: 'Next Page' -%}
+                  {%- endcapture -%}
+                        {{ paginate | default_pagination: next: next, previous: previous }}
+                      </div>
+                    </div>
+                  </div>
+                {% endif %}
+              {%- endif -%}
+            {% endpaginate %}
+          {%- endif -%}
+        {%- endif -%}
+      </div>
+    </div>
+
+    <div class="o-page-loader">
+      <div role="progressbar" class="o-page-loader__holder" aria-hidden="true" tabindex="-1">
+        <span class="o-page-loader__line o-page-loader__line--1"></span>
+        <span class="o-page-loader__line o-page-loader__line--2"></span>
+      </div>
+    </div>
+  </dynamic-product-search>
+</section>
+
+{% schema %}
+{
+  "name": "Search results",
+  "class": "js-section__search",
+  "settings": [
+    {
+      "type": "select",
+      "id": "pagination_style",
+      "label": "Pagination style",
+      "default": "button",
+      "options": [
+        {
+          "label": "Pages",
+          "value": "pages"
+        },
+        {
+          "label": "Button",
+          "value": "button"
+        },
+        {
+          "label": "Infinite",
+          "value": "infinite"
+        }
+      ]
+    },
+    {
+      "visible_if": "{{ section.settings.pagination_style == 'button' or section.settings.pagination_style == 'infinite' }}",
+      "type": "checkbox",
+      "id": "show_infinite_count",
+      "label": "Show number of results loaded",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Filter"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_sidebar",
+      "label": "Enable filters",
+      "default": true,
+      "info": "[Customize filters](/admin/menus)"
+    },
+    {
+      "visible_if": "{{ section.settings.show_sidebar }}",
+      "type": "checkbox",
+      "id": "show_swatches",
+      "label": "Show swatches",
+      "default": true
+    },
+    {
+      "visible_if": "{{ section.settings.show_sidebar }}",
+      "type": "checkbox",
+      "id": "square_check",
+      "label": "Use square checkboxes",
+      "default": false
+    },
+    {
+      "visible_if": "{{ section.settings.show_sidebar }}",
+      "type": "select",
+      "id": "filter_visibility",
+      "label": "Filter visibility",
+      "options": [
+        {
+          "label": "Collapse all rows",
+          "value": "none"
+        },
+        {
+          "label": "Expand all rows",
+          "value": "all"
+        },
+        {
+          "label": "Expand first three rows",
+          "value": "three"
+        }
+      ],
+      "default": "three"
+    },
+    {
+      "visible_if": "{{ section.settings.show_sidebar }}",
+      "type": "header",
+      "content": "Desktop filter"
+    },
+    {
+      "visible_if": "{{ section.settings.show_sidebar }}",
+      "type": "select",
+      "id": "filter_style",
+      "label": "Filter style (desktop)",
+      "default": "drawer",
+      "options": [
+        {
+          "label": "Drawer",
+          "value": "drawer"
+        },
+        {
+          "label": "Sidebar",
+          "value": "sidebar"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "sticky_filter",
+      "label": "Enable sticky header",
+      "default": true,
+      "visible_if": "{{ section.settings.filter_style == 'drawer' and section.settings.show_sidebar }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "header_divider",
+      "label": "Show divider",
+      "default": true,
+      "visible_if": "{{ section.settings.filter_style == 'drawer' and section.settings.sticky_filter and section.settings.show_sidebar }}"
+    },
+    {
+      "visible_if": "{{ section.settings.show_sidebar }}",
+      "type": "header",
+      "content": "Mobile filter"
+    },
+    {
+      "visible_if": "{{ section.settings.show_sidebar }}",
+      "type": "checkbox",
+      "id": "sticky_filter_mobile",
+      "label": "Enable sticky header",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "header_divider_mobile",
+      "label": "Show divider",
+      "default": true,
+      "visible_if": "{{ section.settings.sticky_filter_mobile and section.settings.show_sidebar }}"
+    },
+
+    {
+      "type": "header",
+      "content": "Sort & count"
+    },
+    {
+      "type": "checkbox",
+      "id": "sort_enable",
+      "label": "Show 'sort' dropdown",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Blog results"
+    },
+    {
+      "type": "checkbox",
+      "id": "article_show_date",
+      "default": true,
+      "label": "Show blog dates"
+    },
+    {
+      "type": "checkbox",
+      "id": "article_show_author",
+      "default": false,
+      "label": "Show blog authors"
+    },
+    {
+      "type": "header",
+      "content": "Desktop layout"
+    },
+    {
+      "type": "range",
+      "id": "maximum_products",
+      "label": "Maximum items to display",
+      "min": 4,
+      "max": 48,
+      "step": 1,
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "grid",
+      "label": "Items per row",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "header",
+      "content": "Mobile layout"
+    },
+    {
+      "type": "select",
+      "id": "grid_mobile",
+      "label": "Items per row",
+      "default": "2",
+      "options": [
+        {
+          "label": "1",
+          "value": "1"
+        },
+        {
+          "label": "2",
+          "value": "2"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,5703 @@
+{% comment %}theme-check-disable TemplateLength{% endcomment %}
+{% if section.index > 2 or section.location == 'footer' %}
+  <link
+    rel="stylesheet"
+    href="{{ 'component-product.css' | asset_url }}"
+    media="print"
+    onload="this.media='all'"
+  >
+  <link
+    rel="stylesheet"
+    href="{{ 'section-product.css' | asset_url }}"
+    media="print"
+    onload="this.media='all'"
+  >
+  <noscript>
+    {{ 'component-product.css' | asset_url | stylesheet_tag }}
+    {{ 'section-product.css' | asset_url | stylesheet_tag }}
+  </noscript>
+{% else %}
+  {{ 'component-product.css' | asset_url | stylesheet_tag }}
+  {{ 'section-product.css' | asset_url | stylesheet_tag }}
+{% endif %}
+{%- liquid
+  assign product = all_products[section.settings.featured_product]
+
+  if product.empty?
+    assign section_onboarding = true
+  endif
+
+  assign current_variant = product.selected_or_first_available_variant
+
+  unless section_onboarding
+    assign price = current_variant.price
+  else
+    assign price = 1999
+  endunless
+
+  assign form_id = 'product-form-' | append: section.id
+
+  assign enable_carousel_desktop = false
+  if section.settings.gallery_style_desktop == 'carousel'
+    assign enable_carousel_desktop = true
+  endif
+
+  assign enable_carousel_mobile = false
+  if section.settings.gallery_style_mobile == 'carousel'
+    assign enable_carousel_mobile = true
+  endif
+-%}
+<section
+  class="
+    section
+    section--padded
+    section--{{ section.id }}
+    section--product-featured
+  "
+  data-section-id="{{ section.id }}"
+  data-section-type="product-featured"
+  {% if section_onboarding %}
+    data-section-onboarding="true"
+  {% endif %}
+  style="
+    --space-top: {{ section.settings.padding_top }}px;
+    --space-bottom: {{ section.settings.padding_bottom }}px
+  "
+>
+  <product-single
+    class="
+      product-single
+      product-single--featured
+      product-single--{{ section.settings.content_align }}
+      product-single--{{ product.id }}
+      product-single--media-{{ section.settings.gallery_column_position }}
+      js-product-{{ product.id }}
+    "
+    data-product-id="{{ product.id }}"
+    data-product-url="{{ product.url }}"
+    style="--gallery-column-width: {{ section.settings.gallery_column_width }}%;"
+  >
+    <div class="container{% unless section.settings.container == 'full' %} container--{{ section.settings.container }}{% endunless %} {% if section.settings.container == 'small' %}container--tiny@tab{% endif %}">
+      <div class="product-single__content">
+        <div class="product-single__media{% if section.settings.container == 'small' %} container--tiny@tab{% endif %}">
+          {% unless section_onboarding %}
+            {%- liquid
+              if section.settings.thumbnails_position == 'left'
+                assign thumbnails_aside = true
+              else
+                assign thumbnails_aside = false
+              endif
+
+              assign current_media_id = product.selected_or_first_available_variant.featured_media.id
+            -%}
+            <script src="{{ 'sticky-scroll.js' | asset_url }}" type="module"></script>
+            <sticky-scroll>
+              {% render 'product-gallery',
+                product: product,
+                current_section: section,
+                image_ratio: section.settings.product_image_ratio,
+                current_media_id: current_media_id,
+                show_arrows: section.settings.enable_gallery_arrows,
+                thumbnails_aside: thumbnails_aside,
+                thumbnails_ratio: section.settings.thumbnails_ratio,
+                thumbnails_show_border: section.settings.thumbnails_show_border,
+                container: section.settings.container,
+                show_zoom_links: false,
+                enable_carousel_desktop: enable_carousel_desktop,
+                enable_carousel_mobile: enable_carousel_mobile,
+                grid_items_count: section.settings.gallery_grid_items_per_row,
+                grid_items_count_top: section.settings.gallery_grid_items_per_row_top,
+                grid_items_spacing: section.settings.gallery_grid_items_spacing,
+                media_rounded_corners: section.settings.enable_product_image_rounded_corners
+              %}
+            </sticky-scroll>
+          {% else %}
+            <div class="media-gallery__wrapper media-gallery__wrapper--onboarding">
+              <div
+                class="
+                  media-gallery__item
+                  media-gallery__item--image
+                "
+              >
+                <div class="o-ratio o-ratio--1:1">
+                  <div class="o-ratio__content">
+                    {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg placeholder-svg--light' }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endunless %}
+        </div>
+
+        <div class="product-single__primary-blocks">
+          <sticky-scroll>
+            <div
+              class="product-single__box js-animate-sequence"
+              data-animation-selector=".product-single__box__block"
+            >
+              {% unless section_onboarding %}
+                {%- liquid
+                  assign buy_buttons_present = false
+                  assign sizes_max_section_width = 1200
+                -%}
+
+                {%- for block in section.blocks -%}
+                  {%- liquid
+                    if block.type == 'buy_buttons'
+                      assign buy_buttons_present = true
+                    endif
+
+                    assign column_size_multiplier = 0.5
+                    if block.type == 'countdown'
+                      assign image_sizes = '(min-width: 516px) 480px, calc(100vw - 36px)'
+                      assign large_image_sizes = '(min-width: ' | append: sizes_max_section_width | append: 'px) calc(' | append: sizes_max_section_width | append: 'px * ' | append: column_size_multiplier | append: '), (min-width: 767px) calc(100vw * ' | append: column_size_multiplier | append: ' - 126px), '
+                      assign image_sizes = image_sizes | prepend: large_image_sizes
+                    elsif block.type == 'image'
+                      assign min_width = block.settings.image_width | plus: 1
+                      assign max_width = block.settings.image_width
+                      assign block_sizes = 'calc(100vw - 36px)'
+                      if min_width > 480
+                        assign block_sizes = block_sizes | prepend: '(min-width: 480px) 480px, '
+                        if min_width > 540
+                          assign max_width = 540
+                          assign block_sizes = block_sizes | prepend: 'px, '
+                          assign block_sizes = block_sizes | prepend: max_width
+                          assign block_sizes = block_sizes | prepend: '(min-width: 767px) '
+                        else
+                          assign media_query = '(min-width: ' | append: min_width | append: 'px) ' | append: block.settings.image_width | append: 'px, '
+                          assign block_sizes = block_sizes | prepend: media_query
+                        endif
+                      else
+                        assign media_query = '(min-width: ' | append: min_width | append: 'px) ' | append: block.settings.image_width | append: 'px, '
+                        assign block_sizes = block_sizes | prepend: media_query
+                      endif
+                    elsif block.type == 'profile'
+                      assign image_sizes = 'calc(20vw - 36px)'
+                      if block.settings.layout_mobile == 'mob-col-1'
+                        assign image_sizes = 'calc(100vw - 36px)'
+                      endif
+                      if block.settings.layout_desktop == 'desk-col-1'
+                        assign image_sizes = '(min-width: 516px) 480px, ' | append: image_sizes
+                        assign large_image_sizes = '(min-width: ' | append: sizes_max_section_width | append: 'px) calc(' | append: sizes_max_section_width | append: 'px * ' | append: column_size_multiplier | append: '), (min-width: 767px) calc(100vw * ' | append: column_size_multiplier | append: ' - 126px), '
+                        assign image_sizes = image_sizes | prepend: large_image_sizes
+                      else
+                        assign image_sizes = image_sizes | prepend: '(min-width: 516px) calc(0.2 * 480px), '
+                        assign large_image_sizes = '(min-width: ' | append: sizes_max_section_width | append: 'px) calc(' | append: sizes_max_section_width | append: 'px * ' | append: column_size_multiplier | append: ' * 0.2), (min-width: 767px) calc((100vw * ' | append: column_size_multiplier | append: ' - 126px) / 5), '
+                        assign image_sizes = image_sizes | prepend: large_image_sizes
+                      endif
+                    endif
+                  -%}
+                  {%- if block.type == 'title' -%}
+                    <style type="text/css">
+                      .section--{{ section.id }} .product-single__title {
+                        font-size: {{ block.settings.title_size | times: 0.2 | times: 2 | plus: 1 }}rem;
+                        line-height: calc(1.55 - (1.{{ block.settings.title_size }} * 0.3));
+                      }
+                      @media screen and (max-width: 767px) {
+                        .section--{{ section.id }} .product-single__title {
+                          font-size: {{ block.settings.title_size_mobile | times: 0.15 | times: 2 | plus: 1 }}rem;
+                          line-height: calc(1.6 - (1.{{ block.settings.title_size_mobile }} * 0.3));
+                        }
+                      }
+                    </style>
+                  {%- elsif block.type == 'vendor' -%}
+                    <style type="text/css">
+                      .section--{{ section.id }} .product-single__vendor {
+                        font-size: {{ block.settings.vendor_size | times: 0.075 | times: 2 | plus: 0.75 }}rem;
+                      }
+                      @media screen and (max-width: 767px) {
+                        .section--{{ section.id }} .product-single__vendor {
+                          font-size: {{ block.settings.vendor_size | times: 0.07 | times: 2 | plus: 0.7 }}rem;
+                        }
+                      }
+                    </style>
+                  {%- endif -%}
+
+                  {%- render 'pdp-blocks',
+                    product_form_id: form_id,
+                    current_block: block,
+                    current_product: product,
+                    current_variant: current_variant,
+                    current_section: section,
+                    image_sizes: image_sizes,
+                    link_to_product: true,
+                    heading_level: 2
+                  -%}
+                {%- endfor -%}
+
+                {%- unless buy_buttons_present -%}
+                  <product-form
+                    {% unless settings.cart_type == 'page' %}
+                      notify-on-add
+                    {% else %}
+                      redirect-on-add="{{ routes.cart_url }}"
+                    {% endunless %}
+                  >
+                    {% form 'product',
+                      product,
+                      class: 'product-form product-form--single js-product-form',
+                      id: form_id
+                    %}
+                      <input
+                        type="hidden"
+                        name="id"
+                        value="{{ current_variant.id }}"
+                        {% unless settings.cart_type == 'page' %}
+                          disabled
+                        {% endunless %}
+                      >
+                    {% endform %}
+                  </product-form>
+                {%- endunless -%}
+              {% else %}
+                <div
+                  class="section__title section__title--onboarding js-animate-single"
+                  data-animation-displacement="5"
+                >
+                  <p
+                    class="section__title-desc product-single__title-desc js-animate-single"
+                    data-animation-displacement="0"
+                    data-animation-delay="0.1"
+                  >
+                    {{ 'homepage.onboarding.product_vendor' | t }}
+                  </p>
+                  <h2 class="product-single__title">
+                    <a href="{{ product.url }}">{{ 'homepage.onboarding.product_title' | t }}</a>
+                  </h2>
+                </div>
+
+                <form class="product-form js-product-form" id="js-product-form-{{ product.id }}">
+                  <div class="product-single__box__block product-single__box__block--m-12 product-single__box__block--price js-product-price">
+                    <div class="price js-product-price-text">
+                      <span class="u-hidden-visually">{{ 'products.general.regular_price' | t }}</span>
+                      <span class="price__text js-product-price-number">
+                        <span class="price__number"
+                          ><span class="money">{{ price | money }}</span></span
+                        >
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="product-form__qty">
+                    <label
+                      for="Quantity-{{ section.id }}"
+                      class="quantity-selector f-family--{{ settings.type_product_form_headings_style }} f-caps--{{ settings.type_product_form_headings_capitalize }} f-space--{{ settings.type_product_form_headings_letterspace }}"
+                    >
+                      {{- 'products.product.quantity' | t -}}
+                    </label>
+                    <div class="product-form__qty-input">
+                      <quantity-input>
+                        <button minus type="button" aria-label="{{ 'cart.general.reduce_quantity' | t }}">
+                          <span aria-hidden="true">&minus;</span>
+                        </button>
+                        {% comment %} TODO: quantity_rule {% endcomment %}
+                        <input
+                          id="Quantity-{{ section.id }}"
+                          type="number"
+                          value="1"
+                          min="1"
+                          step="1"
+                          name="quantity"
+                          autocomplete="off"
+                        >
+                        <button plus type="button" aria-label="{{ 'cart.general.increase_quantity' | t }}">
+                          <span aria-hidden="true">+</span>
+                        </button>
+                      </quantity-input>
+                    </div>
+                  </div>
+
+                  <div class="product-form__add">
+                    <button
+                      type="submit"
+                      name="add"
+                      class="c-btn c-btn--full c-btn--primary product-form__add-btn js-product-add"
+                      disabled
+                    >
+                      <span id="AddToCartText" class="js-product-add-text">
+                        {{- 'products.product.add_to_cart' | t -}}
+                      </span>
+                    </button>
+                  </div>
+                </form>
+              {% endunless %}
+            </div>
+          </sticky-scroll>
+        </div>
+      </div>
+    </div>
+  </product-single>
+  {{ modals }}
+  <script src="{{ 'product-single.js' | asset_url }}" type="module"></script>
+</section>
+
+{% unless product == empty %}
+  <script type="application/json" id="ModelJson-{{ section.id }}">
+    {{ product.media | where: 'media_type', 'model' | json }}
+  </script>
+{% endunless %}
+
+{%- if request.design_mode -%}
+  <script src="{{ 'variant-select-components.js' | asset_url }}" type="module"></script>
+  <script src="{{ 'product-interactive-options.js' | asset_url }}" type="module"></script>
+{%- endif -%}
+
+<script type="application/ld+json">
+  {{ product | structured_data }}
+</script>
+
+{% schema %}
+{
+  "name": "Featured product",
+  "class": "js-section__home-product",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "product",
+      "id": "featured_product",
+      "label": "Product"
+    },
+    {
+      "type": "select",
+      "id": "container",
+      "label": "Layout width",
+      "default": "medium",
+      "options": [
+        {
+          "label": "Default",
+          "value": "large"
+        },
+        {
+          "label": "Narrow",
+          "value": "medium"
+        },
+        {
+          "label": "Wide",
+          "value": "full"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Media",
+      "info": "Learn more about [media types](https://help.shopify.com/manual/products/product-media)"
+    },
+    {
+      "type": "select",
+      "id": "product_image_ratio",
+      "label": "Image container",
+      "default": "1:1",
+      "options": [
+        {
+          "value": "1:1",
+          "label": "Square (1:1)"
+        },
+        {
+          "value": "3:4",
+          "label": "Portrait (3:4)"
+        },
+        {
+          "value": "4:3",
+          "label": "Landscape (4:3)"
+        },
+        {
+          "value": "16:9",
+          "label": "Wide (16:9)"
+        },
+        {
+          "value": "2:3",
+          "label": "Tall (2:3)"
+        },
+        {
+          "value": "natural",
+          "label": "Natural"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "product_image_fit",
+      "label": "Fit image to container",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_product_image_rounded_corners",
+      "label": "Enable corner radius",
+      "info": "Works best with 'Natural' image container ratio",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_video_autoplay",
+      "label": "Enable video autoplay",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_video_looping",
+      "label": "Enable video looping",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Desktop gallery"
+    },
+    {
+      "type": "range",
+      "id": "gallery_column_width",
+      "label": "Gallery column width",
+      "unit": "%",
+      "min": 30,
+      "max": 70,
+      "step": 1,
+      "default": 60
+    },
+    {
+      "type": "select",
+      "id": "gallery_column_position",
+      "label": "Gallery column position",
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "gallery_style_desktop",
+      "label": "Gallery style",
+      "default": "carousel",
+      "options": [
+        {
+          "value": "grid",
+          "label": "Grid"
+        },
+        {
+          "value": "carousel",
+          "label": "Carousel"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Mobile gallery"
+    },
+    {
+      "type": "select",
+      "id": "gallery_style_mobile",
+      "label": "Gallery style",
+      "default": "carousel",
+      "options": [
+        {
+          "value": "grid",
+          "label": "Grid"
+        },
+        {
+          "value": "carousel",
+          "label": "Carousel"
+        }
+      ]
+    },
+    {
+      "visible_if": "{{ section.settings.gallery_style_desktop == 'grid' or section.settings.gallery_style_mobile == 'grid' }}",
+      "type": "header",
+      "content": "Grid settings"
+    },
+    {
+      "visible_if": "{{ section.settings.gallery_style_desktop == 'grid' or section.settings.gallery_style_mobile == 'grid' }}",
+      "type": "range",
+      "id": "gallery_grid_items_per_row_top",
+      "label": "Top row",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "default": 1
+    },
+    {
+      "visible_if": "{{ section.settings.gallery_style_desktop == 'grid' or section.settings.gallery_style_mobile == 'grid' }}",
+      "type": "range",
+      "id": "gallery_grid_items_per_row",
+      "label": "Following rows",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "visible_if": "{{ section.settings.gallery_style_desktop == 'grid' or section.settings.gallery_style_mobile == 'grid' }}",
+      "type": "range",
+      "id": "gallery_grid_items_spacing",
+      "label": "Items spacing",
+      "min": 1,
+      "max": 8,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "visible_if": "{{ section.settings.gallery_style_desktop == 'grid' or section.settings.gallery_style_mobile == 'grid' }}",
+      "type": "checkbox",
+      "id": "gallery_grid_items_load_more",
+      "label": "Enable 'Show more' button",
+      "default": false
+    },
+    {
+      "visible_if": "{{ section.settings.gallery_grid_items_load_more and section.settings.gallery_style_desktop == 'grid' or section.settings.gallery_style_mobile == 'grid' }}",
+      "type": "range",
+      "id": "gallery_grid_items_load_more_rows",
+      "label": "Visible rows of images",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "visible_if": "{{ section.settings.gallery_style_desktop == 'carousel' or section.settings.gallery_style_mobile == 'carousel' }}",
+      "type": "header",
+      "content": "Carousel settings"
+    },
+    {
+      "visible_if": "{{ section.settings.gallery_style_desktop == 'carousel' or section.settings.gallery_style_mobile == 'carousel' }}",
+      "type": "select",
+      "id": "gallery_carousel_navigation_type",
+      "label": "Navigation",
+      "default": "dots",
+      "options": [
+        {
+          "value": "thumbnails",
+          "label": "Thumbnails"
+        },
+        {
+          "value": "dots",
+          "label": "Dots"
+        },
+        {
+          "value": "none",
+          "label": "None"
+        }
+      ]
+    },
+    {
+      "visible_if": "{{ section.settings.gallery_style_mobile == 'carousel' }}",
+      "type": "checkbox",
+      "id": "enable_gallery_next_image_preview_mobile",
+      "label": "Show next image preview (mobile)",
+      "default": true
+    },
+    {
+      "visible_if": "{{ section.settings.gallery_style_desktop == 'carousel' }}",
+      "type": "checkbox",
+      "id": "enable_gallery_arrows",
+      "label": "Always show navigation arrows (desktop)",
+      "default": false
+    },
+    {
+      "visible_if": "{{ section.settings.gallery_carousel_navigation_type == 'thumbnails' and section.settings.gallery_style_desktop == 'carousel' or section.settings.gallery_style_mobile == 'carousel' }}",
+      "type": "header",
+      "content": "Thumbnails"
+    },
+    {
+      "visible_if": "{{ section.settings.gallery_carousel_navigation_type == 'thumbnails' and section.settings.gallery_style_desktop == 'carousel' }}",
+      "type": "select",
+      "id": "thumbnails_position",
+      "label": "Position (desktop)",
+      "default": "bottom",
+      "options": [
+        {
+          "value": "bottom",
+          "label": "Bottom"
+        },
+        {
+          "value": "left",
+          "label": "Side"
+        }
+      ]
+    },
+    {
+      "visible_if": "{{ section.settings.gallery_carousel_navigation_type == 'thumbnails' and section.settings.gallery_style_desktop == 'carousel' or section.settings.gallery_style_mobile == 'carousel' }}",
+      "type": "select",
+      "id": "thumbnails_ratio",
+      "label": "Thumbnail container",
+      "default": "1:1",
+      "options": [
+        {
+          "value": "1:1",
+          "label": "Square (1:1)"
+        },
+        {
+          "value": "3:4",
+          "label": "Portrait (3:4)"
+        },
+        {
+          "value": "4:3",
+          "label": "Landscape (4:3)"
+        },
+        {
+          "value": "16:9",
+          "label": "Wide (16:9)"
+        },
+        {
+          "value": "2:3",
+          "label": "Tall (2:3)"
+        },
+        {
+          "value": "natural",
+          "label": "Natural (fitted)"
+        }
+      ]
+    },
+    {
+      "visible_if": "{{ section.settings.gallery_carousel_navigation_type == 'thumbnails' and section.settings.gallery_style_desktop == 'carousel' }}",
+      "type": "range",
+      "id": "thumbnails_size_desktop",
+      "label": "Size (desktop)",
+      "min": 4,
+      "max": 10,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "visible_if": "{{ section.settings.gallery_carousel_navigation_type == 'thumbnails' and section.settings.gallery_style_mobile == 'carousel' }}",
+      "type": "range",
+      "id": "thumbnails_size_mobile",
+      "label": "Size (mobile)",
+      "min": 3,
+      "max": 8,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "visible_if": "{{ section.settings.gallery_carousel_navigation_type == 'thumbnails' and section.settings.gallery_style_desktop == 'carousel' or section.settings.gallery_style_mobile == 'carousel' }}",
+      "type": "checkbox",
+      "id": "thumbnails_show_border",
+      "label": "Show thumbnail border",
+      "default": false
+    },
+
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "unit": "px",
+      "min": 0,
+      "max": 120,
+      "step": 3,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "unit": "px",
+      "min": 0,
+      "max": 120,
+      "step": 3,
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "barcode",
+      "name": "Barcode",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Barcode:",
+          "info": "This block will only display if the product has a barcode assigned to it"
+        }
+      ]
+    },
+    {
+      "type": "buy_buttons",
+      "name": "Buy buttons",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "enable_payment_button",
+          "label": "Show dynamic checkout button",
+          "info": "Lets customers check out directly using a familiar payment method. [Learn more](https://help.shopify.com/manual/using-themes/change-the-layout/dynamic-checkout)",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "Add to cart button"
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_add_to_cart_custom",
+          "label": "Use custom style",
+          "default": false
+        },
+        {
+          "type": "select",
+          "id": "add_to_cart_custom_style",
+          "label": "Style",
+          "options": [
+            {
+              "value": "primary",
+              "label": "Solid"
+            },
+            {
+              "value": "hollow",
+              "label": "Outline"
+            }
+          ],
+          "default": "primary",
+          "visible_if": "{{ block.settings.enable_add_to_cart_custom }}"
+        },
+        {
+          "type": "color",
+          "id": "add_to_cart_custom_color_bg",
+          "label": "Background",
+          "default": "rgba(0,0,0,0)",
+          "visible_if": "{{ block.settings.enable_add_to_cart_custom }}"
+        },
+        {
+          "type": "color",
+          "id": "add_to_cart_custom_color_text",
+          "label": "Text",
+          "default": "rgba(0,0,0,0)",
+          "info": "Outline buttons use the 'Text' color for both text and border.",
+          "visible_if": "{{ block.settings.enable_add_to_cart_custom }}"
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Button",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Label",
+          "default": "Learn more"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "checkbox",
+          "id": "new_tab",
+          "label": "Open in a new tab",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Design"
+        },
+        {
+          "type": "select",
+          "id": "style",
+          "label": "Style",
+          "options": [
+            {
+              "value": "primary",
+              "label": "Solid"
+            },
+            {
+              "value": "hollow",
+              "label": "Outline"
+            }
+          ],
+          "default": "primary"
+        },
+        {
+          "type": "color",
+          "id": "color_bg",
+          "label": "Background",
+          "default": "rgba(0,0,0,0)"
+        },
+        {
+          "type": "color",
+          "id": "color_text",
+          "label": "Text",
+          "default": "rgba(0,0,0,0)",
+          "info": "Outline buttons use the 'Text' color for both text and border."
+        }
+      ]
+    },
+    {
+      "type": "custom-liquid",
+      "name": "Custom Liquid",
+      "settings": [
+        {
+          "type": "liquid",
+          "id": "custom_liquid",
+          "label": "Custom Liquid",
+          "info": "Also supports HTML"
+        }
+      ]
+    },
+    {
+      "type": "description",
+      "name": "Description",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "desc_text",
+          "label": "Description override"
+        }
+      ]
+    },
+    {
+      "type": "free-shipping-bar",
+      "name": "Free shipping bar",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "You must enter a minimum purchase amount in 'Theme settings > Free shipping bar' for this block to display."
+        },
+        {
+          "type": "checkbox",
+          "id": "align_left",
+          "label": "Align text left",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_minimum_purchase_amount",
+          "label": "Show minimum purchase amount",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "range",
+          "id": "image_width",
+          "label": "Image width",
+          "unit": "px",
+          "min": 40,
+          "max": 800,
+          "step": 10,
+          "default": 200
+        },
+        {
+          "type": "select",
+          "id": "align",
+          "label": "Alignment",
+          "options": [
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "center",
+              "label": "Center"
+            },
+            {
+              "value": "right",
+              "label": "Right"
+            }
+          ],
+          "default": "center"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        }
+      ]
+    },
+    {
+      "type": "inventory_notice",
+      "name": "Inventory notice",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "range",
+          "id": "inventory_limit",
+          "label": "Low stock threshold",
+          "min": 1,
+          "max": 99,
+          "step": 1,
+          "default": 3,
+          "info": "The low stock notice displays if your inventory is equal to or lower than this number."
+        },
+        {
+          "type": "select",
+          "id": "align",
+          "label": "Alignment",
+          "options": [
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "center",
+              "label": "Center"
+            },
+            {
+              "value": "right",
+              "label": "Right"
+            }
+          ],
+          "default": "left"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_qty",
+          "label": "Display stock number",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "labels",
+      "name": "Labels",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "This will display the same labels as you set up in 'Grid labels' main settings."
+        },
+        {
+          "type": "checkbox",
+          "id": "hide_discount_label",
+          "label": "Hide discount label",
+          "default": false,
+          "info": "You may prefer to display this in the 'Price' block."
+        },
+        {
+          "type": "checkbox",
+          "id": "hide_sold_out_label",
+          "label": "Hide sold out label",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "hide_other_labels",
+          "label": "Hide other labels if sold out",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_label_border",
+          "label": "Show label border",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "line-item",
+      "name": "Line item",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Line items are used to add custom options such as engraving and gift wrapping."
+        },
+        {
+          "type": "header",
+          "content": "Text field"
+        },
+        {
+          "type": "checkbox",
+          "id": "line-item-text-required",
+          "label": "Required",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "line-item-text-long",
+          "label": "Allow long text",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "line-item-text-label",
+          "label": "Label",
+          "default": "Label"
+        },
+        {
+          "type": "header",
+          "content": "Checkbox"
+        },
+        {
+          "type": "checkbox",
+          "id": "line-item-checkbox-required",
+          "label": "Required",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "line-item-checkbox-label",
+          "label": "Label"
+        },
+        {
+          "type": "text",
+          "id": "line-item-checkbox-yes",
+          "label": "Checked value",
+          "default": "Yes"
+        },
+        {
+          "type": "text",
+          "id": "line-item-checkbox-no",
+          "label": "Unchecked value",
+          "default": "No"
+        },
+        {
+          "type": "header",
+          "content": "Dropdown"
+        },
+        {
+          "type": "text",
+          "id": "line-item-dropdown-label",
+          "label": "Label"
+        },
+        {
+          "type": "text",
+          "id": "line-item-dropdown-options",
+          "label": "Options",
+          "default": "Value 1, Value 2, Value 3",
+          "info": "Separate your options with a comma."
+        }
+      ]
+    },
+    {
+      "type": "link",
+      "name": "Link",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Label",
+          "default": "Learn more"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "style",
+          "label": "Style",
+          "options": [
+            {
+              "value": "body",
+              "label": "Body text"
+            },
+            {
+              "value": "arrow",
+              "label": "Chevron"
+            }
+          ],
+          "default": "body"
+        },
+        {
+          "type": "select",
+          "id": "align",
+          "label": "Alignment",
+          "options": [
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "center",
+              "label": "Center"
+            },
+            {
+              "value": "right",
+              "label": "Right"
+            }
+          ],
+          "default": "center"
+        },
+        {
+          "type": "checkbox",
+          "id": "new_tab",
+          "label": "Open in a new tab",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "payment-icons",
+      "name": "Payment icons",
+      "settings": [
+        {
+          "type": "select",
+          "id": "align",
+          "label": "Alignment",
+          "options": [
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "center",
+              "label": "Center"
+            },
+            {
+              "value": "right",
+              "label": "Right"
+            }
+          ],
+          "default": "center"
+        },
+        {
+          "type": "range",
+          "id": "icon_size_desktop",
+          "label": "Icon size (desktop)",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "default": 2
+        },
+        {
+          "type": "range",
+          "id": "icon_size_mobile",
+          "label": "Icon size (mobile)",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "default": 2
+        }
+      ]
+    },
+    {
+      "type": "popup",
+      "name": "Pop-up with icon",
+      "settings": [
+        {
+          "type": "text",
+          "id": "link_title",
+          "label": "Link label",
+          "default": "Size chart"
+        },
+        {
+          "type": "select",
+          "id": "link_style",
+          "label": "Link style",
+          "default": "body",
+          "options": [
+            {
+              "value": "body",
+              "label": "Body text"
+            },
+            {
+              "value": "capitalize",
+              "label": "Button text"
+            },
+            {
+              "value": "chevron",
+              "label": "Chevron"
+            }
+          ]
+        },
+        {
+          "type": "select",
+          "id": "align",
+          "label": "Alignment",
+          "options": [
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "center",
+              "label": "Center"
+            },
+            {
+              "value": "right",
+              "label": "Right"
+            }
+          ],
+          "default": "left"
+        },
+        {
+          "type": "select",
+          "id": "popup_heading",
+          "label": "Pop-up heading",
+          "default": "label",
+          "options": [
+            {
+              "value": "page",
+              "label": "Page heading"
+            },
+            {
+              "value": "label",
+              "label": "Link label"
+            },
+            {
+              "value": "none",
+              "label": "None"
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Content"
+        },
+        {
+          "type": "page",
+          "id": "popup_content",
+          "label": "Page"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "info": "Any image or text added here will replace the selected page content"
+        },
+        {
+          "type": "header",
+          "content": "Icon"
+        },
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "default": "icon-clothes-design-tape-measure",
+          "options": [
+            {
+              "value": "none",
+              "label": "none"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-crypto-currency-bitcoin-circle",
+              "label": "bitcoin in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-accounting-coins-stack",
+              "label": "coin stack"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-credit-card",
+              "label": "credit cards"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-discount-circle",
+              "label": "discount in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-dollar-circle",
+              "label": "dollar in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-euro-circle",
+              "label": "euro in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-gift-box",
+              "label": "gift box"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-saving-piggy-bank",
+              "label": "piggy-bank"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-pound-circle",
+              "label": "pound in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shopping-bag",
+              "label": "shopping bag"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shopping-basket",
+              "label": "shopping basket"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shopping-cart-empty-1",
+              "label": "shopping cart"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-tags-1",
+              "label": "shopping label"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shop",
+              "label": "store"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-yuan-circle",
+              "label": "yuan in circle"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-conversation-chat-text",
+              "label": "chat"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-headphones-customer-support",
+              "label": "customer support"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-read-email-at",
+              "label": "email symbol"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-envelope",
+              "label": "envelope"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-media-facebook",
+              "label": "facebook"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-instagram",
+              "label": "instagram"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-light-bulb-shine",
+              "label": "lightbulb"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-like-1",
+              "label": "like"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-professional-network-linkedin",
+              "label": "linkedin"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-love-it",
+              "label": "love"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-megaphone",
+              "label": "megaphone"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-alarm-bell-1",
+              "label": "notification bell"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-question-circle",
+              "label": "question in circle"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-send-email",
+              "label": "send"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-mobile-phone",
+              "label": "telephone"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-media-tiktok",
+              "label": "tiktok"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-media-twitter",
+              "label": "twitter"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-video-player",
+              "label": "video"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-fruit-apple",
+              "label": "apple"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-flying-insect-bee-4",
+              "label": "bee"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-fast-food-double-burger",
+              "label": "burger"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-vegetables-carrot",
+              "label": "carrot"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-champagne-cheers",
+              "label": "champagne glasses"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-cocktail-martini",
+              "label": "cocktail glass"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-coffee-cup",
+              "label": "cup"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-donut",
+              "label": "doughnut"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-pasta-bowl-warm",
+              "label": "food bowl"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-ice-cream-stick",
+              "label": "ice cream"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-ecology-leaf",
+              "label": "leaf"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-organic-plant-grow-1",
+              "label": "plant"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-asian-food-rice",
+              "label": "rice bowl"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-rooster",
+              "label": "rooster"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-seafood-fish",
+              "label": "seafood"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-barbecue-steak",
+              "label": "steak"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-fruit-watermelon",
+              "label": "watermelon"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-farming-wheat",
+              "label": "wheat"
+            },
+            {
+              "group": "General",
+              "value": "icon-matches-fire",
+              "label": "fire"
+            },
+            {
+              "group": "General",
+              "value": "icon-flash",
+              "label": "lightning"
+            },
+            {
+              "group": "General",
+              "value": "icon-maps-pin-1",
+              "label": "map"
+            },
+            {
+              "group": "General",
+              "value": "icon-pin",
+              "label": "map pin"
+            },
+            {
+              "group": "General",
+              "value": "icon-navigation-menu",
+              "label": "navigation menu"
+            },
+            {
+              "group": "General",
+              "value": "icon-search-1",
+              "label": "search icon"
+            },
+            {
+              "group": "General",
+              "value": "icon-single-neutral",
+              "label": "user icon"
+            },
+            {
+              "group": "Product",
+              "value": "icon-book-close",
+              "label": "book"
+            },
+            {
+              "group": "Product",
+              "value": "icon-camera-1",
+              "label": "camera"
+            },
+            {
+              "group": "Product",
+              "value": "icon-diamond",
+              "label": "diamond"
+            },
+            {
+              "group": "Product",
+              "value": "icon-download-bottom",
+              "label": "download"
+            },
+            {
+              "group": "Product",
+              "value": "icon-tank-top-female-2",
+              "label": "female shirt"
+            },
+            {
+              "group": "Product",
+              "value": "icon-footwear-heels-1",
+              "label": "footwear heels"
+            },
+            {
+              "group": "Product",
+              "value": "icon-footwear-sneakers",
+              "label": "footwear sneakers"
+            },
+            {
+              "group": "Product",
+              "value": "icon-headphones",
+              "label": "headphones"
+            },
+            {
+              "group": "Product",
+              "value": "icon-picture-stack-landscape",
+              "label": "images"
+            },
+            {
+              "group": "Product",
+              "value": "icon-laundry-retro-iron",
+              "label": "iron"
+            },
+            {
+              "group": "Product",
+              "value": "icon-hospital-first-aid",
+              "label": "medical"
+            },
+            {
+              "group": "Product",
+              "value": "icon-notes-list",
+              "label": "notes"
+            },
+            {
+              "group": "Product",
+              "value": "icon-color-painting-palette",
+              "label": "palette"
+            },
+            {
+              "group": "Product",
+              "value": "icon-pencil-2",
+              "label": "pencil"
+            },
+            {
+              "group": "Product",
+              "value": "icon-pill",
+              "label": "pill"
+            },
+            {
+              "group": "Product",
+              "value": "icon-recycling-sign",
+              "label": "recycling"
+            },
+            {
+              "group": "Product",
+              "value": "icon-ruler",
+              "label": "ruler"
+            },
+            {
+              "group": "Product",
+              "value": "icon-clothes-design-sewing-machine",
+              "label": "sewing machine"
+            },
+            {
+              "group": "Product",
+              "value": "icon-shirt",
+              "label": "shirt"
+            },
+            {
+              "group": "Product",
+              "value": "icon-fitness-jumping-rope",
+              "label": "skipping rope"
+            },
+            {
+              "group": "Product",
+              "value": "icon-ice-snowflake",
+              "label": "snowflake"
+            },
+            {
+              "group": "Product",
+              "value": "icon-glasses-retro",
+              "label": "spectacles"
+            },
+            {
+              "group": "Product",
+              "value": "icon-clothes-design-tape-measure",
+              "label": "tape measure"
+            },
+            {
+              "group": "Product",
+              "value": "icon-task-list-to-do",
+              "label": "to do list"
+            },
+            {
+              "group": "Product",
+              "value": "icon-hammer-wrench",
+              "label": "tools"
+            },
+            {
+              "group": "Product",
+              "value": "icon-trousers-calves-2",
+              "label": "trousers"
+            },
+            {
+              "group": "Product",
+              "value": "icon-laundry-machine-2",
+              "label": "washing machine"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-calendar-date",
+              "label": "calendar"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-delivery-truck-3",
+              "label": "delivery truck"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-shipment-give",
+              "label": "hand shipment"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-shipment-package",
+              "label": "package shipment"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-keyboard-arrow-return",
+              "label": "return"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-sea-transport-boat",
+              "label": "shipping"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-stopwatch",
+              "label": "stopwatch"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-warehouse-cart-package-ribbon-1",
+              "label": "warehouse package"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-award-medal",
+              "label": "award medal"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-award-ribbon-star-1",
+              "label": "award ribbon"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-award-trophy-star-1",
+              "label": "award trophy"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-check-circle-1",
+              "label": "checkmark in circle"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-shield-check",
+              "label": "checkmark in shield"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-flag",
+              "label": "flag"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-single-neutral-id-card-3",
+              "label": "ID card"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-lock-2",
+              "label": "lock"
+            }
+          ]
+        },
+        {
+          "type": "range",
+          "id": "icon_size",
+          "label": "Icon size",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "default": 1
+        },
+        {
+          "type": "color",
+          "id": "color_icon",
+          "label": "Icon color",
+          "default": "rgba(0,0,0,0)"
+        },
+        {
+          "type": "html",
+          "id": "svg-code",
+          "label": "SVG icon code",
+          "info": "Learn more about adding your own SVG icons [here](https://support.safeasmilk.co/article/236-general-add-custom-svg-icons-to-your-theme)."
+        }
+      ]
+    },
+    {
+      "type": "price",
+      "name": "Price",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "header",
+          "content": "Discount label"
+        },
+        {
+          "type": "checkbox",
+          "id": "price_label_discount",
+          "label": "Show label",
+          "default": true,
+          "info": "You may prefer to display this in the 'Labels' block."
+        },
+        {
+          "type": "select",
+          "id": "price_label_discount_type",
+          "label": "Discount format",
+          "default": "percentage",
+          "options": [
+            {
+              "value": "currency",
+              "label": "Currency"
+            },
+            {
+              "value": "percentage",
+              "label": "Percentage"
+            },
+            {
+              "value": "text",
+              "label": "Text"
+            }
+          ]
+        },
+        {
+          "type": "color",
+          "id": "price_label_discount_color",
+          "label": "Background",
+          "default": "#C00000"
+        },
+        {
+          "type": "color",
+          "id": "price_label_text_discount_color",
+          "label": "Text",
+          "default": "#FFFFFF"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_label_border",
+          "label": "Show label border",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "profile",
+      "name": "Product story",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Add some information about the maker or provenance of this product"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Product story heading"
+        },
+        {
+          "type": "select",
+          "id": "style",
+          "label": "Heading style",
+          "options": [
+            {
+              "value": "h2",
+              "label": "Heading 2"
+            },
+            {
+              "value": "h3",
+              "label": "Heading 3"
+            },
+            {
+              "value": "h5",
+              "label": "Heading 5"
+            }
+          ],
+          "default": "h3"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Add some information about the designer, maker or provenance of this product. Reassure your customer by telling your product story.</p>"
+        },
+        {
+          "type": "checkbox",
+          "id": "divider",
+          "label": "Show dividing line",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "Media"
+        },
+        {
+          "type": "checkbox",
+          "id": "image_toggle",
+          "label": "Show image",
+          "default": true
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "600px minimum width recommended"
+        },
+        {
+          "type": "select",
+          "id": "image_ratio",
+          "label": "Image ratio",
+          "default": "circle",
+          "options": [
+            {
+              "value": "1:1",
+              "label": "Square (1:1)"
+            },
+            {
+              "value": "3:4",
+              "label": "Portrait (3:4)"
+            },
+            {
+              "value": "4:3",
+              "label": "Landscape (4:3)"
+            },
+            {
+              "value": "16:9",
+              "label": "Wide (16:9)"
+            },
+            {
+              "value": "2:3",
+              "label": "Tall (2:3)"
+            },
+            {
+              "value": "natural",
+              "label": "Natural"
+            },
+            {
+              "value": "circle",
+              "label": "Circle"
+            }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "id": "image_fit",
+          "label": "Fit image to container",
+          "default": false
+        },
+        {
+          "type": "select",
+          "id": "layout_desktop",
+          "label": "Layout (wide screens)",
+          "default": "desk-col-2",
+          "options": [
+            {
+              "value": "desk-col-1",
+              "label": "1 column"
+            },
+            {
+              "value": "desk-col-2",
+              "label": "2 columns"
+            }
+          ]
+        },
+        {
+          "type": "select",
+          "id": "layout_mobile",
+          "label": "Layout (mobile)",
+          "default": "mob-col-2",
+          "options": [
+            {
+              "value": "mob-col-1",
+              "label": "1 column"
+            },
+            {
+              "value": "mob-col-2",
+              "label": "2 columns"
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Links"
+        },
+        {
+          "type": "text",
+          "id": "link_title",
+          "label": "Label",
+          "default": "Learn more"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "link_style",
+          "label": "Style",
+          "default": "body",
+          "options": [
+            {
+              "value": "body",
+              "label": "Body text"
+            },
+            {
+              "value": "chevron",
+              "label": "Chevron"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "quantity_selector",
+      "name": "Quantity selector",
+      "limit": 1
+    },
+    {
+      "type": "sibling_products",
+      "name": "Sibling products",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Set up a [product list metafield](https://support.safeasmilk.co/article/270-venue-product-page-link-to-sibling-products-using-swatches-and-images) to display unique siblings per product."
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Other styles"
+        },
+        {
+          "type": "product_list",
+          "id": "products",
+          "label": "Products"
+        },
+        {
+          "type": "header",
+          "content": "Selector"
+        },
+        {
+          "type": "select",
+          "id": "selector_style",
+          "label": "Style",
+          "default": "image",
+          "options": [
+            {
+              "value": "image",
+              "label": "Image"
+            },
+            {
+              "value": "swatch",
+              "label": "Swatch"
+            }
+          ]
+        },
+        {
+          "type": "range",
+          "id": "image_width",
+          "label": "Image width",
+          "unit": "px",
+          "min": 30,
+          "max": 150,
+          "step": 3,
+          "default": 48,
+          "visible_if": "{{ block.settings.selector_style == 'image' }}"
+        },
+        {
+          "type": "select",
+          "id": "image_ratio",
+          "label": "Image ratio",
+          "default": "1:1",
+          "visible_if": "{{ block.settings.selector_style == 'image' }}",
+          "options": [
+            {
+              "value": "1:1",
+              "label": "Square (1:1)"
+            },
+            {
+              "value": "3:4",
+              "label": "Portrait (3:4)"
+            },
+            {
+              "value": "4:3",
+              "label": "Landscape (4:3)"
+            },
+            {
+              "value": "16:9",
+              "label": "Wide (16:9)"
+            },
+            {
+              "value": "2:3",
+              "label": "Tall (2:3)"
+            },
+            {
+              "value": "natural",
+              "label": "Natural"
+            },
+            {
+              "value": "circle",
+              "label": "Circle"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": "To use swatches, [set up a swatch metafield](https://support.safeasmilk.co/article/270-venue-product-page-link-to-sibling-products-using-swatches-and-images) with labels and hex codes. Swatch size can be adjusted in Theme settings > Swatches.",
+          "visible_if": "{{ block.settings.selector_style == 'swatch' }}"
+        }
+      ]
+    },
+    {
+      "type": "sku",
+      "name": "SKU",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "SKU:",
+          "info": "This block will only display if the product has an SKU assigned to it"
+        }
+      ]
+    },
+    {
+      "type": "spacer",
+      "name": "Spacer",
+      "settings": [
+        {
+          "type": "select",
+          "id": "top",
+          "label": "Top spacing",
+          "options": [
+            {
+              "value": "none",
+              "label": "None"
+            },
+            {
+              "value": "small",
+              "label": "Small"
+            },
+            {
+              "value": "medium",
+              "label": "Medium"
+            },
+            {
+              "value": "large",
+              "label": "Large"
+            }
+          ],
+          "default": "small"
+        },
+        {
+          "type": "select",
+          "id": "bottom",
+          "label": "Bottom spacing",
+          "options": [
+            {
+              "value": "none",
+              "label": "None"
+            },
+            {
+              "value": "small",
+              "label": "Small"
+            },
+            {
+              "value": "medium",
+              "label": "Medium"
+            },
+            {
+              "value": "large",
+              "label": "Large"
+            }
+          ],
+          "default": "small"
+        },
+        {
+          "type": "checkbox",
+          "id": "border",
+          "label": "Show dividing line",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "tags",
+      "name": "Tags",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Tags:",
+          "info": "This block will only display if the product has tags assigned to it"
+        }
+      ]
+    },
+    {
+      "type": "title",
+      "name": "Title",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "range",
+          "id": "title_size",
+          "label": "Text size (wide screens)",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "default": 3
+        },
+        {
+          "type": "range",
+          "id": "title_size_mobile",
+          "label": "Text size (mobile)",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "default": 3
+        }
+      ]
+    },
+    {
+      "type": "trust",
+      "name": "Trust messages",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "default": "Shop with confidence",
+          "label": "Heading"
+        },
+        {
+          "type": "range",
+          "id": "heading_size",
+          "label": "Heading size",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "default": 2
+        },
+        {
+          "type": "checkbox",
+          "id": "show_payment_icons",
+          "label": "Show payment icons",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "Colors"
+        },
+        {
+          "type": "color",
+          "id": "color_bg",
+          "label": "Background",
+          "default": "#F2F2F2"
+        },
+        {
+          "type": "color",
+          "id": "color_text",
+          "label": "Text",
+          "default": "#212121"
+        },
+        {
+          "type": "color",
+          "id": "color_icon",
+          "label": "Icon",
+          "default": "#212121"
+        },
+        {
+          "type": "checkbox",
+          "id": "content_heading_color",
+          "label": "Use default heading color",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_border",
+          "label": "Show container border",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Messages"
+        },
+        {
+          "type": "select",
+          "id": "columns_desktop",
+          "label": "Columns (desktop)",
+          "default": "2",
+          "options": [
+            {
+              "value": "1",
+              "label": "1"
+            },
+            {
+              "value": "2",
+              "label": "2"
+            }
+          ]
+        },
+        {
+          "type": "range",
+          "id": "icon_size",
+          "label": "Icon size",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "default": 1
+        },
+        {
+          "type": "range",
+          "id": "spacing",
+          "label": "Spacing",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "default": 1
+        },
+        {
+          "type": "checkbox",
+          "id": "text_bold",
+          "label": "Bold text",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Message 1"
+        },
+        {
+          "type": "text",
+          "id": "text_1",
+          "label": "Text",
+          "default": "Fast shipping"
+        },
+        {
+          "type": "select",
+          "id": "icon_1",
+          "label": "Icon",
+          "default": "icon-shipment-package",
+          "options": [
+            {
+              "value": "none",
+              "label": "none"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-crypto-currency-bitcoin-circle",
+              "label": "bitcoin in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-accounting-coins-stack",
+              "label": "coin stack"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-credit-card",
+              "label": "credit cards"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-discount-circle",
+              "label": "discount in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-dollar-circle",
+              "label": "dollar in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-euro-circle",
+              "label": "euro in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-gift-box",
+              "label": "gift box"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-saving-piggy-bank",
+              "label": "piggy-bank"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-pound-circle",
+              "label": "pound in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shopping-bag",
+              "label": "shopping bag"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shopping-basket",
+              "label": "shopping basket"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shopping-cart-empty-1",
+              "label": "shopping cart"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-tags-1",
+              "label": "shopping label"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shop",
+              "label": "store"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-yuan-circle",
+              "label": "yuan in circle"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-conversation-chat-text",
+              "label": "chat"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-headphones-customer-support",
+              "label": "customer support"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-read-email-at",
+              "label": "email symbol"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-envelope",
+              "label": "envelope"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-media-facebook",
+              "label": "facebook"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-instagram",
+              "label": "instagram"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-light-bulb-shine",
+              "label": "lightbulb"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-like-1",
+              "label": "like"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-professional-network-linkedin",
+              "label": "linkedin"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-love-it",
+              "label": "love"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-megaphone",
+              "label": "megaphone"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-alarm-bell-1",
+              "label": "notification bell"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-question-circle",
+              "label": "question in circle"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-send-email",
+              "label": "send"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-mobile-phone",
+              "label": "telephone"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-media-tiktok",
+              "label": "tiktok"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-media-twitter",
+              "label": "twitter"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-video-player",
+              "label": "video"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-fruit-apple",
+              "label": "apple"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-flying-insect-bee-4",
+              "label": "bee"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-fast-food-double-burger",
+              "label": "burger"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-vegetables-carrot",
+              "label": "carrot"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-champagne-cheers",
+              "label": "champagne glasses"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-cocktail-martini",
+              "label": "cocktail glass"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-coffee-cup",
+              "label": "cup"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-donut",
+              "label": "doughnut"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-pasta-bowl-warm",
+              "label": "food bowl"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-ice-cream-stick",
+              "label": "ice cream"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-ecology-leaf",
+              "label": "leaf"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-organic-plant-grow-1",
+              "label": "plant"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-asian-food-rice",
+              "label": "rice bowl"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-rooster",
+              "label": "rooster"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-seafood-fish",
+              "label": "seafood"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-barbecue-steak",
+              "label": "steak"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-fruit-watermelon",
+              "label": "watermelon"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-farming-wheat",
+              "label": "wheat"
+            },
+            {
+              "group": "General",
+              "value": "icon-matches-fire",
+              "label": "fire"
+            },
+            {
+              "group": "General",
+              "value": "icon-flash",
+              "label": "lightning"
+            },
+            {
+              "group": "General",
+              "value": "icon-maps-pin-1",
+              "label": "map"
+            },
+            {
+              "group": "General",
+              "value": "icon-pin",
+              "label": "map pin"
+            },
+            {
+              "group": "General",
+              "value": "icon-navigation-menu",
+              "label": "navigation menu"
+            },
+            {
+              "group": "General",
+              "value": "icon-search-1",
+              "label": "search icon"
+            },
+            {
+              "group": "General",
+              "value": "icon-single-neutral",
+              "label": "user icon"
+            },
+            {
+              "group": "Product",
+              "value": "icon-book-close",
+              "label": "book"
+            },
+            {
+              "group": "Product",
+              "value": "icon-camera-1",
+              "label": "camera"
+            },
+            {
+              "group": "Product",
+              "value": "icon-diamond",
+              "label": "diamond"
+            },
+            {
+              "group": "Product",
+              "value": "icon-download-bottom",
+              "label": "download"
+            },
+            {
+              "group": "Product",
+              "value": "icon-tank-top-female-2",
+              "label": "female shirt"
+            },
+            {
+              "group": "Product",
+              "value": "icon-footwear-heels-1",
+              "label": "footwear heels"
+            },
+            {
+              "group": "Product",
+              "value": "icon-footwear-sneakers",
+              "label": "footwear sneakers"
+            },
+            {
+              "group": "Product",
+              "value": "icon-headphones",
+              "label": "headphones"
+            },
+            {
+              "group": "Product",
+              "value": "icon-picture-stack-landscape",
+              "label": "images"
+            },
+            {
+              "group": "Product",
+              "value": "icon-laundry-retro-iron",
+              "label": "iron"
+            },
+            {
+              "group": "Product",
+              "value": "icon-hospital-first-aid",
+              "label": "medical"
+            },
+            {
+              "group": "Product",
+              "value": "icon-notes-list",
+              "label": "notes"
+            },
+            {
+              "group": "Product",
+              "value": "icon-color-painting-palette",
+              "label": "palette"
+            },
+            {
+              "group": "Product",
+              "value": "icon-pencil-2",
+              "label": "pencil"
+            },
+            {
+              "group": "Product",
+              "value": "icon-pill",
+              "label": "pill"
+            },
+            {
+              "group": "Product",
+              "value": "icon-recycling-sign",
+              "label": "recycling"
+            },
+            {
+              "group": "Product",
+              "value": "icon-ruler",
+              "label": "ruler"
+            },
+            {
+              "group": "Product",
+              "value": "icon-clothes-design-sewing-machine",
+              "label": "sewing machine"
+            },
+            {
+              "group": "Product",
+              "value": "icon-shirt",
+              "label": "shirt"
+            },
+            {
+              "group": "Product",
+              "value": "icon-fitness-jumping-rope",
+              "label": "skipping rope"
+            },
+            {
+              "group": "Product",
+              "value": "icon-ice-snowflake",
+              "label": "snowflake"
+            },
+            {
+              "group": "Product",
+              "value": "icon-glasses-retro",
+              "label": "spectacles"
+            },
+            {
+              "group": "Product",
+              "value": "icon-clothes-design-tape-measure",
+              "label": "tape measure"
+            },
+            {
+              "group": "Product",
+              "value": "icon-task-list-to-do",
+              "label": "to do list"
+            },
+            {
+              "group": "Product",
+              "value": "icon-hammer-wrench",
+              "label": "tools"
+            },
+            {
+              "group": "Product",
+              "value": "icon-trousers-calves-2",
+              "label": "trousers"
+            },
+            {
+              "group": "Product",
+              "value": "icon-laundry-machine-2",
+              "label": "washing machine"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-calendar-date",
+              "label": "calendar"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-delivery-truck-3",
+              "label": "delivery truck"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-shipment-give",
+              "label": "hand shipment"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-shipment-package",
+              "label": "package shipment"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-keyboard-arrow-return",
+              "label": "return"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-sea-transport-boat",
+              "label": "shipping"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-stopwatch",
+              "label": "stopwatch"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-warehouse-cart-package-ribbon-1",
+              "label": "warehouse package"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-award-medal",
+              "label": "award medal"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-award-ribbon-star-1",
+              "label": "award ribbon"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-award-trophy-star-1",
+              "label": "award trophy"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-check-circle-1",
+              "label": "checkmark in circle"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-shield-check",
+              "label": "checkmark in shield"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-flag",
+              "label": "flag"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-single-neutral-id-card-3",
+              "label": "ID card"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-lock-2",
+              "label": "lock"
+            }
+          ]
+        },
+        {
+          "type": "html",
+          "id": "svg-code_1",
+          "label": "SVG icon code",
+          "info": "Learn more about adding your own SVG icons [here](https://support.safeasmilk.co/article/236-general-add-custom-svg-icons-to-your-theme)."
+        },
+        {
+          "type": "header",
+          "content": "Message 2"
+        },
+        {
+          "type": "text",
+          "id": "text_2",
+          "label": "Text",
+          "default": "Easy exchanges"
+        },
+        {
+          "type": "select",
+          "id": "icon_2",
+          "label": "Icon",
+          "default": "icon-keyboard-arrow-return",
+          "options": [
+            {
+              "value": "none",
+              "label": "none"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-crypto-currency-bitcoin-circle",
+              "label": "bitcoin in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-accounting-coins-stack",
+              "label": "coin stack"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-credit-card",
+              "label": "credit cards"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-discount-circle",
+              "label": "discount in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-dollar-circle",
+              "label": "dollar in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-euro-circle",
+              "label": "euro in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-gift-box",
+              "label": "gift box"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-saving-piggy-bank",
+              "label": "piggy-bank"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-pound-circle",
+              "label": "pound in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shopping-bag",
+              "label": "shopping bag"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shopping-basket",
+              "label": "shopping basket"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shopping-cart-empty-1",
+              "label": "shopping cart"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-tags-1",
+              "label": "shopping label"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shop",
+              "label": "store"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-yuan-circle",
+              "label": "yuan in circle"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-conversation-chat-text",
+              "label": "chat"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-headphones-customer-support",
+              "label": "customer support"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-read-email-at",
+              "label": "email symbol"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-envelope",
+              "label": "envelope"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-media-facebook",
+              "label": "facebook"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-instagram",
+              "label": "instagram"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-light-bulb-shine",
+              "label": "lightbulb"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-like-1",
+              "label": "like"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-professional-network-linkedin",
+              "label": "linkedin"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-love-it",
+              "label": "love"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-megaphone",
+              "label": "megaphone"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-alarm-bell-1",
+              "label": "notification bell"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-question-circle",
+              "label": "question in circle"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-send-email",
+              "label": "send"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-mobile-phone",
+              "label": "telephone"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-media-tiktok",
+              "label": "tiktok"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-media-twitter",
+              "label": "twitter"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-video-player",
+              "label": "video"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-fruit-apple",
+              "label": "apple"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-flying-insect-bee-4",
+              "label": "bee"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-fast-food-double-burger",
+              "label": "burger"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-vegetables-carrot",
+              "label": "carrot"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-champagne-cheers",
+              "label": "champagne glasses"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-cocktail-martini",
+              "label": "cocktail glass"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-coffee-cup",
+              "label": "cup"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-donut",
+              "label": "doughnut"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-pasta-bowl-warm",
+              "label": "food bowl"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-ice-cream-stick",
+              "label": "ice cream"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-ecology-leaf",
+              "label": "leaf"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-organic-plant-grow-1",
+              "label": "plant"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-asian-food-rice",
+              "label": "rice bowl"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-rooster",
+              "label": "rooster"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-seafood-fish",
+              "label": "seafood"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-barbecue-steak",
+              "label": "steak"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-fruit-watermelon",
+              "label": "watermelon"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-farming-wheat",
+              "label": "wheat"
+            },
+            {
+              "group": "General",
+              "value": "icon-matches-fire",
+              "label": "fire"
+            },
+            {
+              "group": "General",
+              "value": "icon-flash",
+              "label": "lightning"
+            },
+            {
+              "group": "General",
+              "value": "icon-maps-pin-1",
+              "label": "map"
+            },
+            {
+              "group": "General",
+              "value": "icon-pin",
+              "label": "map pin"
+            },
+            {
+              "group": "General",
+              "value": "icon-navigation-menu",
+              "label": "navigation menu"
+            },
+            {
+              "group": "General",
+              "value": "icon-search-1",
+              "label": "search icon"
+            },
+            {
+              "group": "General",
+              "value": "icon-single-neutral",
+              "label": "user icon"
+            },
+            {
+              "group": "Product",
+              "value": "icon-book-close",
+              "label": "book"
+            },
+            {
+              "group": "Product",
+              "value": "icon-camera-1",
+              "label": "camera"
+            },
+            {
+              "group": "Product",
+              "value": "icon-diamond",
+              "label": "diamond"
+            },
+            {
+              "group": "Product",
+              "value": "icon-download-bottom",
+              "label": "download"
+            },
+            {
+              "group": "Product",
+              "value": "icon-tank-top-female-2",
+              "label": "female shirt"
+            },
+            {
+              "group": "Product",
+              "value": "icon-footwear-heels-1",
+              "label": "footwear heels"
+            },
+            {
+              "group": "Product",
+              "value": "icon-footwear-sneakers",
+              "label": "footwear sneakers"
+            },
+            {
+              "group": "Product",
+              "value": "icon-headphones",
+              "label": "headphones"
+            },
+            {
+              "group": "Product",
+              "value": "icon-picture-stack-landscape",
+              "label": "images"
+            },
+            {
+              "group": "Product",
+              "value": "icon-laundry-retro-iron",
+              "label": "iron"
+            },
+            {
+              "group": "Product",
+              "value": "icon-hospital-first-aid",
+              "label": "medical"
+            },
+            {
+              "group": "Product",
+              "value": "icon-notes-list",
+              "label": "notes"
+            },
+            {
+              "group": "Product",
+              "value": "icon-color-painting-palette",
+              "label": "palette"
+            },
+            {
+              "group": "Product",
+              "value": "icon-pencil-2",
+              "label": "pencil"
+            },
+            {
+              "group": "Product",
+              "value": "icon-pill",
+              "label": "pill"
+            },
+            {
+              "group": "Product",
+              "value": "icon-recycling-sign",
+              "label": "recycling"
+            },
+            {
+              "group": "Product",
+              "value": "icon-ruler",
+              "label": "ruler"
+            },
+            {
+              "group": "Product",
+              "value": "icon-clothes-design-sewing-machine",
+              "label": "sewing machine"
+            },
+            {
+              "group": "Product",
+              "value": "icon-shirt",
+              "label": "shirt"
+            },
+            {
+              "group": "Product",
+              "value": "icon-fitness-jumping-rope",
+              "label": "skipping rope"
+            },
+            {
+              "group": "Product",
+              "value": "icon-ice-snowflake",
+              "label": "snowflake"
+            },
+            {
+              "group": "Product",
+              "value": "icon-glasses-retro",
+              "label": "spectacles"
+            },
+            {
+              "group": "Product",
+              "value": "icon-clothes-design-tape-measure",
+              "label": "tape measure"
+            },
+            {
+              "group": "Product",
+              "value": "icon-task-list-to-do",
+              "label": "to do list"
+            },
+            {
+              "group": "Product",
+              "value": "icon-hammer-wrench",
+              "label": "tools"
+            },
+            {
+              "group": "Product",
+              "value": "icon-trousers-calves-2",
+              "label": "trousers"
+            },
+            {
+              "group": "Product",
+              "value": "icon-laundry-machine-2",
+              "label": "washing machine"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-calendar-date",
+              "label": "calendar"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-delivery-truck-3",
+              "label": "delivery truck"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-shipment-give",
+              "label": "hand shipment"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-shipment-package",
+              "label": "package shipment"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-keyboard-arrow-return",
+              "label": "return"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-sea-transport-boat",
+              "label": "shipping"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-stopwatch",
+              "label": "stopwatch"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-warehouse-cart-package-ribbon-1",
+              "label": "warehouse package"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-award-medal",
+              "label": "award medal"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-award-ribbon-star-1",
+              "label": "award ribbon"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-award-trophy-star-1",
+              "label": "award trophy"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-check-circle-1",
+              "label": "checkmark in circle"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-shield-check",
+              "label": "checkmark in shield"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-flag",
+              "label": "flag"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-single-neutral-id-card-3",
+              "label": "ID card"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-lock-2",
+              "label": "lock"
+            }
+          ]
+        },
+        {
+          "type": "html",
+          "id": "svg-code_2",
+          "label": "SVG icon code",
+          "info": "Learn more about adding your own SVG icons [here](https://support.safeasmilk.co/article/236-general-add-custom-svg-icons-to-your-theme)."
+        },
+        {
+          "type": "header",
+          "content": "Message 3"
+        },
+        {
+          "type": "text",
+          "id": "text_3",
+          "label": "Text",
+          "default": "Trusted reviews"
+        },
+        {
+          "type": "select",
+          "id": "icon_3",
+          "label": "Icon",
+          "default": "icon-shield-check",
+          "options": [
+            {
+              "value": "none",
+              "label": "none"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-crypto-currency-bitcoin-circle",
+              "label": "bitcoin in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-accounting-coins-stack",
+              "label": "coin stack"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-credit-card",
+              "label": "credit cards"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-discount-circle",
+              "label": "discount in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-dollar-circle",
+              "label": "dollar in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-euro-circle",
+              "label": "euro in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-gift-box",
+              "label": "gift box"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-saving-piggy-bank",
+              "label": "piggy-bank"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-pound-circle",
+              "label": "pound in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shopping-bag",
+              "label": "shopping bag"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shopping-basket",
+              "label": "shopping basket"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shopping-cart-empty-1",
+              "label": "shopping cart"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-tags-1",
+              "label": "shopping label"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shop",
+              "label": "store"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-yuan-circle",
+              "label": "yuan in circle"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-conversation-chat-text",
+              "label": "chat"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-headphones-customer-support",
+              "label": "customer support"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-read-email-at",
+              "label": "email symbol"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-envelope",
+              "label": "envelope"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-media-facebook",
+              "label": "facebook"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-instagram",
+              "label": "instagram"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-light-bulb-shine",
+              "label": "lightbulb"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-like-1",
+              "label": "like"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-professional-network-linkedin",
+              "label": "linkedin"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-love-it",
+              "label": "love"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-megaphone",
+              "label": "megaphone"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-alarm-bell-1",
+              "label": "notification bell"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-question-circle",
+              "label": "question in circle"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-send-email",
+              "label": "send"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-mobile-phone",
+              "label": "telephone"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-media-tiktok",
+              "label": "tiktok"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-media-twitter",
+              "label": "twitter"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-video-player",
+              "label": "video"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-fruit-apple",
+              "label": "apple"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-flying-insect-bee-4",
+              "label": "bee"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-fast-food-double-burger",
+              "label": "burger"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-vegetables-carrot",
+              "label": "carrot"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-champagne-cheers",
+              "label": "champagne glasses"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-cocktail-martini",
+              "label": "cocktail glass"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-coffee-cup",
+              "label": "cup"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-donut",
+              "label": "doughnut"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-pasta-bowl-warm",
+              "label": "food bowl"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-ice-cream-stick",
+              "label": "ice cream"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-ecology-leaf",
+              "label": "leaf"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-organic-plant-grow-1",
+              "label": "plant"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-asian-food-rice",
+              "label": "rice bowl"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-rooster",
+              "label": "rooster"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-seafood-fish",
+              "label": "seafood"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-barbecue-steak",
+              "label": "steak"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-fruit-watermelon",
+              "label": "watermelon"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-farming-wheat",
+              "label": "wheat"
+            },
+            {
+              "group": "General",
+              "value": "icon-matches-fire",
+              "label": "fire"
+            },
+            {
+              "group": "General",
+              "value": "icon-flash",
+              "label": "lightning"
+            },
+            {
+              "group": "General",
+              "value": "icon-maps-pin-1",
+              "label": "map"
+            },
+            {
+              "group": "General",
+              "value": "icon-pin",
+              "label": "map pin"
+            },
+            {
+              "group": "General",
+              "value": "icon-navigation-menu",
+              "label": "navigation menu"
+            },
+            {
+              "group": "General",
+              "value": "icon-search-1",
+              "label": "search icon"
+            },
+            {
+              "group": "General",
+              "value": "icon-single-neutral",
+              "label": "user icon"
+            },
+            {
+              "group": "Product",
+              "value": "icon-book-close",
+              "label": "book"
+            },
+            {
+              "group": "Product",
+              "value": "icon-camera-1",
+              "label": "camera"
+            },
+            {
+              "group": "Product",
+              "value": "icon-diamond",
+              "label": "diamond"
+            },
+            {
+              "group": "Product",
+              "value": "icon-download-bottom",
+              "label": "download"
+            },
+            {
+              "group": "Product",
+              "value": "icon-tank-top-female-2",
+              "label": "female shirt"
+            },
+            {
+              "group": "Product",
+              "value": "icon-footwear-heels-1",
+              "label": "footwear heels"
+            },
+            {
+              "group": "Product",
+              "value": "icon-footwear-sneakers",
+              "label": "footwear sneakers"
+            },
+            {
+              "group": "Product",
+              "value": "icon-headphones",
+              "label": "headphones"
+            },
+            {
+              "group": "Product",
+              "value": "icon-picture-stack-landscape",
+              "label": "images"
+            },
+            {
+              "group": "Product",
+              "value": "icon-laundry-retro-iron",
+              "label": "iron"
+            },
+            {
+              "group": "Product",
+              "value": "icon-hospital-first-aid",
+              "label": "medical"
+            },
+            {
+              "group": "Product",
+              "value": "icon-notes-list",
+              "label": "notes"
+            },
+            {
+              "group": "Product",
+              "value": "icon-color-painting-palette",
+              "label": "palette"
+            },
+            {
+              "group": "Product",
+              "value": "icon-pencil-2",
+              "label": "pencil"
+            },
+            {
+              "group": "Product",
+              "value": "icon-pill",
+              "label": "pill"
+            },
+            {
+              "group": "Product",
+              "value": "icon-recycling-sign",
+              "label": "recycling"
+            },
+            {
+              "group": "Product",
+              "value": "icon-ruler",
+              "label": "ruler"
+            },
+            {
+              "group": "Product",
+              "value": "icon-clothes-design-sewing-machine",
+              "label": "sewing machine"
+            },
+            {
+              "group": "Product",
+              "value": "icon-shirt",
+              "label": "shirt"
+            },
+            {
+              "group": "Product",
+              "value": "icon-fitness-jumping-rope",
+              "label": "skipping rope"
+            },
+            {
+              "group": "Product",
+              "value": "icon-ice-snowflake",
+              "label": "snowflake"
+            },
+            {
+              "group": "Product",
+              "value": "icon-glasses-retro",
+              "label": "spectacles"
+            },
+            {
+              "group": "Product",
+              "value": "icon-clothes-design-tape-measure",
+              "label": "tape measure"
+            },
+            {
+              "group": "Product",
+              "value": "icon-task-list-to-do",
+              "label": "to do list"
+            },
+            {
+              "group": "Product",
+              "value": "icon-hammer-wrench",
+              "label": "tools"
+            },
+            {
+              "group": "Product",
+              "value": "icon-trousers-calves-2",
+              "label": "trousers"
+            },
+            {
+              "group": "Product",
+              "value": "icon-laundry-machine-2",
+              "label": "washing machine"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-calendar-date",
+              "label": "calendar"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-delivery-truck-3",
+              "label": "delivery truck"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-shipment-give",
+              "label": "hand shipment"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-shipment-package",
+              "label": "package shipment"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-keyboard-arrow-return",
+              "label": "return"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-sea-transport-boat",
+              "label": "shipping"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-stopwatch",
+              "label": "stopwatch"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-warehouse-cart-package-ribbon-1",
+              "label": "warehouse package"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-award-medal",
+              "label": "award medal"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-award-ribbon-star-1",
+              "label": "award ribbon"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-award-trophy-star-1",
+              "label": "award trophy"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-check-circle-1",
+              "label": "checkmark in circle"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-shield-check",
+              "label": "checkmark in shield"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-flag",
+              "label": "flag"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-single-neutral-id-card-3",
+              "label": "ID card"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-lock-2",
+              "label": "lock"
+            }
+          ]
+        },
+        {
+          "type": "html",
+          "id": "svg-code_3",
+          "label": "SVG icon code",
+          "info": "Learn more about adding your own SVG icons [here](https://support.safeasmilk.co/article/236-general-add-custom-svg-icons-to-your-theme)."
+        },
+        {
+          "type": "header",
+          "content": "Message 4"
+        },
+        {
+          "type": "text",
+          "id": "text_4",
+          "label": "Text",
+          "default": "Eco materials"
+        },
+        {
+          "type": "select",
+          "id": "icon_4",
+          "label": "Icon",
+          "default": "icon-ecology-leaf",
+          "options": [
+            {
+              "value": "none",
+              "label": "none"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-crypto-currency-bitcoin-circle",
+              "label": "bitcoin in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-accounting-coins-stack",
+              "label": "coin stack"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-credit-card",
+              "label": "credit cards"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-discount-circle",
+              "label": "discount in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-dollar-circle",
+              "label": "dollar in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-euro-circle",
+              "label": "euro in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-gift-box",
+              "label": "gift box"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-saving-piggy-bank",
+              "label": "piggy-bank"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-pound-circle",
+              "label": "pound in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shopping-bag",
+              "label": "shopping bag"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shopping-basket",
+              "label": "shopping basket"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shopping-cart-empty-1",
+              "label": "shopping cart"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-tags-1",
+              "label": "shopping label"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shop",
+              "label": "store"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-yuan-circle",
+              "label": "yuan in circle"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-conversation-chat-text",
+              "label": "chat"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-headphones-customer-support",
+              "label": "customer support"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-read-email-at",
+              "label": "email symbol"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-envelope",
+              "label": "envelope"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-media-facebook",
+              "label": "facebook"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-instagram",
+              "label": "instagram"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-light-bulb-shine",
+              "label": "lightbulb"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-like-1",
+              "label": "like"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-professional-network-linkedin",
+              "label": "linkedin"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-love-it",
+              "label": "love"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-megaphone",
+              "label": "megaphone"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-alarm-bell-1",
+              "label": "notification bell"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-question-circle",
+              "label": "question in circle"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-send-email",
+              "label": "send"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-mobile-phone",
+              "label": "telephone"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-media-tiktok",
+              "label": "tiktok"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-media-twitter",
+              "label": "twitter"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-video-player",
+              "label": "video"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-fruit-apple",
+              "label": "apple"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-flying-insect-bee-4",
+              "label": "bee"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-fast-food-double-burger",
+              "label": "burger"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-vegetables-carrot",
+              "label": "carrot"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-champagne-cheers",
+              "label": "champagne glasses"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-cocktail-martini",
+              "label": "cocktail glass"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-coffee-cup",
+              "label": "cup"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-donut",
+              "label": "doughnut"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-pasta-bowl-warm",
+              "label": "food bowl"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-ice-cream-stick",
+              "label": "ice cream"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-ecology-leaf",
+              "label": "leaf"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-organic-plant-grow-1",
+              "label": "plant"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-asian-food-rice",
+              "label": "rice bowl"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-rooster",
+              "label": "rooster"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-seafood-fish",
+              "label": "seafood"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-barbecue-steak",
+              "label": "steak"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-fruit-watermelon",
+              "label": "watermelon"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-farming-wheat",
+              "label": "wheat"
+            },
+            {
+              "group": "General",
+              "value": "icon-matches-fire",
+              "label": "fire"
+            },
+            {
+              "group": "General",
+              "value": "icon-flash",
+              "label": "lightning"
+            },
+            {
+              "group": "General",
+              "value": "icon-maps-pin-1",
+              "label": "map"
+            },
+            {
+              "group": "General",
+              "value": "icon-pin",
+              "label": "map pin"
+            },
+            {
+              "group": "General",
+              "value": "icon-navigation-menu",
+              "label": "navigation menu"
+            },
+            {
+              "group": "General",
+              "value": "icon-search-1",
+              "label": "search icon"
+            },
+            {
+              "group": "General",
+              "value": "icon-single-neutral",
+              "label": "user icon"
+            },
+            {
+              "group": "Product",
+              "value": "icon-book-close",
+              "label": "book"
+            },
+            {
+              "group": "Product",
+              "value": "icon-camera-1",
+              "label": "camera"
+            },
+            {
+              "group": "Product",
+              "value": "icon-diamond",
+              "label": "diamond"
+            },
+            {
+              "group": "Product",
+              "value": "icon-download-bottom",
+              "label": "download"
+            },
+            {
+              "group": "Product",
+              "value": "icon-tank-top-female-2",
+              "label": "female shirt"
+            },
+            {
+              "group": "Product",
+              "value": "icon-footwear-heels-1",
+              "label": "footwear heels"
+            },
+            {
+              "group": "Product",
+              "value": "icon-footwear-sneakers",
+              "label": "footwear sneakers"
+            },
+            {
+              "group": "Product",
+              "value": "icon-headphones",
+              "label": "headphones"
+            },
+            {
+              "group": "Product",
+              "value": "icon-picture-stack-landscape",
+              "label": "images"
+            },
+            {
+              "group": "Product",
+              "value": "icon-laundry-retro-iron",
+              "label": "iron"
+            },
+            {
+              "group": "Product",
+              "value": "icon-hospital-first-aid",
+              "label": "medical"
+            },
+            {
+              "group": "Product",
+              "value": "icon-notes-list",
+              "label": "notes"
+            },
+            {
+              "group": "Product",
+              "value": "icon-color-painting-palette",
+              "label": "palette"
+            },
+            {
+              "group": "Product",
+              "value": "icon-pencil-2",
+              "label": "pencil"
+            },
+            {
+              "group": "Product",
+              "value": "icon-pill",
+              "label": "pill"
+            },
+            {
+              "group": "Product",
+              "value": "icon-recycling-sign",
+              "label": "recycling"
+            },
+            {
+              "group": "Product",
+              "value": "icon-ruler",
+              "label": "ruler"
+            },
+            {
+              "group": "Product",
+              "value": "icon-clothes-design-sewing-machine",
+              "label": "sewing machine"
+            },
+            {
+              "group": "Product",
+              "value": "icon-shirt",
+              "label": "shirt"
+            },
+            {
+              "group": "Product",
+              "value": "icon-fitness-jumping-rope",
+              "label": "skipping rope"
+            },
+            {
+              "group": "Product",
+              "value": "icon-ice-snowflake",
+              "label": "snowflake"
+            },
+            {
+              "group": "Product",
+              "value": "icon-glasses-retro",
+              "label": "spectacles"
+            },
+            {
+              "group": "Product",
+              "value": "icon-clothes-design-tape-measure",
+              "label": "tape measure"
+            },
+            {
+              "group": "Product",
+              "value": "icon-task-list-to-do",
+              "label": "to do list"
+            },
+            {
+              "group": "Product",
+              "value": "icon-hammer-wrench",
+              "label": "tools"
+            },
+            {
+              "group": "Product",
+              "value": "icon-trousers-calves-2",
+              "label": "trousers"
+            },
+            {
+              "group": "Product",
+              "value": "icon-laundry-machine-2",
+              "label": "washing machine"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-calendar-date",
+              "label": "calendar"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-delivery-truck-3",
+              "label": "delivery truck"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-shipment-give",
+              "label": "hand shipment"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-shipment-package",
+              "label": "package shipment"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-keyboard-arrow-return",
+              "label": "return"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-sea-transport-boat",
+              "label": "shipping"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-stopwatch",
+              "label": "stopwatch"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-warehouse-cart-package-ribbon-1",
+              "label": "warehouse package"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-award-medal",
+              "label": "award medal"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-award-ribbon-star-1",
+              "label": "award ribbon"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-award-trophy-star-1",
+              "label": "award trophy"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-check-circle-1",
+              "label": "checkmark in circle"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-shield-check",
+              "label": "checkmark in shield"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-flag",
+              "label": "flag"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-single-neutral-id-card-3",
+              "label": "ID card"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-lock-2",
+              "label": "lock"
+            }
+          ]
+        },
+        {
+          "type": "html",
+          "id": "svg-code_4",
+          "label": "SVG icon code",
+          "info": "Learn more about adding your own SVG icons [here](https://support.safeasmilk.co/article/236-general-add-custom-svg-icons-to-your-theme)."
+        },
+        {
+          "type": "header",
+          "content": "Message 5"
+        },
+        {
+          "type": "text",
+          "id": "text_5",
+          "label": "Text",
+          "default": "Price guarantee"
+        },
+        {
+          "type": "select",
+          "id": "icon_5",
+          "label": "Icon",
+          "default": "icon-award-ribbon-star-1",
+          "options": [
+            {
+              "value": "none",
+              "label": "none"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-crypto-currency-bitcoin-circle",
+              "label": "bitcoin in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-accounting-coins-stack",
+              "label": "coin stack"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-credit-card",
+              "label": "credit cards"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-discount-circle",
+              "label": "discount in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-dollar-circle",
+              "label": "dollar in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-euro-circle",
+              "label": "euro in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-gift-box",
+              "label": "gift box"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-saving-piggy-bank",
+              "label": "piggy-bank"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-pound-circle",
+              "label": "pound in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shopping-bag",
+              "label": "shopping bag"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shopping-basket",
+              "label": "shopping basket"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shopping-cart-empty-1",
+              "label": "shopping cart"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-tags-1",
+              "label": "shopping label"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shop",
+              "label": "store"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-yuan-circle",
+              "label": "yuan in circle"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-conversation-chat-text",
+              "label": "chat"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-headphones-customer-support",
+              "label": "customer support"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-read-email-at",
+              "label": "email symbol"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-envelope",
+              "label": "envelope"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-media-facebook",
+              "label": "facebook"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-instagram",
+              "label": "instagram"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-light-bulb-shine",
+              "label": "lightbulb"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-like-1",
+              "label": "like"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-professional-network-linkedin",
+              "label": "linkedin"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-love-it",
+              "label": "love"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-megaphone",
+              "label": "megaphone"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-alarm-bell-1",
+              "label": "notification bell"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-question-circle",
+              "label": "question in circle"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-send-email",
+              "label": "send"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-mobile-phone",
+              "label": "telephone"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-media-tiktok",
+              "label": "tiktok"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-media-twitter",
+              "label": "twitter"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-video-player",
+              "label": "video"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-fruit-apple",
+              "label": "apple"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-flying-insect-bee-4",
+              "label": "bee"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-fast-food-double-burger",
+              "label": "burger"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-vegetables-carrot",
+              "label": "carrot"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-champagne-cheers",
+              "label": "champagne glasses"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-cocktail-martini",
+              "label": "cocktail glass"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-coffee-cup",
+              "label": "cup"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-donut",
+              "label": "doughnut"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-pasta-bowl-warm",
+              "label": "food bowl"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-ice-cream-stick",
+              "label": "ice cream"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-ecology-leaf",
+              "label": "leaf"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-organic-plant-grow-1",
+              "label": "plant"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-asian-food-rice",
+              "label": "rice bowl"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-rooster",
+              "label": "rooster"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-seafood-fish",
+              "label": "seafood"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-barbecue-steak",
+              "label": "steak"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-fruit-watermelon",
+              "label": "watermelon"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-farming-wheat",
+              "label": "wheat"
+            },
+            {
+              "group": "General",
+              "value": "icon-matches-fire",
+              "label": "fire"
+            },
+            {
+              "group": "General",
+              "value": "icon-flash",
+              "label": "lightning"
+            },
+            {
+              "group": "General",
+              "value": "icon-maps-pin-1",
+              "label": "map"
+            },
+            {
+              "group": "General",
+              "value": "icon-pin",
+              "label": "map pin"
+            },
+            {
+              "group": "General",
+              "value": "icon-navigation-menu",
+              "label": "navigation menu"
+            },
+            {
+              "group": "General",
+              "value": "icon-search-1",
+              "label": "search icon"
+            },
+            {
+              "group": "General",
+              "value": "icon-single-neutral",
+              "label": "user icon"
+            },
+            {
+              "group": "Product",
+              "value": "icon-book-close",
+              "label": "book"
+            },
+            {
+              "group": "Product",
+              "value": "icon-camera-1",
+              "label": "camera"
+            },
+            {
+              "group": "Product",
+              "value": "icon-diamond",
+              "label": "diamond"
+            },
+            {
+              "group": "Product",
+              "value": "icon-download-bottom",
+              "label": "download"
+            },
+            {
+              "group": "Product",
+              "value": "icon-tank-top-female-2",
+              "label": "female shirt"
+            },
+            {
+              "group": "Product",
+              "value": "icon-footwear-heels-1",
+              "label": "footwear heels"
+            },
+            {
+              "group": "Product",
+              "value": "icon-footwear-sneakers",
+              "label": "footwear sneakers"
+            },
+            {
+              "group": "Product",
+              "value": "icon-headphones",
+              "label": "headphones"
+            },
+            {
+              "group": "Product",
+              "value": "icon-picture-stack-landscape",
+              "label": "images"
+            },
+            {
+              "group": "Product",
+              "value": "icon-laundry-retro-iron",
+              "label": "iron"
+            },
+            {
+              "group": "Product",
+              "value": "icon-hospital-first-aid",
+              "label": "medical"
+            },
+            {
+              "group": "Product",
+              "value": "icon-notes-list",
+              "label": "notes"
+            },
+            {
+              "group": "Product",
+              "value": "icon-color-painting-palette",
+              "label": "palette"
+            },
+            {
+              "group": "Product",
+              "value": "icon-pencil-2",
+              "label": "pencil"
+            },
+            {
+              "group": "Product",
+              "value": "icon-pill",
+              "label": "pill"
+            },
+            {
+              "group": "Product",
+              "value": "icon-recycling-sign",
+              "label": "recycling"
+            },
+            {
+              "group": "Product",
+              "value": "icon-ruler",
+              "label": "ruler"
+            },
+            {
+              "group": "Product",
+              "value": "icon-clothes-design-sewing-machine",
+              "label": "sewing machine"
+            },
+            {
+              "group": "Product",
+              "value": "icon-shirt",
+              "label": "shirt"
+            },
+            {
+              "group": "Product",
+              "value": "icon-fitness-jumping-rope",
+              "label": "skipping rope"
+            },
+            {
+              "group": "Product",
+              "value": "icon-ice-snowflake",
+              "label": "snowflake"
+            },
+            {
+              "group": "Product",
+              "value": "icon-glasses-retro",
+              "label": "spectacles"
+            },
+            {
+              "group": "Product",
+              "value": "icon-clothes-design-tape-measure",
+              "label": "tape measure"
+            },
+            {
+              "group": "Product",
+              "value": "icon-task-list-to-do",
+              "label": "to do list"
+            },
+            {
+              "group": "Product",
+              "value": "icon-hammer-wrench",
+              "label": "tools"
+            },
+            {
+              "group": "Product",
+              "value": "icon-trousers-calves-2",
+              "label": "trousers"
+            },
+            {
+              "group": "Product",
+              "value": "icon-laundry-machine-2",
+              "label": "washing machine"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-calendar-date",
+              "label": "calendar"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-delivery-truck-3",
+              "label": "delivery truck"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-shipment-give",
+              "label": "hand shipment"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-shipment-package",
+              "label": "package shipment"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-keyboard-arrow-return",
+              "label": "return"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-sea-transport-boat",
+              "label": "shipping"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-stopwatch",
+              "label": "stopwatch"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-warehouse-cart-package-ribbon-1",
+              "label": "warehouse package"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-award-medal",
+              "label": "award medal"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-award-ribbon-star-1",
+              "label": "award ribbon"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-award-trophy-star-1",
+              "label": "award trophy"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-check-circle-1",
+              "label": "checkmark in circle"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-shield-check",
+              "label": "checkmark in shield"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-flag",
+              "label": "flag"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-single-neutral-id-card-3",
+              "label": "ID card"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-lock-2",
+              "label": "lock"
+            }
+          ]
+        },
+        {
+          "type": "html",
+          "id": "svg-code_5",
+          "label": "SVG icon code",
+          "info": "Learn more about adding your own SVG icons [here](https://support.safeasmilk.co/article/236-general-add-custom-svg-icons-to-your-theme)."
+        },
+        {
+          "type": "header",
+          "content": "Message 6"
+        },
+        {
+          "type": "text",
+          "id": "text_6",
+          "label": "Text"
+        },
+        {
+          "type": "select",
+          "id": "icon_6",
+          "label": "Icon",
+          "default": "icon-love-it",
+          "options": [
+            {
+              "value": "none",
+              "label": "none"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-crypto-currency-bitcoin-circle",
+              "label": "bitcoin in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-accounting-coins-stack",
+              "label": "coin stack"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-credit-card",
+              "label": "credit cards"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-discount-circle",
+              "label": "discount in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-dollar-circle",
+              "label": "dollar in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-euro-circle",
+              "label": "euro in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-gift-box",
+              "label": "gift box"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-saving-piggy-bank",
+              "label": "piggy-bank"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-pound-circle",
+              "label": "pound in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shopping-bag",
+              "label": "shopping bag"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shopping-basket",
+              "label": "shopping basket"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shopping-cart-empty-1",
+              "label": "shopping cart"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-tags-1",
+              "label": "shopping label"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shop",
+              "label": "store"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-yuan-circle",
+              "label": "yuan in circle"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-conversation-chat-text",
+              "label": "chat"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-headphones-customer-support",
+              "label": "customer support"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-read-email-at",
+              "label": "email symbol"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-envelope",
+              "label": "envelope"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-media-facebook",
+              "label": "facebook"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-instagram",
+              "label": "instagram"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-light-bulb-shine",
+              "label": "lightbulb"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-like-1",
+              "label": "like"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-professional-network-linkedin",
+              "label": "linkedin"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-love-it",
+              "label": "love"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-megaphone",
+              "label": "megaphone"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-alarm-bell-1",
+              "label": "notification bell"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-question-circle",
+              "label": "question in circle"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-send-email",
+              "label": "send"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-mobile-phone",
+              "label": "telephone"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-media-tiktok",
+              "label": "tiktok"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-media-twitter",
+              "label": "twitter"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-video-player",
+              "label": "video"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-fruit-apple",
+              "label": "apple"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-flying-insect-bee-4",
+              "label": "bee"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-fast-food-double-burger",
+              "label": "burger"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-vegetables-carrot",
+              "label": "carrot"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-champagne-cheers",
+              "label": "champagne glasses"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-cocktail-martini",
+              "label": "cocktail glass"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-coffee-cup",
+              "label": "cup"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-donut",
+              "label": "doughnut"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-pasta-bowl-warm",
+              "label": "food bowl"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-ice-cream-stick",
+              "label": "ice cream"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-ecology-leaf",
+              "label": "leaf"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-organic-plant-grow-1",
+              "label": "plant"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-asian-food-rice",
+              "label": "rice bowl"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-rooster",
+              "label": "rooster"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-seafood-fish",
+              "label": "seafood"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-barbecue-steak",
+              "label": "steak"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-fruit-watermelon",
+              "label": "watermelon"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-farming-wheat",
+              "label": "wheat"
+            },
+            {
+              "group": "General",
+              "value": "icon-matches-fire",
+              "label": "fire"
+            },
+            {
+              "group": "General",
+              "value": "icon-flash",
+              "label": "lightning"
+            },
+            {
+              "group": "General",
+              "value": "icon-maps-pin-1",
+              "label": "map"
+            },
+            {
+              "group": "General",
+              "value": "icon-pin",
+              "label": "map pin"
+            },
+            {
+              "group": "General",
+              "value": "icon-navigation-menu",
+              "label": "navigation menu"
+            },
+            {
+              "group": "General",
+              "value": "icon-search-1",
+              "label": "search icon"
+            },
+            {
+              "group": "General",
+              "value": "icon-single-neutral",
+              "label": "user icon"
+            },
+            {
+              "group": "Product",
+              "value": "icon-book-close",
+              "label": "book"
+            },
+            {
+              "group": "Product",
+              "value": "icon-camera-1",
+              "label": "camera"
+            },
+            {
+              "group": "Product",
+              "value": "icon-diamond",
+              "label": "diamond"
+            },
+            {
+              "group": "Product",
+              "value": "icon-download-bottom",
+              "label": "download"
+            },
+            {
+              "group": "Product",
+              "value": "icon-tank-top-female-2",
+              "label": "female shirt"
+            },
+            {
+              "group": "Product",
+              "value": "icon-footwear-heels-1",
+              "label": "footwear heels"
+            },
+            {
+              "group": "Product",
+              "value": "icon-footwear-sneakers",
+              "label": "footwear sneakers"
+            },
+            {
+              "group": "Product",
+              "value": "icon-headphones",
+              "label": "headphones"
+            },
+            {
+              "group": "Product",
+              "value": "icon-picture-stack-landscape",
+              "label": "images"
+            },
+            {
+              "group": "Product",
+              "value": "icon-laundry-retro-iron",
+              "label": "iron"
+            },
+            {
+              "group": "Product",
+              "value": "icon-hospital-first-aid",
+              "label": "medical"
+            },
+            {
+              "group": "Product",
+              "value": "icon-notes-list",
+              "label": "notes"
+            },
+            {
+              "group": "Product",
+              "value": "icon-color-painting-palette",
+              "label": "palette"
+            },
+            {
+              "group": "Product",
+              "value": "icon-pencil-2",
+              "label": "pencil"
+            },
+            {
+              "group": "Product",
+              "value": "icon-pill",
+              "label": "pill"
+            },
+            {
+              "group": "Product",
+              "value": "icon-recycling-sign",
+              "label": "recycling"
+            },
+            {
+              "group": "Product",
+              "value": "icon-ruler",
+              "label": "ruler"
+            },
+            {
+              "group": "Product",
+              "value": "icon-clothes-design-sewing-machine",
+              "label": "sewing machine"
+            },
+            {
+              "group": "Product",
+              "value": "icon-shirt",
+              "label": "shirt"
+            },
+            {
+              "group": "Product",
+              "value": "icon-fitness-jumping-rope",
+              "label": "skipping rope"
+            },
+            {
+              "group": "Product",
+              "value": "icon-ice-snowflake",
+              "label": "snowflake"
+            },
+            {
+              "group": "Product",
+              "value": "icon-glasses-retro",
+              "label": "spectacles"
+            },
+            {
+              "group": "Product",
+              "value": "icon-clothes-design-tape-measure",
+              "label": "tape measure"
+            },
+            {
+              "group": "Product",
+              "value": "icon-task-list-to-do",
+              "label": "to do list"
+            },
+            {
+              "group": "Product",
+              "value": "icon-hammer-wrench",
+              "label": "tools"
+            },
+            {
+              "group": "Product",
+              "value": "icon-trousers-calves-2",
+              "label": "trousers"
+            },
+            {
+              "group": "Product",
+              "value": "icon-laundry-machine-2",
+              "label": "washing machine"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-calendar-date",
+              "label": "calendar"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-delivery-truck-3",
+              "label": "delivery truck"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-shipment-give",
+              "label": "hand shipment"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-shipment-package",
+              "label": "package shipment"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-keyboard-arrow-return",
+              "label": "return"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-sea-transport-boat",
+              "label": "shipping"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-stopwatch",
+              "label": "stopwatch"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-warehouse-cart-package-ribbon-1",
+              "label": "warehouse package"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-award-medal",
+              "label": "award medal"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-award-ribbon-star-1",
+              "label": "award ribbon"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-award-trophy-star-1",
+              "label": "award trophy"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-check-circle-1",
+              "label": "checkmark in circle"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-shield-check",
+              "label": "checkmark in shield"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-flag",
+              "label": "flag"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-single-neutral-id-card-3",
+              "label": "ID card"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-lock-2",
+              "label": "lock"
+            }
+          ]
+        },
+        {
+          "type": "html",
+          "id": "svg-code_6",
+          "label": "SVG icon code",
+          "info": "Learn more about adding your own SVG icons [here](https://support.safeasmilk.co/article/236-general-add-custom-svg-icons-to-your-theme)."
+        }
+      ]
+    },
+    {
+      "type": "variant_picker",
+      "name": "Variant picker",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "select",
+          "id": "product_variant_style",
+          "label": "Product variant style",
+          "options": [
+            {
+              "value": "dropdowns",
+              "label": "Dropdowns"
+            },
+            {
+              "value": "buttons",
+              "label": "Buttons"
+            },
+            {
+              "value": "swatches-buttons",
+              "label": "Custom swatches and buttons"
+            },
+            {
+              "value": "swatches-dropdowns",
+              "label": "Custom swatches and dropdowns"
+            }
+          ],
+          "default": "swatches-buttons"
+        },
+        {
+          "type": "header",
+          "content": "Size guide"
+        },
+        {
+          "type": "checkbox",
+          "id": "popup_enable",
+          "default": false,
+          "label": "Enable pop-up link"
+        },
+        {
+          "type": "textarea",
+          "id": "popup_trigger",
+          "label": "Variant trigger name(s)",
+          "default": "Size\nGröße\nTaille\nTaglia\nTalla",
+          "info": "Pop-up can be used on alternative variants to 'Size'. You may also add translations here. One entry per line"
+        },
+        {
+          "type": "text",
+          "id": "popup_label",
+          "label": "Link label",
+          "default": "Size guide"
+        },
+        {
+          "type": "page",
+          "id": "popup_content",
+          "label": "Page"
+        }
+      ]
+    },
+    {
+      "type": "vendor",
+      "name": "Vendor",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "range",
+          "id": "vendor_size",
+          "label": "Text size",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "default": 2
+        },
+        {
+          "type": "select",
+          "id": "vendor_style",
+          "label": "Font style",
+          "options": [
+            {
+              "value": "body",
+              "label": "Body"
+            },
+            {
+              "value": "heading",
+              "label": "Heading"
+            }
+          ],
+          "default": "body"
+        }
+      ]
+    },
+    {
+      "type": "@app"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Featured product",
+      "blocks": [
+        {
+          "type": "labels"
+        },
+        {
+          "type": "vendor"
+        },
+        {
+          "type": "title"
+        },
+        {
+          "type": "price"
+        },
+        {
+          "type": "spacer"
+        },
+        {
+          "type": "description"
+        },
+        {
+          "type": "variant_picker"
+        },
+        {
+          "type": "quantity_selector"
+        },
+        {
+          "type": "buy_buttons"
+        }
+      ]
+    }
+  ],
+  "enabled_on": {
+    "templates": [
+      "404",
+      "article",
+      "blog",
+      "cart",
+      "collection",
+      "index",
+      "list-collections",
+      "page",
+      "product",
+      "search"
+    ],
+    "groups": ["footer"]
+  }
+}
+{% endschema %}

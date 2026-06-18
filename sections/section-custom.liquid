@@ -1,0 +1,527 @@
+{% if section.blocks.size > 0 %}
+  {% if section.index > 2 or section.location == 'footer' %}
+    <link
+      rel="stylesheet"
+      href="{{ 'section-custom.css' | asset_url }}"
+      media="print"
+      onload="this.media='all'"
+    >
+    <noscript>
+      {{ 'section-custom.css' | asset_url | stylesheet_tag }}
+    </noscript>
+  {% else %}
+    {{ 'section-custom.css' | asset_url | stylesheet_tag }}
+  {% endif %}
+  <section
+    class="
+      section
+      section--padded
+      section--mb-m
+      section--{{ section.id }}
+      {% if section.settings.section-bottom-margin or request.visual_preview_mode %}section--mb-0{% endif %}
+    "
+    data-section-id="{{ section.id }}"
+    data-section-type="custom-content"
+    style="
+      --space-top: {{ section.settings.padding_top }}px;
+      --space-bottom: {{ section.settings.padding_bottom }}px
+    "
+  >
+    <div class="container">
+      <div class="custom-content__items">
+        <div class="o-layout o-layout--center js-animate-sequence">
+          {% for block in section.blocks %}
+            <div class="o-layout__item u-1/1 u-{{ block.settings.width }}@tab" {{ block.shopify_attributes }}>
+              {% if block.type == 'text' %}
+                <div class="custom-content__item custom-content__item--{{ block.type }}" {{ block.shopify_attributes }}>
+                  <div class="custom-content__item-content custom-content__item-content--text{% if block.settings.align == 'center' %} u-text-center{% endif %}">
+                    {% unless block.settings.title == blank %}
+                      <div
+                        class="section__title section__title--mb-s{% if block.settings.align == 'center' %} section__title--center{% endif %} js-animate-single"
+                        data-animation-displacement="5"
+                      >
+                        <h2 class="section__title-text">{{ block.settings.title | escape }}</h2>
+                      </div>
+                    {% endunless %}
+                    {% unless block.settings.text == blank %}
+                      <div class="custom-content__item-text rte">
+                        {{ block.settings.text }}
+                      </div>
+                    {% endunless %}
+                  </div>
+                </div>
+
+              {% elsif block.type == 'image' %}
+                {%- liquid
+                  assign multiplyer = 1
+                  case block.settings.width
+                    when '1/2'
+                      assign multiplyer = 0.5
+                    when '1/3'
+                      assign multiplyer = 0.3333
+                    when '1/4'
+                      assign multiplyer = 0.25
+                    when '2/3'
+                      assign multiplyer = 0.6666
+                  endcase
+                  assign sizes = '(min-width: 2200px) calc(2140px * ' | append: multiplyer | append: '), (min-width: 767px) calc((100vw - 60px) * ' | append: multiplyer | append: '), calc(100vw - 30px)'
+
+                  assign loading = 'lazy'
+                  if section.location == 'template' and section.index == 1
+                    assign loading = 'eager'
+                  endif
+                -%}
+                <div class="custom-content__item custom-content__item--{{ block.type }}" {{ block.shopify_attributes }}>
+                  <div class="custom-content__item-content custom-content__item-content--image">
+                    {% unless block.settings.link == blank %}
+                      <a href="{{ block.settings.link }}" class="custom-content__link">
+                    {% endunless %}
+                    {% unless block.settings.image == blank %}
+                      <div
+                        class="o-ratio o-ratio--custom"
+                        style="padding-bottom:{{ 1 | divided_by: block.settings.image.aspect_ratio | times: 100 }}%;"
+                      >
+                        <div class="o-ratio__content">
+                          {% render 'image',
+                            image: block.settings.image,
+                            alt_string: block.settings.image.alt,
+                            additional_classes: 'custom-content__img',
+                            image_ratio: 'natural',
+                            image_srcset_widths: '360, 540, 720, 900, 1080, 1296, 1512, 1728, 2048',
+                            image_sizes: sizes,
+                            render_skeleton: true,
+                            loading: loading
+                          %}
+                        </div>
+                      </div>
+                    {% else %}
+                      <div class="o-ratio o-ratio--4:3">
+                        <div class="o-ratio__content">
+                          {{ 'image' | placeholder_svg_tag: 'placeholder-svg placeholder-svg--light' }}
+                        </div>
+                      </div>
+                    {% endunless %}
+                    {% unless block.settings.link == blank %}
+                      </a>
+                    {% endunless %}
+                  </div>
+                </div>
+
+              {% elsif block.type == 'button' %}
+                {% if block.settings.title != blank %}
+                  {% liquid
+                    assign text_color = settings.color_text
+                    assign text_color_brightness = text_color | color_brightness
+                    if text_color_brightness > 125
+                      assign text_contrast_color = '#000'
+                    else
+                      assign text_contrast_color = '#fff'
+                    endif
+                  %}
+                  <div
+                    class="custom-content__item custom-content__item--{{ block.type }} u-text-center"
+                    style="
+                      {% if block.settings.link_style == 'hollow' %}
+                        --button-color: {{ text_color }};
+                        --button-background-color: {{ text_contrast_color }};
+                        --button-hover-color: {{ text_contrast_color }};
+                        --button-hover-background-color: {{ text_color }};
+                      {% elsif block.settings.link_style == 'mono' %}
+                        --button-color: {{ text_contrast_color }};
+                        --button-background-color: {{ text_color }};
+                        --button-hover-color: {{ text_contrast_color }};
+                        --button-hover-background-color: {{ text_color | color_lighten: 10 }};
+                      {% else %}
+                        --color--text: {{ text_color }};
+                      {% endif %}
+                    "
+                    {{ block.shopify_attributes }}
+                  >
+                    <a
+                      href="{{ block.settings.link }}"
+                      class="
+                        custom-content__btn
+                        {% if block.settings.link_style == "hollow" or block.settings.link_style == "primary" or block.settings.link_style == "mono" %}
+                           c-btn c-btn--full c-btn--{{ block.settings.link_style }}
+                        {% elsif block.settings.link_style == "chevron" %}
+                          link link--arrow
+                        {% else %}
+                          link--underline
+                        {% endif %}
+                      "
+                    >
+                      {{- block.settings.title | escape -}}
+                      {%- if block.settings.link_style == 'chevron' -%}
+                        {% render 'icons-theme', icon: 'chevron' %}
+                      {%- endif -%}
+                    </a>
+                  </div>
+                {% endif %}
+
+              {% elsif block.type == 'page' %}
+                {%- assign page = pages[block.settings.page] -%}
+                {% if page != blank %}
+                  <div
+                    class="custom-content__item custom-content__item--{{ block.type }}"
+                    {{ block.shopify_attributes }}
+                  >
+                    <div class="custom-content__item-content custom-content__item-content--page">
+                      {% if block.settings.page_title %}
+                        <div
+                          class="section__title section__title--desc section__title--center js-animate-single"
+                          data-animation-displacement="5"
+                        >
+                          <h2 class="section__title-text">{{ page.title }}</h2>
+                        </div>
+                      {% endif %}
+                      <div class="custom-content__item-text rte">
+                        {{ page.content }}
+                      </div>
+                    </div>
+                  </div>
+                {% endif %}
+
+              {% elsif block.type == 'spacer' %}
+                <div class="custom-content__item custom-content__item--{{ block.type }}" {{ block.shopify_attributes }}>
+                  <div
+                    class="custom-content__item-content custom-content__item-content--spacer custom-content__item-content--spacer--{{ block.settings.space }}"
+                  ></div>
+                </div>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </section>
+{% endif %}
+
+{% if section.blocks.size == 0 %}
+  <div class="placeholder-noblocks">
+    {{ 'homepage.onboarding.no_content' | t }}
+  </div>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Custom content",
+  "class": "js-section__custom-content",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Padding and margin"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "unit": "px",
+      "min": 0,
+      "max": 120,
+      "step": 3,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "unit": "px",
+      "min": 0,
+      "max": 120,
+      "step": 3,
+      "default": 0
+    },
+    {
+      "type": "checkbox",
+      "id": "section-bottom-margin",
+      "label": "Reduce bottom margin",
+      "default": false
+    }
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Text"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Promote your brand by using a powerful combination of buttons, custom text, page content and images.</p>"
+        },
+        {
+          "type": "select",
+          "id": "align",
+          "label": "Text alignment",
+          "default": "center",
+          "options": [
+            {
+              "label": "Center",
+              "value": "center"
+            },
+            {
+              "label": "Left",
+              "value": "left"
+            }
+          ]
+        },
+        {
+          "type": "select",
+          "id": "width",
+          "label": "Width",
+          "default": "1/2",
+          "options": [
+            {
+              "label": "Full width",
+              "value": "1/1"
+            },
+            {
+              "label": "One half",
+              "value": "1/2"
+            },
+            {
+              "label": "One third",
+              "value": "1/3"
+            },
+            {
+              "label": "One fourth",
+              "value": "1/4"
+            },
+            {
+              "label": "Two thirds",
+              "value": "2/3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "width",
+          "label": "Width",
+          "default": "1/2",
+          "options": [
+            {
+              "label": "Full width",
+              "value": "1/1"
+            },
+            {
+              "label": "One half",
+              "value": "1/2"
+            },
+            {
+              "label": "One third",
+              "value": "1/3"
+            },
+            {
+              "label": "One fourth",
+              "value": "1/4"
+            },
+            {
+              "label": "Two thirds",
+              "value": "2/3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Button",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Label",
+          "default": "Button"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "link_style",
+          "label": "Style",
+          "default": "primary",
+          "options": [
+            {
+              "value": "primary",
+              "label": "Brand button"
+            },
+            {
+              "value": "mono",
+              "label": "Mono button"
+            },
+            {
+              "value": "hollow",
+              "label": "Outline button"
+            },
+            {
+              "value": "chevron",
+              "label": "Chevron"
+            },
+            {
+              "value": "body",
+              "label": "Body text"
+            }
+          ]
+        },
+        {
+          "type": "select",
+          "id": "width",
+          "label": "Width",
+          "default": "1/2",
+          "options": [
+            {
+              "label": "Full width",
+              "value": "1/1"
+            },
+            {
+              "label": "One half",
+              "value": "1/2"
+            },
+            {
+              "label": "One third",
+              "value": "1/3"
+            },
+            {
+              "label": "One fourth",
+              "value": "1/4"
+            },
+            {
+              "label": "Two thirds",
+              "value": "2/3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "name": "Page",
+      "settings": [
+        {
+          "type": "page",
+          "id": "page",
+          "label": "Page"
+        },
+        {
+          "type": "checkbox",
+          "id": "page_title",
+          "label": "Show title",
+          "default": true
+        },
+        {
+          "type": "select",
+          "id": "width",
+          "label": "Width",
+          "default": "1/2",
+          "options": [
+            {
+              "label": "Full width",
+              "value": "1/1"
+            },
+            {
+              "label": "One half",
+              "value": "1/2"
+            },
+            {
+              "label": "One third",
+              "value": "1/3"
+            },
+            {
+              "label": "One fourth",
+              "value": "1/4"
+            },
+            {
+              "label": "Two thirds",
+              "value": "2/3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "spacer",
+      "name": "Spacer",
+      "settings": [
+        {
+          "type": "select",
+          "id": "space",
+          "label": "Spacing",
+          "options": [
+            {
+              "value": "none",
+              "label": "None"
+            },
+            {
+              "value": "small",
+              "label": "Small"
+            },
+            {
+              "value": "medium",
+              "label": "Medium"
+            },
+            {
+              "value": "large",
+              "label": "Large"
+            }
+          ],
+          "default": "none"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom content",
+      "blocks": [
+        {
+          "type": "text"
+        },
+        {
+          "type": "image",
+          "settings": {
+            "width": "2/3"
+          }
+        },
+        {
+          "type": "spacer"
+        },
+        {
+          "type": "button",
+          "settings": {
+            "width": "1/3"
+          }
+        }
+      ]
+    }
+  ],
+  "enabled_on": {
+    "templates": ["*"],
+    "groups": ["header", "footer"]
+  }
+}
+{% endschema %}

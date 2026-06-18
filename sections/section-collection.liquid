@@ -1,0 +1,815 @@
+{% comment %}theme-check-disable TemplateLength, NestedSnippet{% endcomment %}
+{%- liquid
+  assign sizes = '100vw'
+
+  assign container_ratio = settings.product_grid_image_size
+
+  assign grid = section.settings.grid
+  assign grid_mobile = section.settings.grid_mobile | plus: 0
+
+  if section.settings.enable_carousel_mobile
+    assign mobile_sizes = 'calc(100vw - 96px)'
+    if grid_mobile == 2
+      assign mobile_sizes = 'calc((100vw - 15px) / 2 - 96px)'
+    endif
+  else
+    assign mobile_sizes = 'calc(100vw - 36px)'
+  endif
+
+  case grid
+    when 2
+      assign sizes = '(min-width: 1600px) calc((80vw - 90px) / 2), (min-width: 981px) calc((100vw - 90px) / 2), (min-width: 768px) calc((100vw - 66px) / 2), ' | append: mobile_sizes
+    when 3
+      assign sizes = '(min-width: 1600px) calc((80vw - 120px) / 3), (min-width: 981px) calc((100vw - 120px) / 3), (min-width: 768px) calc((100vw - 66px) / 2), ' | append: mobile_sizes
+    when 4
+      assign sizes = '(min-width: 1600px) calc((80vw - 105px) / 4), (min-width: 1081px) calc((100vw - 105px) / 4), (min-width: 981px) calc((100vw - 90px) / 3), (min-width: 768px) calc((100vw - 51px) / 2), ' | append: mobile_sizes
+  endcase
+
+  assign show_link = false
+  if section.settings.section_link_title != blank and section.settings.section_link_link != blank
+    assign show_link = true
+  endif
+
+  if section.settings.section_bottom_margin
+    assign margin_class = 'section--mb-0'
+  endif
+
+  if request.visual_preview_mode
+    assign margin_class = 'section--mb-m'
+  endif
+
+  comment
+    Determine if the items-scroll component should only show counter on mobile
+  endcomment
+  assign show_counter_for_all_on_mobile = false
+  if section.blocks.size > 1
+    for block in section.blocks
+      assign number_of_pages_on_mobile = block.settings.collection.products.count | divided_by: grid_mobile
+      if number_of_pages_on_mobile > 6
+        assign show_counter_for_all_on_mobile = true
+        break
+      endif
+    endfor
+  endif
+-%}
+{% if section.index > 2 or section.location == 'footer' %}
+  <link
+    rel="stylesheet"
+    href="{{ 'section-collection.css' | asset_url }}"
+    media="print"
+    onload="this.media='all'"
+  >
+  <noscript>
+    {{ 'section-collection.css' | asset_url | stylesheet_tag }}
+  </noscript>
+  {%- if section.settings.enable_carousel_desktop or section.settings.enable_carousel_mobile -%}
+    <link
+      rel="stylesheet"
+      href="{{ 'component-items-scroll.css' | asset_url }}"
+      media="print"
+      onload="this.media='all'"
+    >
+    <link
+      rel="stylesheet"
+      href="{{ 'theme-component-items-scroll-paged-navigation.css' | asset_url }}"
+      media="print"
+      onload="this.media='all'"
+    >
+    <noscript>
+      {{ 'component-items-scroll.css' | asset_url | stylesheet_tag }}
+      {{ 'theme-component-items-scroll-paged-navigation.css' | asset_url | stylesheet_tag }}
+    </noscript>
+  {%- endif -%}
+{% else %}
+  {{ 'section-collection.css' | asset_url | stylesheet_tag }}
+  {%- if section.settings.enable_carousel_desktop or section.settings.enable_carousel_mobile -%}
+    {{ 'component-items-scroll.css' | asset_url | stylesheet_tag }}
+    {{ 'theme-component-items-scroll-paged-navigation.css' | asset_url | stylesheet_tag }}
+  {%- endif -%}
+{% endif %}
+<section
+  class="
+    section
+    section--{{ section.id }}
+    section--featured-collections
+    {{ margin_class }}
+    {% if show_link %} section--has-link{% endif %}
+    {% if section.settings.divider_top %}
+      section-divider--top section-divider--top-p
+    {% endif %}
+    {% if section.settings.divider_bottom %}
+      section-divider--bottom section-divider--bottom-p
+    {% endif %}
+  "
+  data-section-id="{{ section.id }}"
+  data-section-type="featured-collections"
+>
+  <div
+    class="section__content section__content--padded"
+    style="
+      --space-top: {{ section.settings.padding_top }}px;
+      --space-bottom: {{ section.settings.padding_bottom }}px
+    "
+  >
+    <div class="container container--{{ section.settings.section_width }} {% if section.settings.enable_carousel_mobile %}u-ph+@mob{% endif %}">
+      {%- if section.settings.title != blank or section.settings.desc != blank -%}
+        <div
+          class="
+            section__title
+            js-animate-single
+            {% if section.settings.heading_alignment == 'center' %}section__title--center{% endif %}
+            {% unless section.settings.desc == blank %} section__title--desc{% endunless %}
+          "
+          data-animation-displacement="5"
+        >
+          {%- unless section.settings.title == blank -%}
+            <h2 class="section__title-text">{{ section.settings.title | escape }}</h2>
+          {%- endunless -%}
+          {%- unless section.settings.desc == blank -%}
+            <div
+              class="section__title-desc rte js-animate-single"
+              data-animation-displacement="0"
+              data-animation-delay="0.1"
+            >
+              {{ section.settings.desc }}
+            </div>
+          {%- endunless -%}
+        </div>
+      {%- endif -%}
+    </div>
+
+    {%- liquid
+      assign product_limit = section.settings.maximum_products
+
+      if section.settings.section_link_title and section.settings.section_link_link
+        assign link = section.settings.section_link_link
+      endif
+
+      if settings.quick_shop_enabled
+        assign quick_shop_trigger = settings.quick_shop_trigger
+
+        if quick_shop_trigger == 'icon-hover' and section.settings.enable_carousel_desktop
+          assign quick_shop_trigger = 'icon'
+        endif
+      endif
+
+      comment
+        Items scroll logic
+      endcomment
+      assign grid_tag = 'div'
+      assign grid_tag_attributes = ''
+      assign classes = ''
+      if section.settings.enable_carousel_desktop or section.settings.enable_carousel_mobile
+        assign grid_tag = 'items-scroll-paged-navigation'
+        assign classes = 'items-scroll'
+        unless container_ratio == 'natural'
+          assign classes = classes | append: ' ratio-navigation'
+        endunless
+        comment
+          Can choose from 'mob', 'phab', 'tab', 'desk'
+          Widths need to be in sync with the ones in items-scroll.js
+        endcomment
+        assign breakpoint = 'tab'
+        if section.settings.enable_carousel_mobile and section.settings.enable_carousel_desktop == false
+          assign grid_tag_attributes = 'breakpoint-max="' | append: breakpoint | append: '"'
+          assign mq_bound = 'max'
+          assign mq_adjustment = 0
+        endif
+        if section.settings.enable_carousel_mobile == false and section.settings.enable_carousel_desktop
+          assign grid_tag_attributes = 'breakpoint-min="' | append: breakpoint | append: '"'
+          assign mq_bound = 'min'
+          assign mq_adjustment = 1
+        endif
+      endif
+    -%}
+
+    {%- if grid_tag == 'items-scroll-paged-navigation' -%}
+      {%- capture selector -%}
+      .section--{{ section.id }} [data-items] {
+        display: flex;
+        flex-wrap: nowrap;
+        width: 100%;
+        overflow-x: hidden;
+      }
+
+      .section--{{ section.id }} [data-items] > * {
+        flex-shrink: 0;
+        flex-grow: 0;
+      }
+    {%- endcapture -%}
+      <style>
+        {%- if mq_bound -%}
+          {%- case breakpoint -%}
+            {%- when 'mob' -%}
+              @media screen and ({{ mq_bound }}-width: {{ 480 | plus: mq_adjustment }}px) {
+                {{ selector }}
+              }
+            {%- when 'phab' -%}
+              @media screen and ({{ mq_bound }}-width: {{ 560 | plus: mq_adjustment }}px) {
+                {{ selector }}
+              }
+            {%- when 'tab' -%}
+              @media screen and ({{ mq_bound }}-width: {{ 768 | plus: mq_adjustment }}px) {
+                {{ selector }}
+              }
+            {%- when 'desk' -%}
+              @media screen and ({{ mq_bound }}-width: {{ 980 | plus: mq_adjustment }}px) {
+                {{ selector }}
+              }
+          {%- endcase -%}
+        {%- else -%}
+          {{ selector }}
+        {%- endif -%}
+      </style>
+    {%- endif -%}
+
+    {%- liquid
+      assign animation_selectors = '.product-card > .product-card-top, .product-card > .product-card__details'
+    -%}
+
+    {%- if section.blocks.size > 1 -%}
+      <link
+        rel="stylesheet"
+        href="{{ 'component-tabbed-content.css' | asset_url }}"
+        media="print"
+        onload="this.media='all'"
+      >
+      <noscript>
+        {{ 'component-tabbed-content.css' | asset_url | stylesheet_tag }}
+      </noscript>
+      <tabbed-content align-items="{{ section.settings.heading_alignment }}">
+        {%- liquid
+          if section.settings.enable_carousel_mobile == false
+            assign tab_triggers_classes = 'u-ph-@mob'
+          endif
+        -%}
+        <div class="tab-triggers__wrapper container--{{ section.settings.section_width }} u-ph0@mob">
+          <tab-triggers
+            role="tablist"
+            {% if tab_triggers_classes %}
+              class="{{ tab_triggers_classes }}"
+            {% endif %}
+          >
+            {%- for block in section.blocks -%}
+              <button
+                type="button"
+                role="tab"
+                aria-controls="tab-panel-{{ block.id }}"
+                id="tab-{{ block.id }}"
+                {% if forloop.first %}
+                  aria-selected="true"
+                  tabindex="0"
+                {% else %}
+                  aria-selected="false"
+                  tabindex="-1"
+                {% endif %}
+                {% if block.settings.heading_color.alpha > 0 %}
+                  style="color: {{ block.settings.heading_color }}"
+                {% endif %}
+                {% if block.settings.link %}
+                  data-update-link="{{ block.settings.link }}"
+                {% else %}
+                  data-update-link="{{ section.settings.section_link_link }}"
+                {% endif %}
+                {{ block.shopify_attributes }}
+              >
+                {%- if block.settings.heading == blank and block.settings.collection == blank -%}
+                  Example collection
+                {%- elsif block.settings.heading == blank -%}
+                  {{- block.settings.collection.title -}}
+                {%- else -%}
+                  {{- block.settings.heading -}}
+                {%- endif -%}
+              </button>
+            {%- endfor -%}
+          </tab-triggers>
+        </div>
+    {%- endif -%}
+
+    {%- for block in section.blocks -%}
+      {%- liquid
+        if block.settings.link and forloop.first and link
+          assign link = block.settings.link
+        endif
+
+        assign collection = collections[block.settings.collection]
+
+        assign items_overflow = false
+        if collection != blank
+          assign product_count = collection.products.count
+          if product_count > product_limit
+            assign product_count = product_limit
+          endif
+        else
+          assign product_count = product_limit
+        endif
+
+        if section.settings.enable_carousel_mobile and section.settings.enable_carousel_desktop
+          if product_count > grid
+            assign items_overflow = true
+          elsif product_count > grid_mobile
+            assign items_overflow_max = breakpoint
+          endif
+        elsif section.settings.enable_carousel_mobile and section.settings.enable_carousel_desktop == false
+          if product_count > grid_mobile
+            assign items_overflow_max = breakpoint
+          endif
+        else
+          if product_count > grid
+            assign items_overflow_min = breakpoint
+          endif
+        endif
+      -%}
+
+      {%- if section.blocks.size > 1 -%}
+        <tab-panel
+          id="tab-panel-{{ block.id }}"
+          role="tabpanel"
+          aria-labelledby="tab-{{ block.id }}"
+          tabindex="0"
+          {% if forloop.first != true %}
+            hidden
+          {% endif %}
+        >
+      {%- endif -%}
+
+      <div class="container container--{{ section.settings.section_width }}{% if section.settings.enable_carousel_mobile %} u-ph0@mob{% endif %}">
+        <{{ grid_tag }}
+          class="{{ classes }}"
+          {% if items_overflow %}
+            items-overflow
+          {% elsif items_overflow_max %}
+            items-overflow-max="{{ items_overflow_max }}"
+          {% elsif items_overflow_min %}
+            items-overflow-min="{{ items_overflow_min }}"
+          {% endif %}
+          {{ grid_tag_attributes }}
+          {% if section.blocks.size == 1 %}
+            {{ block.shopify_attributes }}
+          {% endif %}
+          {% if show_counter_for_all_on_mobile %}
+            mobile-counter-only
+          {% endif %}
+          image-container-ratio="{{ container_ratio }}"
+        >
+          <div
+            class="
+              grid-layout
+              grid-layout--{{ grid }}
+              grid-layout--{{ grid_mobile }}@mob
+              {% if grid > product_count %}
+              grid-layout--align-center
+              {% endif %}
+              js-animate-sequence
+            "
+            data-items
+            data-animation-selector="{{ animation_selectors }}"
+            {% if settings.anim_load_style == 'interval' %}
+              data-animation-interval="0.025"
+            {% endif %}
+          >
+            {%- liquid
+              assign small_buttons_on_mobile = false
+              if grid_mobile == 2
+                assign small_buttons_on_mobile = true
+              endif
+            -%}
+            {% for product in collection.products limit: product_limit %}
+              {%- liquid
+                assign unique_id = block.id | append: '--' | append: product.id
+
+                assign prioritize_image = false
+                if forloop.index < 3 and section.location == 'template' and section.index == 1
+                  assign prioritize_image = true
+                endif
+              -%}
+              {% render 'product-card',
+                id: unique_id,
+                current_product: product,
+                collection: collection,
+                section_id: section.id,
+                image_sizes: sizes,
+                prioritize_image: prioritize_image,
+                quick_shop_trigger: quick_shop_trigger,
+                small_buttons_on_mobile: small_buttons_on_mobile,
+                quick_shop_type: 'remote'
+              %}
+            {% else %}
+              {%- liquid
+                if quick_shop_trigger
+                  assign quick_shop_trigger_split = quick_shop_trigger | split: '-'
+                  assign quick_shop_trigger = quick_shop_trigger_split | first
+
+                  assign quick_shop_hover_enabled = false
+                  if quick_shop_trigger_split.size > 1
+                    assign quick_shop_hover_enabled = true
+                  endif
+                endif
+              -%}
+              {% for i in (1..product_limit) %}
+                {%- liquid
+                  assign quick_shop_id = block.id | append: '--' | append: i | append: '--quickshop'
+                  assign product_id = 'preview-product-' | append: i
+                -%}
+                <div
+                  class="
+                    product-card
+                    js-product
+                    js-product-card
+                    product-card--{% if settings.product_grid_image_fit %}fit{% else %}crop{% endif %}
+                    {% if settings.product_grid_align %}product-card--center{% else %}product-card--left{% endif %}
+                    {% if page == 'home' %}home-products__item{% endif %}
+                    {% if quick_shop_trigger %}product-card--trigger-{{ quick_shop_trigger }}{% endif %}
+                    {% if quick_shop_hover_enabled %}product-card--hover{% endif %}
+                  "
+                  data-product-id="{{ product_id }}"
+                >
+                  <div class="product-card-top">
+                    <div class="product-card__media{% if settings.product_grid_hover == 'zoom' and quick_shop_trigger != 'icon' %} product-card__media--hover-zoom{% endif %}">
+                      <div
+                        class="o-ratio o-ratio--{{ settings.product_grid_image_size }}"
+                        {% if settings.product_grid_image_size == 'natural' %}
+                          style="padding-bottom:100%;"
+                        {% endif %}
+                      >
+                        <div class="o-ratio__content">
+                          <div class="product-card__spinner product-card__spinner--grid js-product-card__spinner">
+                            <div class="product-card__spin-border"></div>
+                            <div class="product-card__spin-border"></div>
+                            <div class="product-card__spin-border"></div>
+                            <div class="product-card__spin-border"></div>
+                          </div>
+
+                          {% capture current %}{% cycle 1, 2, 3, 4, 5, 6 %}{% endcapture %}
+                          {{
+                            'product-'
+                            | append: current
+                            | placeholder_svg_tag: 'product-card__img placeholder-svg placeholder-svg--light'
+                          }}
+                        </div>
+                      </div>
+                    </div>
+
+                    {% if quick_shop_trigger == 'button' %}
+                      <div class="product-card-btn">
+                        <a
+                          href="#"
+                          class="c-btn c-btn--full{% if settings.quick_shop_product_grid_button == 'outline' %} c-btn--hollow{% else %} c-btn--primary{% endif %} {% if small_buttons_on_mobile %}c-btn--small@mobile{% endif %} product-card-btn__btn"
+                          data-a11y-dialog-show="{{ quick_shop_id }}"
+                        >
+                          {{- 'products.product.select_options' | t -}}
+                        </a>
+                      </div>
+                    {% endif %}
+
+                    {% if quick_shop_trigger == 'icon' %}
+                      <button
+                        class="quick-shop__trigger"
+                        aria-hidden="true"
+                        tabindex="-1"
+                        data-a11y-dialog-show="{{ quick_shop_id }}"
+                      >
+                        {% render 'icons-theme', icon: 'quickbuy' %}
+                      </button>
+                    {% endif %}
+                  </div>
+
+                  <div class="product-card__details">
+                    <a
+                      href="#"
+                      class="product-card__link js-product-link{% if page == 'home' %} featured-collection__link{% endif %}"
+                    >
+                      {% if settings.product_grid_vendor %}
+                        <h3 class="product-card__vendor u-medium-small">
+                          {{ 'homepage.onboarding.product_vendor' | t }}
+                        </h3>
+                      {% endif %}
+
+                      <h3 class="product-card__title f-family--{{ settings.type_grid_style }} f-caps--{{ settings.type_grid_capitalize }} f-space--{{ settings.type_grid_letterspace }}">
+                        {{ 'homepage.onboarding.product_title' | t }}
+                      </h3>
+
+                      <div class="product-card__details__hover u-medium">
+                        {% if settings.product_grid_price %}
+                          <p class="price">
+                            {% render 'product-price', product: product, from_price: true, show_price_notes: false %}
+                          </p>
+                        {% endif %}
+                      </div>
+                    </a>
+                  </div>
+
+                  {%- liquid
+                    assign card_id = block.id | append: '--' | append: forloop.index
+
+                    if settings.quick_shop_enabled
+                      assign image_placeholder_file_name = 'product-' | append: current
+                      render 'quick-shop', id: quick_shop_id, image_placeholder_file_name: image_placeholder_file_name, card_id: card_id
+                    endif
+                  -%}
+                </div>
+              {% endfor %}
+            {% endfor %}
+          </div>
+        </{{ grid_tag }}>
+      </div>
+      {%- if section.blocks.size > 1 -%}
+        </tab-panel>
+      {%- endif -%}
+    {%- endfor -%}
+
+    {%- if section.blocks.size > 1 -%}
+      </tabbed-content>
+    {%- endif -%}
+
+    {% unless link == blank %}
+      {% capture section_link_classes %}
+      {% unless section.settings.enable_carousel_desktop %}
+        section__link--mt0@desk
+      {% endunless %}
+      {% unless section.settings.enable_carousel_mobile %}
+        section__link--mt0@mob
+      {% endunless %}
+    {% endcapture %}
+
+      {% render 'section-link',
+        title: section.settings.section_link_title,
+        link: link,
+        style: section.settings.section_link_style,
+        additional_classes: section_link_classes,
+        additional_link_classes: 'js-update-link'
+      %}
+    {% endunless %}
+  </div>
+  {%- if section.settings.enable_carousel_desktop or section.settings.enable_carousel_mobile or request.design_mode -%}
+    <script src="{{ 'items-scroll-paged-navigation.js' | asset_url }}" type="module"></script>
+  {%- endif -%}
+  {%- if section.blocks.size > 1 or request.design_mode -%}
+    <script src="{{ 'tabbed-content.js' | asset_url }}" type="module"></script>
+  {%- endif -%}
+</section>
+
+{% schema %}
+{
+  "name": "Featured collections",
+  "class": "js-section__featured-collections",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Our collections"
+    },
+    {
+      "type": "richtext",
+      "id": "desc",
+      "label": "Text"
+    },
+    {
+      "type": "header",
+      "content": "Position"
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "label": "Section heading, text and tabs",
+      "default": "center",
+      "options": [
+        {
+          "label": "Left",
+          "value": "left"
+        },
+        {
+          "label": "Center",
+          "value": "center"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Width"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Section width (desktop)",
+      "default": "large",
+      "options": [
+        {
+          "label": "Default",
+          "value": "large"
+        },
+        {
+          "label": "Narrow",
+          "value": "small"
+        },
+        {
+          "label": "Wide",
+          "value": "wide"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Desktop layout"
+    },
+    {
+      "type": "range",
+      "id": "maximum_products",
+      "label": "Maximum products to display",
+      "min": 4,
+      "max": 48,
+      "step": 1,
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "grid",
+      "label": "Products per row",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_carousel_desktop",
+      "label": "Enable carousel",
+      "default": true,
+      "info": "The Quick Shop 'hover modal' will be disabled when using carousel. Only buttons or icons will be displayed."
+    },
+    {
+      "type": "header",
+      "content": "Mobile layout"
+    },
+    {
+      "type": "select",
+      "id": "grid_mobile",
+      "label": "Products per row",
+      "default": "1",
+      "options": [
+        {
+          "label": "1",
+          "value": "1"
+        },
+        {
+          "label": "2",
+          "value": "2"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_carousel_mobile",
+      "label": "Enable carousel",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Borders"
+    },
+    {
+      "type": "checkbox",
+      "id": "divider_top",
+      "label": "Show top border",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "divider_bottom",
+      "label": "Show bottom border",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Section button"
+    },
+    {
+      "type": "text",
+      "id": "section_link_title",
+      "label": "Label",
+      "default": "View all"
+    },
+    {
+      "type": "url",
+      "id": "section_link_link",
+      "label": "Link"
+    },
+    {
+      "type": "select",
+      "id": "section_link_style",
+      "label": "Style",
+      "default": "link link--arrow",
+      "options": [
+        {
+          "value": "c-btn c-btn--primary",
+          "label": "Brand button"
+        },
+        {
+          "value": "c-btn c-btn--mono",
+          "label": "Mono button"
+        },
+        {
+          "value": "c-btn c-btn--hollow",
+          "label": "Outline button"
+        },
+        {
+          "value": "link link--arrow",
+          "label": "Chevron"
+        },
+        {
+          "value": "link--underline",
+          "label": "Body text"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Padding and margin"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "unit": "px",
+      "min": 0,
+      "max": 120,
+      "step": 3,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "unit": "px",
+      "min": 0,
+      "max": 120,
+      "step": 3,
+      "default": 0
+    },
+    {
+      "type": "checkbox",
+      "id": "section_bottom_margin",
+      "label": "Reduce bottom margin",
+      "default": false
+    }
+  ],
+  "blocks": [
+    {
+      "type": "collection",
+      "name": "Collection",
+      "limit": 3,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "info": "Used as a tab label when you have set up multiple collection blocks."
+        },
+        {
+          "type": "color",
+          "id": "heading_color",
+          "label": "Heading color",
+          "default": "rgba(0,0,0,0)"
+        },
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Section button override",
+          "info": "Changes destination of main section button."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Featured collections",
+      "blocks": [
+        {
+          "type": "collection"
+        }
+      ]
+    }
+  ],
+  "enabled_on": {
+    "templates": [
+      "404",
+      "article",
+      "blog",
+      "cart",
+      "collection",
+      "index",
+      "list-collections",
+      "page",
+      "product",
+      "search"
+    ],
+    "groups": ["footer"]
+  }
+}
+{% endschema %}

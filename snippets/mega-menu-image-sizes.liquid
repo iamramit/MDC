@@ -1,0 +1,44 @@
+{%- comment -%}
+  Renders image sizes
+
+  Accepts:
+  - image: {Object} Image
+  - containe_ratio: {String} Holding container ratio
+  - content_width: {Number} Mega menu layout width
+  - area_width: {Number} Area width
+  - items_per_row: {Number} Area items per row
+  - content_spacing: {Number} Area content spacing
+{%- endcomment -%}
+
+{%- liquid
+  assign container_ratio_string = container_ratio
+
+  if container_ratio_string != 'natural' and container_ratio_string != 'circle'
+    assign values = container_ratio_string | split: ':'
+    assign i_w = values[0] | plus: 0.0
+    assign i_h = values[1] | plus: 0.0
+    assign container_ratio = i_w | divided_by: i_h
+  elsif container_ratio_string == 'natural'
+    assign container_ratio = image.aspect_ratio
+  else
+    assign container_ratio = 1
+  endif
+
+  assign container_ratio_multiplier = image.aspect_ratio | divided_by: container_ratio
+  if container_ratio_multiplier < 1
+    assign container_ratio_multiplier = 1
+  endif
+
+  assign sizes = ''
+  assign area_width_in_percent = area_width | divided_by: 100.0
+  assign total_spacing = content_spacing | times: items_per_row | minus: content_spacing
+
+  assign image_size = content_width | times: area_width_in_percent | minus: total_spacing | divided_by: items_per_row | times: container_ratio_multiplier | round
+  assign sizes = '(min-width: ' | append: content_width | append: 'px) ' | append: image_size | append: 'px, '
+
+  assign spacing_for_image = total_spacing | divided_by: items_per_row | round
+  assign item_width = area_width | divided_by: items_per_row
+  assign sizes = sizes | append: 'calc(' | append: item_width | append: 'vw * ' | append: container_ratio_multiplier | append: ' - ' | append: spacing_for_image | append: 'px)'
+
+  echo sizes
+-%}

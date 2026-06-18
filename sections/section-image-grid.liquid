@@ -1,0 +1,634 @@
+{% if section.blocks.size > 0 %}
+  {% if section.index > 2 or section.location == 'footer' %}
+    <link
+      rel="stylesheet"
+      href="{{ 'section-image-grid.css' | asset_url }}"
+      media="print"
+      onload="this.media='all'"
+    >
+    <noscript>
+      {{ 'section-image-grid.css' | asset_url | stylesheet_tag }}
+    </noscript>
+  {% else %}
+    {{ 'section-image-grid.css' | asset_url | stylesheet_tag }}
+  {% endif %}
+
+  {%- liquid
+    if section.settings.section_bottom_margin
+      assign margin_class = 'section--mb-0'
+    else
+      assign margin_class = 'section--mb-s'
+    endif
+
+    if request.visual_preview_mode
+      assign margin_class = 'section--mb-0'
+    endif
+  -%}
+
+  <section
+    class="
+      section
+      section--padded
+      section--{{ section.id }}
+      {{ margin_class }}
+    "
+    data-section-id="{{ section.id }}"
+    data-section-type="image-grid"
+    style="
+      --space-top: {{ section.settings.padding_top }}px;
+      --space-bottom: {{ section.settings.padding_bottom }}px
+    "
+  >
+    <div
+      class="image-grid{% if section.settings.featured %} image-grid--featured{% endif %}"
+      style="
+        --height-desktop: {{ section.settings.section_height }}px;
+        --height-mobile: {{ section.settings.section_height_mobile }}px;
+      "
+    >
+      <div class="container container--{{ section.settings.width }}">
+        <div class="image-grid__items">
+          <div class="o-layout js-animate-sequence">
+            {% for block in section.blocks %}
+              {%- liquid
+                case section.blocks.size
+                  when 1
+                    assign grid_item_width = '1/1'
+                    assign sizes = '100vw'
+                  when 2
+                    if section.settings.featured
+                      if forloop.index == 1
+                        assign grid_item_width = '2/3'
+                        assign sizes = '(min-width: 768px) 66vw, 100vw'
+                      else
+                        assign grid_item_width = '1/3'
+                        assign sizes = '(min-width: 768px) 33vw, 100vw'
+                      endif
+                    else
+                      assign grid_item_width = '1/2'
+                      assign sizes = '(min-width: 768px) 50vw, 100vw'
+                    endif
+                  when 3
+                    if section.settings.featured
+                      if forloop.index == 1
+                        assign grid_item_width = '1/1'
+                        assign sizes = '100vw'
+                      else
+                        assign grid_item_width = '1/2'
+                        assign sizes = '(min-width: 768px) 50vw, 100vw'
+                      endif
+                    else
+                      assign grid_item_width = '1/3'
+                      assign sizes = '(min-width: 768px) 33vw, 100vw'
+                    endif
+                  when 4
+                    if section.settings.featured
+                      if forloop.index == 1
+                        assign grid_item_width = '2/3'
+                        assign sizes = '(min-width: 768px) 66vw, 100vw'
+                      elsif forloop.index == 2
+                        assign grid_item_width = '1/3'
+                        assign sizes = '(min-width: 768px) 33vw, 100vw'
+                      else
+                        assign grid_item_width = '1/2'
+                        assign sizes = '(min-width: 768px) 50vw, 100vw'
+                      endif
+                    else
+                      assign grid_item_width = '1/2'
+                      assign sizes = '(min-width: 768px) 50vw, 100vw'
+                    endif
+                  when 5
+                    if section.settings.featured
+                      if forloop.index == 1
+                        assign grid_item_width = '2/3'
+                        assign sizes = '(min-width: 768px) 66vw, 100vw'
+                      else
+                        assign grid_item_width = '1/3'
+                        assign sizes = '(min-width: 768px) 33vw, 100vw'
+                      endif
+                    else
+                      if forloop.index == 1 or forloop.index == 2
+                        assign grid_item_width = '1/2'
+                        assign sizes = '(min-width: 768px) 50vw, 100vw'
+                      else
+                        assign grid_item_width = '1/3'
+                        assign sizes = '(min-width: 768px) 33vw, 100vw'
+                      endif
+                    endif
+                endcase
+              -%}
+
+              <div class="o-layout__item u-1/1 u-{{ grid_item_width }}@tab" {{ block.shopify_attributes }}>
+                {% if block.type == 'image' %}
+                  {% unless block.settings.link == blank %}
+                    <a href="{{ block.settings.link }}" class="image-grid__link">
+                  {% endunless %}
+                  <div class="u-flex-parent">
+                    <div class="image-grid__item image-grid__item--image u-flex u-flex--{{ block.settings.text_alignment }}{% if grid_item_width == '1/3' %} image-grid__item--p-{% endif %}">
+                      {% if block.settings.image %}
+                        {%- liquid
+                          assign loading = 'lazy'
+                          if section.location == 'template' and section.index == 1 and forloop.index <= 2
+                            assign loading = 'eager'
+                          endif
+
+                          assign additional_classes = 'image-grid__bg image-grid__bg--' | append: block.id
+                        -%}
+                        {% render 'image',
+                          image: block.settings.image,
+                          alt_string: block.settings.image.alt,
+                          additional_classes: additional_classes,
+                          image_ratio: 'natural',
+                          image_srcset_widths: '360, 540, 720, 900, 1080, 1296, 1512, 1728, 2048',
+                          image_sizes: sizes,
+                          render_skeleton: true,
+                          loading: loading
+                        %}
+                      {% else %}
+                        {% capture current %}{% cycle 1, 2, 3, 4, 5, 6 %}{% endcapture %}
+                        {{ 'collection-' | append: current | placeholder_svg_tag: 'image-grid__bg placeholder-svg' }}
+                      {% endif %}
+                      <div
+                        class="
+                          image-grid__bg--overlay
+                          u-bg-overlay
+                        "
+                        style="
+                          --overlay-color: {{ section.settings.overlay_color }};
+                          --overlay-opacity: {{ section.settings.overlay_strength | times: 1.0 | divided_by: 100 }};
+                        "
+                      ></div>
+                      <div class="image-grid__content">
+                        {% unless block.settings.title == blank %}
+                          <h3
+                            class="
+                              image-grid__title
+                              {% unless block.settings.text_border_color %}image-grid__title--adapt-border{% endunless %}
+                              {% if section.settings.featured and forloop.index == 1 %}h1{% else %}h2{% endif %}
+                            "
+                          >
+                            {{ block.settings.title }}
+                          </h3>
+                        {% endunless %}
+                        {% unless block.settings.text == blank %}
+                          <p class="image-grid__desc">{{ block.settings.text | escape }}</p>
+                        {% endunless %}
+                      </div>
+                    </div>
+                  </div>
+                  {% unless block.settings.link == blank %}
+                    </a>
+                  {% endunless %}
+                {% elsif block.type == 'video' %}
+                  {% unless block.settings.link == blank %}
+                    <a href="{{ block.settings.link }}" class="image-grid__link">
+                  {% endunless %}
+                  <div class="u-flex-parent">
+                    <div class="image-grid__item image-grid__item--video u-flex u-flex--{{ block.settings.text_alignment }}{% if grid_item_width == '1/3' %} image-grid__item--p-{% endif %}">
+                      {% if block.settings.video %}
+                        {% render 'lazy-video', video: block.settings.video, class: 'image-grid__bg' %}
+                      {% else %}
+                        {% capture current %}{% cycle 1, 2, 3, 4, 5, 6 %}{% endcapture %}
+                        {{ 'collection-' | append: current | placeholder_svg_tag: 'image-grid__bg placeholder-svg' }}
+                      {% endif %}
+                      <div
+                        class="
+                          image-grid__bg--overlay
+                          u-bg-overlay
+                        "
+                        style="
+                          --overlay-color: {{ section.settings.overlay_color }};
+                          --overlay-opacity: {{ section.settings.overlay_strength | times: 1.0 | divided_by: 100 }};
+                        "
+                      ></div>
+                      <div class="image-grid__content">
+                        {% unless block.settings.title == blank %}
+                          <h3
+                            class="
+                              image-grid__title
+                              {% unless block.settings.text_border_color %}image-grid__title--adapt-border{% endunless %}
+                              {% if section.settings.featured and forloop.index == 1 %}h1{% else %}h2{% endif %}
+                            "
+                          >
+                            {{ block.settings.title }}
+                          </h3>
+                        {% endunless %}
+                        {% unless block.settings.text == blank %}
+                          <p class="image-grid__desc">{{ block.settings.text | escape }}</p>
+                        {% endunless %}
+                      </div>
+                    </div>
+                  </div>
+                  {% unless block.settings.link == blank %}
+                    </a>
+                  {% endunless %}
+                {% else %}
+                  <div class="u-flex-parent">
+                    <div
+                      class="image-grid__item image-grid__item--text u-flex u-flex--middle u-flex--center{% if grid_item_width == '1/3' %} image-grid__item--p-{% endif %}"
+                      style="background-color:{{ block.settings.bg_color }};"
+                    >
+                      {% liquid
+                        if block.settings.text_color == 'rgba(0,0,0,0)'
+                          assign text_color = '#212121'
+                        else
+                          assign text_color = block.settings.text_color
+                        endif
+                        assign text_color_brightness = text_color | color_brightness
+                        if text_color_brightness > 125
+                          assign text_contrast_color = '#000'
+                        else
+                          assign text_contrast_color = '#fff'
+                        endif
+                      %}
+                      <div
+                        class="image-grid__content"
+                        style="
+                          --block-text-color: {{ text_color }};
+                          --block-text-contrast-color: {{ text_contrast_color }};
+                        "
+                      >
+                        {% unless block.settings.title == blank %}
+                          <h3
+                            class="
+                              image-grid__title
+                              {% unless block.settings.text_border_color %}image-grid__title--adapt-border{% endunless %}
+                              {% if section.settings.featured and forloop.index == 1 %}h1{% else %}h2{% endif %}
+                            "
+                            {% if block.settings.text_heading_color %}
+                              style="color:{{ settings.color_headings }}"
+                            {% endif %}
+                          >
+                            {{ block.settings.title }}
+                          </h3>
+                        {% endunless %}
+                        {% unless block.settings.text == blank %}
+                          <div class="image-grid__desc rte">{{ block.settings.text }}</div>
+                        {% endunless %}
+                        {% unless block.settings.link_text == blank %}
+                          <a
+                            href="{{ block.settings.link }}"
+                            class="{{ section.settings.button_style }} image-grid__btn"
+                          >
+                            {{- block.settings.link_text -}}
+                            {%- if section.settings.button_style contains 'link--arrow' -%}
+                              {% render 'icons-theme', icon: 'chevron' %}
+                            {%- endif -%}
+                          </a>
+                        {% endunless %}
+                      </div>
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endif %}
+
+{% if section.blocks.size == 0 %}
+  <div class="placeholder-noblocks">
+    {{ 'homepage.onboarding.no_content' | t }}
+  </div>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Image grid with text",
+  "class": "js-section__image-grid",
+  "max_blocks": 5,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Position and visibility"
+    },
+    {
+      "type": "checkbox",
+      "id": "featured",
+      "label": "Emphasize first block",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Height and width"
+    },
+    {
+      "type": "range",
+      "id": "section_height",
+      "label": "Section height (desktop)",
+      "unit": "px",
+      "min": 200,
+      "max": 800,
+      "step": 10,
+      "default": 450
+    },
+    {
+      "type": "range",
+      "id": "section_height_mobile",
+      "label": "Section height (mobile)",
+      "unit": "px",
+      "min": 150,
+      "max": 600,
+      "step": 10,
+      "default": 350
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "Section width",
+      "default": "full",
+      "options": [
+        {
+          "label": "Default",
+          "value": "large"
+        },
+        {
+          "label": "Narrow",
+          "value": "small"
+        },
+        {
+          "label": "Wide",
+          "value": "full"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Overlay color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "overlay_strength",
+      "label": "Overlay strength",
+      "unit": "%",
+      "min": 0,
+      "max": 100,
+      "step": 10,
+      "default": 10
+    },
+    {
+      "type": "header",
+      "content": "Block buttons"
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "Style",
+      "default": "c-btn c-btn--hollow",
+      "options": [
+        {
+          "value": "c-btn c-btn--primary",
+          "label": "Brand button"
+        },
+        {
+          "value": "c-btn c-btn--mono",
+          "label": "Mono button"
+        },
+        {
+          "value": "c-btn c-btn--hollow",
+          "label": "Outline button"
+        },
+        {
+          "value": "link link--arrow",
+          "label": "Chevron"
+        },
+        {
+          "value": "link--underline",
+          "label": "Body text"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Padding and margin"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "unit": "px",
+      "min": 0,
+      "max": 120,
+      "step": 3,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "unit": "px",
+      "min": 0,
+      "max": 120,
+      "step": 3,
+      "default": 0
+    },
+    {
+      "type": "checkbox",
+      "id": "section_bottom_margin",
+      "label": "Reduce bottom margin",
+      "default": false
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "Image block",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "2200px width recommended."
+        },
+        {
+          "type": "checkbox",
+          "id": "text_border_color",
+          "label": "Use default brand border color",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Image block"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Text",
+          "default": "Use these image blocks to tell your story, promote your products or create a beautiful gallery."
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "text_alignment",
+          "label": "Content position",
+          "default": "bottom",
+          "options": [
+            {
+              "value": "top",
+              "label": "Top"
+            },
+            {
+              "value": "middle",
+              "label": "Middle"
+            },
+            {
+              "value": "bottom",
+              "label": "Bottom"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "video",
+      "name": "Video block",
+      "settings": [
+        {
+          "type": "video",
+          "id": "video",
+          "label": "Video",
+          "info": "Background videos are looped with muted sound."
+        },
+        {
+          "type": "checkbox",
+          "id": "text_border_color",
+          "label": "Use default brand border color",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Video block"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Text",
+          "default": "Use these video blocks to tell your story, promote your products or create a beautiful gallery."
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "text_alignment",
+          "label": "Content position",
+          "default": "bottom",
+          "options": [
+            {
+              "value": "top",
+              "label": "Top"
+            },
+            {
+              "value": "middle",
+              "label": "Middle"
+            },
+            {
+              "value": "bottom",
+              "label": "Bottom"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text block",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Text block"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Use these text blocks to promote seasonal sales, store events or to tell your brand's story.</p>"
+        },
+        {
+          "type": "text",
+          "id": "link_text",
+          "label": "Button label",
+          "default": "Learn more"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Button link"
+        },
+        {
+          "type": "header",
+          "content": "Colors"
+        },
+        {
+          "type": "color",
+          "id": "bg_color",
+          "label": "Text container",
+          "default": "#F2F2F2"
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Text",
+          "default": "#212121"
+        },
+        {
+          "type": "checkbox",
+          "id": "text_heading_color",
+          "label": "Use default heading color",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "text_border_color",
+          "label": "Use default brand border color",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Image grid with text",
+      "blocks": [
+        {
+          "type": "image"
+        },
+        {
+          "type": "text"
+        },
+        {
+          "type": "text"
+        },
+        {
+          "type": "image"
+        }
+      ]
+    }
+  ],
+  "enabled_on": {
+    "templates": ["*"],
+    "groups": ["footer"]
+  }
+}
+{% endschema %}

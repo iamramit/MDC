@@ -1,0 +1,176 @@
+ <!-- /sections/index-video-background.liquid -->
+  {% if section.settings.hero_video_link.url != blank %}
+    {% assign video_code = section.settings.hero_video_link.url | split: '.com/' %}
+{% endif %}
+
+
+<div class="background-vid-wrapper" style="background-color:{{section.settings.bg_color}}">
+   {% unless section.settings.overlay_color == blank %}
+   {% assign overlay_opacity = section.settings.overlay_opacity | times: 0.01 %}
+  <div class="bg-overlay" style="background-color:{{ section.settings.overlay_color }} !important ; opacity: {{ overlay_opacity }}"></div>
+    {% endunless %}
+    {% if section.settings.hero_video_link.url != blank %}
+  <iframe src="https://player.vimeo.com/video/{{video_code[1]}}?background=1&autoplay=1&loop=1&autopause=0" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+{% endif %}
+</div>
+<main>
+<div class="hero">
+  <div class="container">
+    <h1 class="huge" style="color:{{section.settings.text_color}}">{{section.settings.title}}</h1>
+  </div>
+</div>
+</main>
+
+{% schema %}
+{
+  "name": "Background video",
+  "class": "featured-video-section section-fullscreen",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Video"
+    },
+    {
+      "type": "video_url",
+      "id": "hero_video_link",
+      "label": "Video link",
+      "accept": ["youtube", "vimeo"],
+      "info": "YouTube and Vimeo links only"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background color",
+      "default": "#000",
+      "info": "will work only if video is not present"
+    },
+    {
+      "type": "header",
+      "content": "Overlay"
+    },
+    {
+      "type":  "range",
+      "id":    "overlay_opacity",
+      "label": "Opacity",
+      "info":  "Increase contrast for legible text.",
+      "min":    0,
+      "max":    90,
+      "step":   5,
+      "unit":   "%",
+      "default":15
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Overlay color",
+      "default": "#fff"
+    },
+    {
+      "type": "header",
+      "content": "Text"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Background video"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#fff"
+    },
+    {
+      "type": "select",
+      "id": "flex_align",
+      "label": "Text alignment",
+      "default": "align--middle-center",
+      "options": [
+        { "value": "align--top-left", "label": "Top left"},
+        { "value": "align--top-center", "label": "Top center"},
+        { "value": "align--top-right", "label": "Top right"},
+        { "value": "align--middle-left", "label": "Middle left"},
+        { "value": "align--middle-center", "label": "Absolute center"},
+        { "value": "align--middle-right", "label": "Middle right"},
+        { "value": "align--bottom-left", "label": "Bottom left"},
+        { "value": "align--bottom-center", "label": "Bottom center"},
+        { "value": "align--bottom-right", "label": "Bottom right"}
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Background video",
+      "category": "video"
+    }
+  ]
+}
+{% endschema %}
+
+
+<style>
+.background-vid-wrapper {
+	position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+
+}
+  
+.background-vid-wrapper  .bg-overlay{height: 100%;
+    width: 100%;
+    position: absolute;
+    z-index: 10;}
+.background-vid-wrapper:before {
+	content: '';
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0,0,0,0.05);
+	top: 0;
+	left: 0;
+	z-index: 1;
+}
+.background-vid-wrapper > iframe {
+  position: absolute;
+  left: 50%;
+	top: 50%;
+  transform: translate(-50%, -50%);
+	box-sizing: border-box;
+	height: 56.25vw;
+	min-height: 100%;
+	min-width: 100%;
+	width: 177.77777778vh;
+	z-index: 0;
+}
+  #shopify-section-header{position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 11111;}
+  
+  header,.header.js-header-sticky--fixed{background-color:transparent!important;border-color:transparent}
+  .primary-nav__link, .secondary-nav__link,.secondary-nav__link--search{color:#fff}
+  
+  main{z-index:2;position:relative}
+  .hero{
+    background-size: cover;
+    background-position: 50% 50%;
+/*     height: 30vw; */
+    
+      height: 100vh;
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: 9vh;
+    justify-content: center;
+
+  }
+  
+  .announcement__link{display:none}
+</style>

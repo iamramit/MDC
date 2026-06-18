@@ -1,0 +1,88 @@
+{%- liquid
+  assign container_ratio = settings.product_grid_image_size
+  assign fit_image_to_container = settings.product_grid_image_fit
+
+  assign cart_item_attributes = cart_item_attributes | append: ' image-container-ratio="' | append: container_ratio | append: '"'
+  if fit_image_to_container
+    assign cart_item_attributes = cart_item_attributes | append: ' image-fit'
+  endif
+
+  assign cart_item_classes = 'cart-item cart-item--media-ratio-' | append: container_ratio
+  if fit_image_to_container
+    assign cart_item_classes = cart_item_classes | append: ' cart-item--media-fit'
+  else
+    assign cart_item_classes = cart_item_classes | append: ' cart-item--media-crop'
+  endif
+-%}
+<link
+  rel="stylesheet"
+  href="{{ 'component-cart.css' | asset_url }}"
+  media="print"
+  onload="this.media='all'"
+>
+<div class="cart-notification__head">
+  <h4 id="popup-cart-notification-title" class="cart-notification__title">{{ 'cart.general.added_to_cart' | t }}</h4>
+</div>
+<button
+  title="{{ 'layout.drawers.close' | t }}"
+  type="button"
+  class="popup__close"
+  aria-label="{{ 'layout.drawers.close' | t }}"
+  data-a11y-dialog-hide
+>
+  {% render 'icons-theme', icon: 'close' %}
+</button>
+<cart-notification>
+  <div class="cart-notification__content">
+    <div class="{{ cart_item_classes }}" {{ cart_item_attributes }}>
+      <div class="cart-item__media">
+        <div class="o-ratio o-ratio--{{ container_ratio }} o-ratio--bg-product">
+          <cart-item-image-container class="o-ratio__content">
+            {% render 'image',
+              additional_classes: 'cart-item__image',
+              image_default_width: 120,
+              image_ratio: container_ratio,
+              image_fit: fit_image_to_container,
+              image_srcset_widths: '120, 240, 360, 480',
+              image_sizes: '100px',
+              alt_string: 'Loading...',
+              render_skeleton: true
+            %}
+          </cart-item-image-container>
+        </div>
+      </div>
+
+      <div class="cart-item__header">
+        {%- if settings.cart_vendor_enable -%}
+          <cart-item-vendor></cart-item-vendor>
+        {%- endif -%}
+        <h2 class="cart-item__heading f-family--body"><cart-item-title></cart-item-title></h2>
+      </div>
+
+      <div class="cart-item__details">
+        <cart-item-default-property></cart-item-default-property>
+      </div>
+    </div>
+
+    <div class="cart-notification__actions">
+      <a
+        href="{{ routes.cart_url }}"
+        class="cart-notification__checkout c-btn c-btn--small c-btn--full c-btn--primary"
+        name="checkout"
+      >
+        {{- 'cart.general.view_cart' | t -}}
+      </a>
+      <a
+        {% if settings.cart_continue_link %}
+          href="{{ settings.cart_continue_link }}"
+        {% else %}
+          aria-label="{{ 'layout.drawers.close' | t }}"
+          data-a11y-dialog-hide
+        {% endif %}
+        class="cart-notification__continue c-btn c-btn--small c-btn--full c-btn--hollow"
+      >
+        {{- 'cart.general.continue_shopping' | t -}}
+      </a>
+    </div>
+  </div>
+</cart-notification>

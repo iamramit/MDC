@@ -1,0 +1,106 @@
+<!-- snippet/blog-grid-item.liquid -->
+{%- liquid
+  case grid
+    when 1
+      assign sizes = '(min-width: 740px) 680px, calc(100vw - 60px)'
+    when 2
+      assign sizes = '(min-width: 980px) calc(890px / 2), (min-width: 768px) calc((100vw - 90px) / 2), calc(100vw - 60px)'
+      if page_width == 'large'
+        assign sizes = '(min-width: 1401px) calc(1310px / 2), (min-width: 768px) calc((100vw - 90px) / 2), calc(100vw - 60px)'
+      elsif page_width == 'full'
+        assign sizes = '(min-width: 768px) calc((100vw - 90px) / 2), calc(100vw - 60px)'
+      endif
+    when 3
+      assign sizes = '(min-width: 980px) calc(860px / 3), (min-width: 768px) calc((100vw - 90px) / 2), calc(100vw - 60px)'
+      if page_width == 'large'
+        assign sizes = '(min-width: 1401px) calc(1280px / 3), (min-width: 768px) calc((100vw - 90px) / 2), calc(100vw - 60px)'
+      elsif page_width == 'full'
+        assign sizes = '(min-width: 980px) calc((100vw - 120px) / 3), (min-width: 768px) calc((100vw - 90px) / 2), calc(100vw - 60px)'
+      endif
+  endcase
+-%}
+<div class="blog{% unless article.image %} blog--no-image{% endunless %}{% unless show_date %} blog--no-date{% endunless %}">
+  {% if article.image %}
+    <div class="blog__media-wrapper">
+      <a href="{{ article.url }}" class="home-blog__link blog-link">
+        <div class="blog__media">
+          <div
+            class="o-ratio o-ratio--{{ image_ratio }}"
+            {% if article.image == null and image_ratio == 'natural' %}
+              style="padding-bottom:100%;"
+            {% elsif article.image != null and image_ratio == 'natural' %}
+              style="padding-bottom:{{ 1 | divided_by: article.image.aspect_ratio | times: 100 }}%;"
+            {% endif %}
+          >
+            <div class="o-ratio__content">
+              {%- liquid
+                assign loading = 'lazy'
+                if section.location == 'template' and section.index == 1
+                  if grid == 1 and index == 1
+                    assign loading = 'eager'
+                  elsif grid == 2 and index < 3
+                    assign loading = 'eager'
+                  elsif grid == 3 and index < 4
+                    assign loading = 'eager'
+                  endif
+                endif
+              -%}
+              {% render 'image',
+                image: article.image,
+                alt_string: article.image.alt,
+                additional_classes: 'home-blog__media-img blog__img',
+                image_ratio: 'natural',
+                image_srcset_widths: '360, 540, 720, 900, 1080, 1296',
+                image_sizes: sizes,
+                render_skeleton: true,
+                loading: loading
+              %}
+            </div>
+          </div>
+        </div>
+      </a>
+      {% if show_date %}
+        <div class="blog__date label label--brand{% if settings.product_grid_label_position_left %} blog__date--position_left{% endif %}">
+          <p class="blog__date-text label__text">{{ article.published_at | date: format: 'abbreviated_date' }}</p>
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <div class="blog__details {% if page_width == 'large' %}blog__details--large{% endif %} {% if page_width == 'full' %}blog__details--full{% endif %}">
+    {% unless article.image %}
+      {% if show_date %}
+        <div class="blog__date blog__date--inline label label--brand{% if settings.product_grid_label_position_left %} blog__date--position_left{% endif %}">
+          <p class="blog__date-text label__text">{{ article.published_at | date: format: 'abbreviated_date' }}</p>
+        </div>
+      {% endif %}
+    {% endunless %}
+    <div class="blog__meta">
+      {% if article.tags.size > 0 and show_tags %}
+        <div class="blog__meta-tags blog__meta__item">
+          {% for tag in article.tags -%}
+            <a href="{{ blog_url }}/tagged/{{ tag | handle }}" class="blog__meta-tags__link">
+              {{- tag -}}
+            </a>
+            {%- unless forloop.last %} / {% endunless -%}
+          {%- endfor %}
+        </div>
+      {% endif %}
+    </div>
+    <a href="{{ article.url }}" class="home-blog__link blog-link">
+      <h2 class="blog__title h2">{{ article.title }}</h2>
+    </a>
+    <div class="blog__text rte">
+      {% if article.excerpt.size > 0 %}
+        {{ article.excerpt | strip_html }}
+      {% else %}
+        {{ article.content | strip_html | truncate: 120 }}
+      {% endif %}
+    </div>
+    {% if show_read_more %}
+      <a href="{{ article.url }}" class="home-blog__link blog-link">
+        <p class="blog__text-link">{{ 'blogs.blog.read_more' | t }}</p>
+      </a>
+    {% endif %}
+  </div>
+</div>

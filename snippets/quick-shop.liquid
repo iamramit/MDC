@@ -1,0 +1,604 @@
+{% comment %}theme-check-disable RemoteAsset, TemplateLength{% endcomment %}
+{%- doc -%}
+  Render quick shop
+
+  Accepts:
+
+  @param {string} id - Unique id of the item
+  @param {string} card_id - Unique id of the cart item
+  @param {object} [product] - Product object
+  @param {object} [section] - Section
+  @param {object} [collection] - Collection if product is within one
+  @param {boolean} [notify_on_add] - Show notification
+  @param {string} [image_ratio] - Image ratio string. Values are "1:1", "3:4", "4:3", "16:9", "2:3", "natural"
+  @param {string} [image_sizes] - Image sizes attribute string
+  @param {boolean} [fit_image_to_container] - Fit image into container, or resize
+  @param {string} [image_placeholder_file_name] - Image tag
+{%- enddoc -%}
+{%- liquid
+  if notify_on_add == null
+    assign notify_on_add = settings.quick_shop_show_cart
+  endif
+
+  if request.page_type == 'cart' and settings.cart_type == 'modal'
+    assign notify_on_add = false
+  endif
+
+  unless image_ratio
+    assign image_ratio = settings.product_grid_image_size
+  endunless
+
+  if fit_image_to_container == null
+    assign fit_image_to_container = settings.product_grid_image_fit
+  endif
+
+  assign container_ratio = image_ratio
+
+  comment
+    TODO: Sizes
+  endcomment
+  unless image_sizes
+    assign image_sizes = '(min-width: 768px) and (min-height: 601px) 151px, (min-width: 768px): 113px, calc(25vw - 30px)'
+  endunless
+
+  assign description = null
+
+  if product
+    if id == blank
+      assign id = product.id | append: '--quickshop'
+    endif
+
+    assign current_variant = product.selected_or_first_available_variant
+
+    assign product_title = product.title
+    assign product_vendor = product.vendor
+    assign product_url = product.url | within: collection
+
+    if settings.quick_shop_product_description > 0
+      if product.metafields.quick_shop.description != blank
+        assign description = product.metafields.quick_shop.description | metafield_tag
+      else
+        assign description = product.description | strip_html | truncatewords: settings.quick_shop_product_description
+      endif
+    endif
+
+    assign image = null
+    comment
+      Process first variant image
+    endcomment
+    assign image = product.featured_media.preview_image
+    if current_variant.featured_media.preview_image != null
+      assign image = current_variant.featured_media.preview_image
+    endif
+  else
+    assign product_title = 'homepage.onboarding.product_title' | t
+    assign product_vendor = 'homepage.onboarding.product_vendor' | t
+    assign product_url = '#'
+
+    unless image_placeholder_file_name
+      assign image_placeholder_file_name = 'product-1'
+    endunless
+  endif
+-%}
+
+<quick-shop
+  id="{{ id }}"
+  class="
+    modal
+    modal--right
+    modal--quick-shop
+    quick-shop--drawer-{{ settings.color_drawer_style }}
+    quick-shop--media-ratio-{{ container_ratio }}
+  "
+  {% if product %}
+    data-product-url="{{ product.url }}"
+  {% endif %}
+  {% if notify_on_add %}
+    notify-on-add
+  {% endif %}
+  image-container-ratio="{{ container_ratio }}"
+  image-sizes="{{ image_sizes }}"
+  {% if fit_image_to_container %}
+    image-fit
+  {% endif %}
+  card-id="{{ card_id }}"
+  aria-labelledby="title-{{ id }}"
+  aria-hidden="true"
+>
+  <div class="modal__overlay" data-a11y-dialog-hide></div>
+
+  <div class="modal__wrapper" role="document">
+    <div class="quick-shop__wrapper">
+      <div class="quick-shop__header">
+        <div class="product-card__details">
+          <a href="{{ product_url }}" class="product-card__link js-product-link" title="{{ product_title }}">
+            {%- if settings.product_grid_vendor -%}
+              <p class="product-card__vendor">{{ product_vendor }}</p>
+            {%- endif -%}
+            <h3 id="title-{{ id }}" class="quick-shop__title">{{ product_title }}</h3>
+          </a>
+        </div>
+
+        <button
+          title="{{ 'layout.drawers.close' | t }}"
+          type="button"
+          class="modal__close"
+          aria-label="{{ 'layout.drawers.close' | t }}"
+          data-a11y-dialog-hide
+        >
+          {% render 'icons-theme', icon: 'close' %}
+        </button>
+      </div>
+
+      <div class="quick-shop__main">
+        <div class="product-card__wrapper">
+          {%- if product -%}
+            {% render 'product-grid-label', product: product %}
+          {%- endif -%}
+
+          <div
+            class="
+              product-card__media
+              product-card__media--modal
+              {% comment %} {% if secondary_image -%}
+                product-card__media--hover-image {% endcomment %}
+              {% if settings.product_grid_hover == 'zoom' %}
+                product-card__media--hover-zoom
+              {%- endif %}
+              {% if fit_image_to_container -%}
+                product-card__media--fit
+              {% else %}
+                product-card--crop
+              {%- endif %}
+            "
+          >
+            <div
+              class="
+                o-ratio
+                o-ratio--{{ container_ratio }}
+              "
+              {% if image == null and image_ratio == 'natural' %}
+                style="padding-bottom:100%;"
+              {% elsif image != null and image_ratio == 'natural' %}
+                style="padding-bottom:{{ 1 | divided_by: image.aspect_ratio | times: 100 }}%;"
+              {% endif %}
+            >
+              <div class="o-ratio__content">
+                <a
+                  href="{{ product_url }}"
+                  class="product-card__link product-card__link--full-opacity js-product-link{% if page == 'home' %} home-products__link{% endif %}"
+                  title="{{ product_title }}"
+                  tabindex="-1"
+                >
+                  {%- if product -%}
+                    {% render 'theme-spinner',
+                      tag: 'product-card-spinner',
+                      additional_classes: 'product-card__spinner'
+                    %}
+                    {%- comment -%}
+                      If ever used as rendered, without the QS placeholder,
+                      check the use of "loading" and "fetch_priority" attributes
+                    {%- endcomment -%}
+                    {% render 'image',
+                      image: image,
+                      additional_classes: 'product-card__img js-img-modal',
+                      image_ratio: container_ratio,
+                      image_fit: fit_image_to_container,
+                      image_srcset_widths: '180, 360, 540, 720, 900, 1080, 1296, 1512',
+                      image_sizes: image_sizes,
+                      render_skeleton: true,
+                      minimum_reveal_delay: 100,
+                      loading: 'eager',
+                      fetch_priority: 'high'
+                    %}
+                  {%- else -%}
+                    {{
+                      image_placeholder_file_name
+                      | placeholder_svg_tag: 'product-card__img placeholder-svg placeholder-svg--light'
+                    }}
+                  {%- endif -%}
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="product-card__details is-hidden-in-drawer">
+          <a href="{{ product_url }}" class="product-card__link js-product-link" title="{{ product_title }}">
+            {%- if settings.product_grid_vendor -%}
+              <p class="product-card__vendor u-medium-small h3">{{ product_vendor }}</p>
+            {%- endif -%}
+            <h3
+              id="title-{{ id }}"
+              class="
+                product-card__title
+                f-family--{{ settings.type_grid_style }}
+                f-caps--{{ settings.type_grid_capitalize }}
+                f-space--{{ settings.type_grid_letterspace }}
+              "
+            >
+              {{ product_title }}
+            </h3>
+          </a>
+        </div>
+
+        <div class="product-card__price">
+          <div class="product-card__details__hover u-medium">
+            <a
+              href="{{ product_url }}"
+              class="product-card__link js-product-link"
+              title="{{ product_title }}"
+              tabindex="-1"
+            >
+              {%- if product -%}
+                {%- liquid
+                  assign price_id = 'price-' | append: id
+                -%}
+                {% render 'product-price',
+                  product: product,
+                  id: price_id,
+                  show_price_notes: false,
+                  use_variant: true,
+                  from_price: false
+                %}
+              {%- else -%}
+                {% render 'product-price', show_price_notes: false, use_variant: true, from_price: true %}
+              {%- endif -%}
+            </a>
+          </div>
+        </div>
+
+        {%- if settings.product_grid_reviews and product.metafields.reviews.rating.value != blank -%}
+          {%- liquid
+            assign rating_decimal = 0
+            assign decimal = product.metafields.reviews.rating.value.rating | modulo: 1
+            if decimal >= 0.3 and decimal <= 0.7
+              assign rating_decimal = 0.5
+            elsif decimal > 0.7
+              assign rating_decimal = 1
+            endif
+          -%}
+
+          <div class="product-card__rating">
+            <a
+              href="{{ product_url }}"
+              class="product-card__link js-product-link"
+              title="{{ product_title }}"
+              tabindex="-1"
+            >
+              <div class="review-wrapper">
+                <div
+                  class="rating"
+                  role="img"
+                  aria-label="{{ 'accessibility.star_reviews_info' | t: rating_value: product.metafields.reviews.rating.value, rating_max: product.metafields.reviews.rating.value.scale_max }}"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="rating-star color-icon-{{ settings.accent_icons }}"
+                    style="--rating: {{ product.metafields.reviews.rating.value.rating | floor }}; --rating-max: {{ product.metafields.reviews.rating.value.scale_max }}; --rating-decimal: {{ rating_decimal }};"
+                  ></span>
+                </div>
+                <div class="review-text-wrapper">
+                  <p class="rating-text caption">
+                    <span aria-hidden="true">
+                      {{- product.metafields.reviews.rating.value }} /
+                      {{ product.metafields.reviews.rating.value.scale_max -}}
+                    </span>
+                  </p>
+                  <p class="rating-count u-small caption">
+                    <span aria-hidden="true">({{ product.metafields.reviews.rating_count }})</span>
+                    <span class="visually-hidden">{{ product.metafields.reviews.rating_count }}</span>
+                  </p>
+                </div>
+              </div>
+            </a>
+          </div>
+        {%- endif -%}
+
+        <hr class="product-form__divider">
+
+        {%- liquid
+          if product.variants_count == 1 and product.variants.first.title contains 'Default'
+            assign hide_default_title = true
+          else
+            assign hide_default_title = false
+          endif
+
+          assign product_form_id = 'product-form-' | append: id
+        -%}
+
+        {%- if shop.shipping_policy.body != blank
+          and settings.price_details_shipping_show
+          or cart.taxes_included
+          and settings.price_details_tax_show
+          or current_variant.unit_price
+          and product
+        -%}
+          <div class="price__notes">
+            {%- if product -%}
+              <p id="unit-price-{{ id }}" class="price__note price__note--unit">
+                {%- if current_variant.unit_price -%}
+                  {% render 'product-unit-price', product: product, variant: current_variant %}
+                {%- endif -%}
+              </p>
+            {%- endif -%}
+            {%- if cart.taxes_included and settings.price_details_tax_show -%}
+              <p class="price__note price__note--tax">
+                {{ 'products.general.include_taxes' | t }}
+              </p>
+            {%- endif -%}
+            {%- if shop.shipping_policy.body != blank and settings.price_details_shipping_show -%}
+              <p class="price__note price__note--tax">
+                {{ 'products.general.shipping_policy_html' | t: link: shop.shipping_policy.url }}
+              </p>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+
+        {%- if product -%}
+          {%- unless hide_default_title -%}
+            <div class="product-form__variant product-form__variant--{{ settings.quick_shop_variant_style }}">
+              <div class="product-form__swatches">
+                {% render 'product-options',
+                  product: product,
+                  id: id,
+                  section_id: section.id,
+                  card_id: id,
+                  display_style: settings.quick_shop_variant_style,
+                  product_form_id: product_form_id,
+                  view_id: 'quick-shop'
+                %}
+              </div>
+            </div>
+          {%- endunless -%}
+        {%- endif -%}
+
+        {%- if settings.quick_shop_quantity_selector or settings.quick_shop_inventory_notice -%}
+          <div class="product-form__qty-wrapper">
+            {%- if settings.quick_shop_quantity_selector -%}
+              <div class="product-form__qty">
+                <div class="product-form__qty-input">
+                  <quantity-input>
+                    <button minus type="button" aria-label="{{ 'cart.general.reduce_quantity' | t }}">
+                      <span aria-hidden="true">&minus;</span>
+                    </button>
+                    {% comment %} TODO: quantity_rule {% endcomment %}
+                    <input
+                      id="Quantity-{{ product_form_id }}"
+                      type="number"
+                      value="1"
+                      min="1"
+                      step="1"
+                      name="quantity"
+                      autocomplete="off"
+                      form="{{ product_form_id }}"
+                    >
+                    <button plus type="button" aria-label="{{ 'cart.general.increase_quantity' | t }}">
+                      <span aria-hidden="true">+</span>
+                    </button>
+                  </quantity-input>
+                </div>
+              </div>
+            {%- endif -%}
+
+            {%- if settings.quick_shop_inventory_notice -%}
+              <div
+                id="inventory-notice-{{ id }}"
+                data-inventory-limit="{{ settings.quick_shop_inventory_limit }}"
+                data-show-qty="{{ settings.quick_shop_inventory_show_qty }}"
+              >
+                {%- liquid
+                  assign qty_sold = true
+                  if current_variant.available
+                    assign qty_sold = false
+
+                    assign continue_selling = false
+                    if current_variant.inventory_policy == 'continue'
+                      assign continue_selling = true
+                    endif
+
+                    assign shopify_managed = false
+                    if current_variant.inventory_management == 'shopify'
+                      assign shopify_managed = true
+                    endif
+
+                    assign qty_number = false
+                    if shopify_managed and settings.quick_shop_inventory_show_qty
+                      if continue_selling == false or current_variant.inventory_quantity > 0
+                        assign qty_number = true
+                      endif
+                    endif
+
+                    assign qty_low = false
+                    if shopify_managed and current_variant.inventory_quantity <= settings.quick_shop_inventory_limit
+                      if continue_selling == false or current_variant.inventory_quantity > 0
+                        assign qty_low = true
+                      endif
+                    endif
+                  endif
+                -%}
+
+                <div
+                  class="
+                    stock-note
+                    u-flex
+                    u-flex--middle
+                    {% if qty_sold %}
+                      stock-note--sold
+                    {% else %}
+                      stock-note--in-stock
+                      {% if qty_low %}
+                        stock-note--low
+                      {% endif %}
+                    {% endif %}
+                  "
+                >
+                  <div
+                    class="
+                      pulsating-dot
+                      stock-note__dot
+                    "
+                  >
+                    <div class="pulsating-dot__ring"></div>
+                    <div class="pulsating-dot__circle"></div>
+                  </div>
+
+                  <p class="stock-note__text">
+                    {%- if qty_sold -%}
+                      {{ 'products.product.qty_notice_sold_out' | t }}
+                    {%- else -%}
+                      {%- if qty_number -%}
+                        {%- if qty_low -%}
+                          {{
+                            'products.product.qty_notice_number_low_stock_html'
+                            | t: count: current_variant.inventory_quantity
+                          }}
+                        {%- else -%}
+                          {{
+                            'products.product.qty_notice_number_in_stock_html'
+                            | t: count: current_variant.inventory_quantity
+                          }}
+                        {%- endif -%}
+                      {%- else -%}
+                        {%- if qty_low -%}
+                          {{ 'products.product.qty_notice_low_stock' | t }}
+                        {%- else -%}
+                          {%- if continue_selling and current_variant.inventory_quantity < 1 -%}
+                            {{ 'products.product.qty_notice_continue_selling' | t }}
+                          {%- else -%}
+                            {{ 'products.product.qty_notice_in_stock' | t }}
+                          {%- endif -%}
+                        {%- endif -%}
+                      {%- endif -%}
+                    {%- endif -%}
+                  </p>
+                </div>
+              </div>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      </div>
+
+      <div class="quick-shop__buttons">
+        {%- if product -%}
+          <product-form
+            {% if settings.cart_type == 'page' %}
+              redirect-on-add="{{ routes.cart_url }}"
+            {% elsif notify_on_add %}
+              notify-on-add
+            {% endif %}
+          >
+            {% form 'product', product, class: 'product-form product-form--card js-product-form', id: product_form_id %}
+              <div
+                class="
+                  product-form__add
+                  js-product-buttons
+                  {% if settings.quick_shop_payment_button %}product-form__add--dynamic{% endif %}
+                  {% if current_variant.available == false %}is-disabled{% endif %}
+                "
+              >
+                <input
+                  type="hidden"
+                  name="id"
+                  value="{{ current_variant.id }}"
+                  {% unless settings.cart_type == 'page' %}
+                    disabled
+                  {% endunless %}
+                >
+                <button
+                  type="submit"
+                  name="add"
+                  class="
+                    c-btn
+                    c-btn--full
+                    {% if settings.quick_shop_payment_button %}c-btn--hollow{% else %}c-btn--primary{% endif %}
+                    product-form__add-btn
+                    js-product-add
+                  "
+                  {% if current_variant.available == false or current_variant == blank %}
+                    disabled
+                  {% endif %}
+                >
+                  <staged-action class="staged-action">
+                    <staged-action-text class="staged-action__text">
+                      {%- if current_variant.available -%}
+                        {%- if product.template_suffix contains 'pre-order' -%}
+                          {{ 'products.product.pre_order' | t }}
+                        {%- else -%}
+                          {{ 'products.product.add_to_cart' | t }}
+                        {%- endif -%}
+                      {%- elsif current_variant != null -%}
+                        {{ 'products.product.sold_out' | t }}
+                      {%- else -%}
+                        {{ 'products.product.unavailable' | t }}
+                      {%- endif -%}
+                    </staged-action-text>
+                    <staged-action-tick class="staged-action__tick">
+                      {% render 'icons-theme', icon: 'check' %}
+                    </staged-action-tick>
+                    <staged-action-spinner class="staged-action__spinner">
+                      {% render 'theme-spinner' %}
+                    </staged-action-spinner>
+                  </staged-action>
+                </button>
+
+                {%- if settings.quick_shop_payment_button -%}
+                  <dynamic-button
+                    class="dynamic-button"
+                    {% unless current_variant.available %}
+                      hidden
+                    {% endunless %}
+                  >
+                    <div class="dynamic-button__placeholder skeleton-button">
+                      <span
+                        class="skeleton-text skeleton-text--inverse skeleton-text--small skeleton-text--inline skeleton-text--1/2"
+                      ></span>
+                    </div>
+                    {{ form | payment_button }}
+                  </dynamic-button>
+                {%- endif -%}
+              </div>
+            {% endform %}
+          </product-form>
+        {%- else -%}
+          <div class="product-form__add js-product-buttons{% if settings.quick_shop_payment_button %} product-form__add--dynamic{% endif %}">
+            <button
+              type="submit"
+              name="add"
+              class="c-btn c-btn--full c-btn--{% if settings.quick_shop_payment_button %}hollow{% else %}primary{% endif %} product-form__add-btn js-product-add"
+            >
+              <span>
+                <span class="js-product-add-text">{{ 'products.product.add_to_cart' | t }}</span>
+              </span>
+            </button>
+          </div>
+        {%- endif -%}
+      </div>
+
+      {%- if product -%}
+        <div class="quick-shop__footer">
+          {%- if description -%}
+            <div class="product-card__description">
+              {{- description -}}
+            </div>
+          {%- endif -%}
+          <div class="product-card__more">
+            <a
+              href="{{ product.url | within: collection }}"
+              class="product-card-details js-view-details"
+              title="{{ product.title }}"
+            >
+              {{- 'general.quickshop.view_details' | t -}}
+            </a>
+          </div>
+        </div>
+      {%- endif -%}
+
+      {%- if product -%}
+        <script type="application/json" id="ProductJson-{{ id }}">
+          {{ product | json }}
+        </script>
+      {%- endif -%}
+    </div>
+  </div>
+</quick-shop>

@@ -1,0 +1,141 @@
+/* ==========================================================================
+   #COUNTDOWN TIMER
+   ========================================================================== */
+countdown-timer {
+  display: block;
+  position: relative;
+  color: var(--countdown-timer-content-color);
+  opacity: 0;
+  transition: 0.5s ease-out opacity;
+}
+countdown-timer[loaded] {
+  opacity: 1;
+}
+countdown-timer .countdown {
+  margin: 0 auto;
+  max-width: min-content;
+  display: grid;
+  grid-template-columns: minmax(auto, 1fr) 0fr minmax(auto, 1fr) 0fr minmax(auto, 1fr) 0fr minmax(auto, 1fr);
+  grid-template-columns: auto 0fr 1fr 0fr 1fr 0fr 1fr;
+  gap: clamp(0.1em, var(--countdown-timer-divider-gap) * 0.8, 3vw);
+}
+@media (max-width: 47.9275em) {
+  countdown-timer .countdown {
+    gap: clamp(0.1em, 15px, 1.5vw);
+  }
+}
+@media (max-width: 47.9275em) {
+  countdown-timer .countdown--line, countdown-timer .countdown--none {
+    gap: clamp(0.1em, 15px, 3vw);
+  }
+}
+countdown-timer .countdown__unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+}
+countdown-timer .countdown__value {
+  line-height: 1em;
+  text-align: center;
+  display: inline-block;
+  position: relative;
+  width: 2.5ch;
+}
+countdown-timer .countdown__divider {
+  display: flex;
+  justify-content: center;
+  line-height: 0.75em;
+}
+countdown-timer .countdown--colon .countdown__divider {
+  scale: 0.8;
+  position: relative;
+  bottom: 1px;
+  width: clamp(1rem, var(--countdown-timer-text-size), 2vw);
+  width: 1rem;
+}
+@media (max-width: 47.9275em) {
+  countdown-timer .countdown--colon .countdown__divider {
+    width: clamp(1rem, var(--countdown-timer-text-size-mobile), 3vw);
+  }
+}
+countdown-timer .countdown__divider--line {
+  border-right: 1px solid var(--countdown-timer-border-color);
+}
+countdown-timer .countdown__value,
+countdown-timer .countdown__divider {
+  font-size: clamp(1rem, var(--countdown-timer-text-size), 8.5vw);
+}
+@media (max-width: 61.24em) {
+  countdown-timer .countdown__value,
+  countdown-timer .countdown__divider {
+    font-size: clamp(1rem, var(--countdown-timer-text-size-mobile), 6.5vw);
+  }
+}
+@media (max-width: 47.9275em) {
+  countdown-timer .countdown__value,
+  countdown-timer .countdown__divider {
+    font-size: clamp(1rem, var(--countdown-timer-text-size-mobile), 8vw);
+  }
+}
+countdown-timer .countdown__label {
+  position: relative;
+  letter-spacing: 1px;
+  line-height: 1.2em;
+  padding-top: 3px;
+  font-size: calc(var(--countdown-timer-text-size) / 5);
+}
+@media (max-width: 61.24em) {
+  countdown-timer .countdown__label {
+    font-size: clamp(0.1rem, var(--countdown-timer-text-size-mobile) / 5, 2.5vw);
+  }
+}
+countdown-timer .countdown--border .countdown__unit {
+  border: 1px solid var(--countdown-timer-border-color);
+  border-radius: 6px;
+  padding: 0.6rem;
+}
+@media (max-width: 47.9275em) {
+  countdown-timer .countdown--border .countdown__unit {
+    padding: 0.35rem;
+  }
+}
+countdown-timer .countdown__completion-message {
+  max-width: 600px;
+  margin: 0 auto;
+  position: relative;
+  color: var(--text-color);
+  font-size: 1.36rem;
+  line-height: 1.45;
+  text-align: center;
+  margin-bottom: 12px;
+}
+@media (max-width: 47.9275em) {
+  countdown-timer .countdown__completion-message {
+    font-size: 1.16rem;
+    line-height: 1.5;
+  }
+}
+countdown-timer .countdown--body .countdown__unit,
+countdown-timer .countdown--body .countdown__divider {
+  font-family: var(--font--body);
+  font-weight: var(--font--body-weight);
+  font-style: var(--font--body-style);
+}
+countdown-timer .countdown--heading .countdown__unit,
+countdown-timer .countdown--heading .countdown__divider {
+  font-family: var(--font--title);
+  font-weight: var(--font--title-weight);
+  font-style: var(--font--title-style);
+}
+countdown-timer .countdown--mono .countdown__unit,
+countdown-timer .countdown--mono .countdown__divider {
+  font-family: "SF Mono", monospace;
+  font-weight: normal;
+  font-style: normal;
+}
+countdown-timer .countdown--bold .countdown__unit {
+  font-weight: bold;
+}
+/*# sourceMappingURL=component-countdown-timer.css.map */

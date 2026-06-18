@@ -1,0 +1,24 @@
+{%- comment -%}
+  Render theme spinner
+
+  Accepts:
+    - tag: {String} Element tag (optional)
+    - hidden: {Boolean} Hide spinner
+    - additional_classes: {String} Additional classes (optional)
+{%- endcomment -%}
+{%- liquid
+  unless tag
+    assign tag = 'div'
+  endunless
+-%}
+<{{ tag }}
+  class="theme-spinner {{ additional_classes }}"
+  {% if hidden %}
+    hidden
+  {% endif %}
+>
+  <div class="theme-spinner__border"></div>
+  <div class="theme-spinner__border"></div>
+  <div class="theme-spinner__border"></div>
+  <div class="theme-spinner__border"></div>
+</{{ tag }}>

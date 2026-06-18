@@ -1,0 +1,415 @@
+{% comment %}theme-check-disable NestedSnippet{% endcomment %}
+<!doctype html>
+<html class="no-js" lang="{{ request.locale.iso_code }}">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, height=device-height, minimum-scale=1.0">
+    <meta name="theme-color" content="{{ settings.color_brand }}">
+
+    {% render 'network' %}
+
+    {%- if canonical_url != blank -%}
+      <link rel="canonical" href="{{ canonical_url }}">
+    {%- endif -%}
+
+    {% if settings.favicon != blank %}
+      <link rel="shortcut icon" href="{{ settings.favicon | image_url: width: 32, height: 32 }}" type="image/png">
+    {% endif %}
+
+    <!-- Title and description ================================================== -->
+    <title>{% render 'seo-title' %}</title>
+
+    {%- if page_description -%}
+      <meta name="description" content="{{ page_description | escape }}">
+    {%- endif -%}
+
+    {% render 'social-meta-tags' %}
+
+    {%- liquid
+      assign product_money_format = shop.money_format
+      if settings.currency_codes_on_products_enabled
+        assign product_money_format = shop.money_with_currency_format
+      endif
+
+      assign totals_money_format = shop.money_format
+      if settings.currency_codes_on_totals_enabled
+        assign totals_money_format = shop.money_with_currency_format
+      endif
+    -%}
+    <!-- JS before CSSOM =================================================== -->
+    <script type="text/javascript">
+      theme = {};
+      theme.t = {};
+
+      theme.cart = {};
+      theme.money_format = '{{ shop.money_format }}';
+      theme.money_with_currency_format = '{{ shop.money_with_currency_format }}';
+      theme.money_product_price_format = '{{ product_money_format }}';
+      theme.money_total_price_format = '{{ totals_money_format }}';
+      theme.localize = (string, value = '') => {
+        switch (string) {
+          case 'ADD_TO_CART':
+            return '{{ "products.product.add_to_cart" | t }}';
+          case 'PRE_ORDER':
+            return '{{ "products.product.pre_order" | t }}';
+          case 'CART_ITEM_PLURAL':
+            return '{{ "cart.general.items.plural" | t }}';
+          case 'CART_ITEM_SINGULAR':
+            return '{{ "cart.general.items.singular" | t }}';
+          case 'DISCOUNT_CURRENCY':
+            return '{{ "products.product_labels.discount_currency" | t: discount_format_currency: "[discount]" }}'.replace(
+              '[discount]',
+              value,
+            );
+          case 'DISCOUNT_PERCENTAGE':
+            return '{{ "products.product_labels.discount_percentage" | t: discount_format_percentage: "[discount]" }}'.replace(
+              '[discount]',
+              value,
+            );
+          case 'DISCOUNT_TEXT':
+            return '{{ "products.product_labels.discount_text" | t }}';
+          case 'ERROR_PRODUCTS':
+            return '{{ "accessibility.error_products" | t }}';
+          case 'FROM_PRICE':
+            return '{{ "products.general.from_price" | t }}';
+          case 'GIFT_CARD_RECIPIENT_EMAIL':
+            return '{{ "recipient.form.email" | t }}';
+          case 'GIFT_CARD_RECIPIENT_NAME':
+            return '{{ "recipient.form.name" | t }}';
+          case 'GIFT_CARD_RECIPIENT_MESSAGE':
+            return '{{ "recipient.form.message" | t }}';
+          case 'GIFT_CARD_RECIPIENT_SEND_ON':
+            return '{{ "recipient.form.send_on" | t }}';
+          case 'QTY_NOTICE_IN_STOCK':
+            return '{{ "products.product.qty_notice_in_stock" | t }}';
+          case 'QTY_NOTICE_CONTINUE_SELLING':
+            return '{{ "products.product.qty_notice_continue_selling" | t }}';
+          case 'QTY_NOTICE_LOW_STOCK':
+            return '{{ "products.product.qty_notice_low_stock" | t }}';
+          case 'QTY_NOTICE_NUMBER_IN_STOCK_HTML':
+            return '{{ "products.product.qty_notice_number_in_stock_html" | t: count: "[qty]" }}'.replace(
+              '[qty]',
+              value,
+            );
+          case 'QTY_NOTICE_NUMBER_LOW_STOCK_HTML':
+            return '{{ "products.product.qty_notice_number_low_stock_html" | t: count: "[qty]" }}'.replace(
+              '[qty]',
+              value,
+            );
+          case 'QTY_NOTICE_SOLD_OUT':
+            return '{{ "products.product.qty_notice_sold_out" | t }}';
+          case 'REGULAR_PRICE':
+            return '{{ "products.general.regular_price" | t }}';
+          case 'SALE_PRICE':
+            return '{{ "products.general.sale_price" | t }}';
+          case 'SKU':
+            return '{{ "products.general.sku" | t }}';
+          case 'SOLD_OUT':
+            return '{{ "products.product.sold_out" | t }}';
+          case 'UNAVAILABLE':
+            return '{{ "products.product.unavailable" | t }}';
+          case 'UNIT_PRICE_LABEL':
+            return '{{ "products.general.unit_price_label" | t }}';
+          case 'UNIT_PRICE_SEPARATOR':
+            return '{{ "products.general.unit_price_separator" | t }}';
+          case 'COLLECTION_MORE':
+            return '{{ "collections.general.more" | t }}';
+          case 'COLLECTION_LESS':
+            return '{{ "collections.general.less" | t }}';
+          default:
+            return '';
+        }
+      };
+    </script>
+    <script type="text/javascript">
+      document.documentElement.classList.replace('no-js', 'js');
+      if (window.matchMedia('(pointer: coarse)').matches) {
+        document.documentElement.classList.add('touchevents');
+      } else {
+        document.documentElement.classList.add('no-touchevents');
+      }
+    </script>
+
+    <!-- CSS ================================================== -->
+    {% render 'css-variables' %}
+    {% render 'css-include' %}
+
+    <!-- JS after CSSOM=================================================== -->
+    <script src="{{ 'es-module-shims.lib.js' | asset_url }}" async></script>
+    <script src="{{ 'form-request-submit-polyfill.lib.js' | asset_url }}" async></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "a11y-dialog": "{{ 'a11y-dialog.lib.js' | asset_url }}",
+          "animations": "{{ 'animations.js' | asset_url }}",
+          "cart-components": "{{ 'cart-components.js' | asset_url }}",
+          "cart-plugins": "{{ 'cart-plugins.js' | asset_url }}",
+          "cart-store": "{{ 'cart-store.js' | asset_url }}",
+          "deferred-media": "{{ 'deferred-media.js' | asset_url }}",
+          "details-disclosure": "{{ 'details-disclosure.js' | asset_url }}",
+          "dotlottie": "{{ 'dotlottie.lib.js' | asset_url }}",
+          "googlemaps-js-api-loader": "{{ 'googlemaps-js-api-loader.lib.js' | asset_url }}",
+          "immer": "{{ 'immer.lib.js' | asset_url }}",
+          "items-scroll": "{{ 'items-scroll.js' | asset_url }}",
+          "js-cookie": "{{ 'js-cookie.lib.js' | asset_url }}",
+          "map-settings": "{{ 'map-settings.js' | asset_url }}",
+          "modal-dialog": "{{ 'modal-dialog.js' | asset_url }}",
+          "motion": "{{ 'motion.lib.js' | asset_url }}",
+          "photoswipe": "{{ 'photoswipe.lib.js' | asset_url }}",
+          "photoswipe-lightbox": "{{ 'photoswipe-lightbox.lib.js' | asset_url }}",
+          "popup-dialog": "{{ 'popup-dialog.js' | asset_url }}",
+          "scrollyfills": "{{ 'scrollyfills.lib.js' | asset_url }}",
+          "store-data": "{{ 'store-data.js' | asset_url }}",
+          "swatch-colors": "{{ 'swatch-colors.js' | asset_url }}",
+          "swiper": "{{ 'swiper.lib.js' | asset_url }}",
+          "utils": "{{ 'utils.lib.js' | asset_url }}",
+          "vlite": "{{ 'vlite.lib.js' | asset_url }}",
+          "zustand": "{{ 'zustand.lib.js' | asset_url }}"
+        }
+      }
+    </script>
+    <link rel="modulepreload" href="{{ 'utils.lib.js' | asset_url }}">
+    {%- if settings.anim_load -%}
+      <link rel="modulepreload" href="{{ 'motion.lib.js' | asset_url }}">
+      <link rel="modulepreload" href="{{ 'store-data.js' | asset_url }}">
+    {%- endif -%}
+
+    <script src="{{ 'global.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'image-skeleton.js' | asset_url }}" type="module"></script>
+    <script src="{{ 'animations.js' | asset_url }}" type="module"></script>
+    <script src="{{ 'cart-store.js' | asset_url }}" type="module"></script>
+    <script src="{{ 'popup-dialog.js' | asset_url }}" type="module"></script>
+    <script src="{{ 'modal-dialog.js' | asset_url }}" type="module"></script>
+    <script src="{{ 'media-carousel.js' | asset_url }}" type="module"></script>
+    <script src="{{ 'quantity-input.js' | asset_url }}" type="module"></script>
+    <script src="{{ 'staged-action.js' | asset_url }}" type="module"></script>
+    <script src="{{ 'dynamic-button.js' | asset_url }}" type="module"></script>
+    <script src="{{ 'product-form.js' | asset_url }}" type="module"></script>
+    <script src="{{ 'cart-link.js' | asset_url }}" type="module"></script>
+    <script src="{{ 'cart-components.js' | asset_url }}" type="module"></script>
+    <script src="{{ 'deferred-media.js' | asset_url }}" type="module"></script>
+    <script src="{{ 'header-container.js' | asset_url }}" type="module"></script>
+
+    {%- if settings.cart_free_shipping_bar_enable -%}
+      <script src="{{ 'cart-free-shipping-bar.js' | asset_url }}" type="module"></script>
+    {%- endif -%}
+    <script src="{{ 'product-cards.js' | asset_url }}" type="module"></script>
+    {% if settings.quick_shop_enabled -%}
+      <script src="{{ 'quick-shop.js' | asset_url }}" type="module"></script>
+    {%- endif %}
+
+    <script src="{{ 'custom.js' | asset_url }}" defer="defer"></script>
+
+    {%- if settings.swatches_trigger != blank and settings.swatches_enabled -%}
+      <script src="{{ 'swatch-colors.js' | asset_url }}" type="module"></script>
+    {%- endif -%}
+    <script src="{{ 'details-disclosure.js' | asset_url }}" type="module"></script>
+    <script src="{{ 'header-details-disclosure.js' | asset_url }}" type="module"></script>
+    <script src="{{ 'nested-menu.js' | asset_url }}" type="module"></script>
+    <script src="{{ 'drawer-menu.js' | asset_url }}" type="module"></script>
+
+    <script src="{{ 'product-card-spinner.js' | asset_url }}" type="module"></script>
+    <script src="{{ 'product-card-swatches.js' | asset_url }}" type="module"></script>
+
+    {%- if settings.search_recent_searches_enable -%}
+      <script src="{{ 'recent-searches.js' | asset_url }}" type="module"></script>
+    {%- endif -%}
+
+    {% if request.design_mode %}
+      {% render 'editor-styles' %}
+      <script id="editor-scripts" src="{{ 'editor.js' | asset_url }}" type="module"></script>
+
+      <script src="{{ 'items-scroll.js' | asset_url }}" type="module"></script>
+      <script src="{{ 'tabbed-content.js' | asset_url }}" type="module"></script>
+      <script src="{{ 'announcement-bar.js' | asset_url }}" type="module"></script>
+      <script src="{{ 'utility-bar.js' | asset_url }}" type="module"></script>
+      <script src="{{ 'predictive-search.js' | asset_url }}" type="module"></script>
+      <script src="{{ 'lazy-video.js' | asset_url }}" type="module"></script>
+      <script src="{{ 'scrolling-marquee.js' | asset_url }}" type="module"></script>
+      <script src="{{ 'cart-free-shipping-bar.js' | asset_url }}" type="module"></script>
+      <script src="{{ 'product-single.js' | asset_url }}" type="module"></script>
+      {% comment %} <script src="{{ 'lottie.lib.js' | asset_url }}" defer="defer"></script> {% endcomment %}
+      <script src="{{ 'cart-free-shipping-bar.js' | asset_url }}" type="module"></script>
+      {% comment %} New {% endcomment %}
+      <script src="{{ 'accordion-group.js' | asset_url }}" type="module"></script>
+      <script src="{{ 'interactive-map.js' | asset_url }}" type="module"></script>
+      <script src="{{ 'maps-with-details.js' | asset_url }}" type="module"></script>
+      <script src="{{ 'recent-searches.js' | asset_url }}" type="module"></script>
+      <script src="{{ 'image-compare.js' | asset_url }}" type="module"></script>
+      <script src="{{ 'back-to-top-button.js' | asset_url }}" type="module"></script>
+      <script src="{{ 'media-gallery.js' | asset_url }}" type="module"></script>
+      <script src="{{ 'recent-searches.js' | asset_url }}" type="module"></script>
+      <script src="{{ 'scroll-to-target.js' | asset_url }}" type="module"></script>
+      <script src="{{ 'video-player.js' | asset_url }}" type="module"></script>
+      <script src="{{ 'video-gallery.js' | asset_url }}" type="module"></script>
+      <script src="{{ 'video-dialog.js' | asset_url }}" type="module"></script>
+      <script src="{{ 'scrolling-logos.js' | asset_url }}" type="module"></script>
+      <script src="{{ 'countdown-timer.js' | asset_url }}" type="module"></script>
+      <script src="{{ 'sub-collections.js' | asset_url }}" type="module"></script>
+      <script src="{{ 'collection-description.js' | asset_url }}" type="module"></script>
+      <script src="{{ 'lazy-video-switcher.js' | asset_url }}" type="module"></script>
+      {% comment %} Theme-specific {% endcomment %}
+      <script src="{{ 'items-scroll-paged-navigation.js' | asset_url }}" type="module"></script>
+    {% endif %}
+
+    {% if template contains 'customers' %}
+      <script src="{{ 'shopify_common.js' | shopify_asset_url }}" defer="defer"></script>
+      <script src="{{ 'customer_area.js' | shopify_asset_url }}" defer="defer"></script>
+    {% endif %}
+
+    <!-- Header hook for plugins ================================================== -->
+    {{ content_for_header }}
+  </head>
+
+  <body
+    id="{{ page_title | handle }}"
+    class="{% if customer %}customer-logged-in {% endif %}template-{{ template | replace: '.', ' ' | truncatewords: 1, '' | handle }}"
+    data-anim-load="{{ settings.anim_load }}"
+    data-anim-interval-style="{{ settings.anim_interval_style }}"
+    data-anim-zoom="{{ settings.anim_zoom }}"
+    data-anim-interval="{% if settings.anim_load_style == 'interval' %}true{% else %}false{% endif %}"
+    data-editor-mode="{% if request.design_mode %}true{% else %}false{% endif %}"
+    data-quick-shop-show-cart="{{ settings.quick_shop_show_cart }}"
+    data-heading-border="{{ settings.type_header_border }}"
+    data-overlap-style="{{ settings.design_overlap }}"
+  >
+    {%- if request.design_mode -%}
+      {% comment %} Check if the document is used for visual preview {% endcomment %}
+      <script type="text/javascript">
+        if (document.location.href.includes('shopifyInternalAddSectionPicker=true')) {
+          document.body.setAttribute('data-anim-load', 'false');
+        }
+      </script>
+    {%- endif -%}
+    {%- if settings.anim_load -%}
+      <script type="text/javascript">
+        //loading class for animations
+        document.body.classList.add('js-theme-loading');
+      </script>
+    {%- endif -%}
+
+    {% comment %} TODO: optimize loading templates {% endcomment %}
+    <script type="application/json" id="cart-data">
+      {{ cart | json }}
+    </script>
+    {%- liquid
+      assign gift_wrapping_enabled = false
+      if settings.cart_gift_wrapping_product.variants.first.inventory_management == null and settings.cart_gift_wrapping_product != blank
+        assign gift_wrapping_enabled = true
+      endif
+      if settings.cart_gift_wrapping_product.variants.first.inventory_policy != 'deny' and settings.cart_gift_wrapping_product.variants.first.inventory_management == 'shopify' and settings.cart_gift_wrapping_product != blank
+        assign gift_wrapping_enabled = true
+      endif
+    -%}
+    {%- if gift_wrapping_enabled -%}
+      <script type="application/json" id="cart-gift-wrapping-data">
+        {
+        	"productId": {{ settings.cart_gift_wrapping_product.variants.first.id }},
+          "giftMessageEnabled": {{ settings.cart_gift_wrapping_message_enable }},
+        	"wrapIndividually": {{ settings.cart_gift_wrapping_individual }}
+        }
+      </script>
+    {%- endif -%}
+    {% render 'cart-templates' %}
+
+    <a class="skip-to-content-link" href="#main">{{ 'accessibility.skip_to_text' | t }}</a>
+
+    <div class="page-transition"></div>
+
+    <div class="page-container">
+      {% render 'header-scripts' %}
+      {% sections 'header-group' %}
+
+      {% sections 'popup-group' %}
+
+      <div class="main" id="main">
+        {{ content_for_layout }}
+      </div>
+
+      {% sections 'footer-group' %}
+    </div>
+
+    {% if settings.search_enable %}
+      {% render 'search-drawer' %}
+    {% endif %}
+
+    {% if settings.back_to_top_btn_enable %}
+      {% render 'back-to-top-button',
+        btn_position: settings.back_to_top_btn_position,
+        btn_color: settings.back_to_top_btn_color
+      %}
+    {% endif %}
+
+    {%- if settings.cart_type != 'page' -%}
+      {%- liquid
+        if settings.cart_type == 'modal'
+          assign dialog_type = 'modal'
+          assign modal_id = 'modal-cart'
+          assign modal_class = 'modal--cart'
+          assign modal_background = settings.color_drawer_bg
+          assign additional_classes = 'modal modal--right modal--' | append: settings.color_drawer_style
+          assign additional_attributes = ''
+        else
+          assign dialog_type = 'popup'
+          assign modal_id = 'popup-cart-notification'
+          assign modal_class = 'popup--cart-notification'
+          assign modal_background = settings.color_bg
+          assign additional_classes = 'popup popup--right popup--top popup--' | append: settings.color_drawer_style
+          assign additional_attributes = 'data-dismiss-after-interval="4000"'
+        endif
+        assign tag = dialog_type | append: '-dialog'
+      -%}
+      {%- unless request.page_type == 'cart' and settings.cart_type == 'modal' -%}
+        <{{ tag }}
+          id="{{ modal_id }}"
+          class="
+            {{ modal_class }}
+            {{ additional_classes }}
+          "
+          aria-labelledby="{{- modal_id -}}-title"
+          aria-hidden="true"
+          style="--background-color: {{ modal_background }};"
+          {{ additional_attributes }}
+          {% if dialog_type == 'popup' %}
+            data-a11y-dialog-no-focus-trap
+          {% endif %}
+        >
+          {%- if dialog_type == 'modal' -%}
+            <div class="{{ dialog_type }}__overlay" data-a11y-dialog-hide></div>
+          {%- endif -%}
+
+          <div
+            class="{{ dialog_type }}__wrapper"
+            {% if dialog_type == 'modal' %}
+              role="document"
+            {% endif %}
+          >
+            <div
+              class="{{ dialog_type }}__content"
+              {% if dialog_type == 'popup' %}
+                role="document"
+              {% endif %}
+            >
+              {%- liquid
+                if settings.cart_type == 'modal'
+                  render 'cart-drawer'
+                endif
+              -%}
+
+              {%- if settings.cart_type == 'notification' -%}
+                {%- render 'cart-notification' -%}
+              {%- endif -%}
+            </div>
+          </div>
+        </{{ tag }}>
+      {%- endunless -%}
+    {%- endif -%}
+
+    <div id="moved-modal-elements"></div>
+
+    {%- render 'ui-templates' -%}
+    <!-- Venue theme by Safe As Milk - http://safeasmilk.co/ -->
+    <!-- Theme version 18.2.2 -->
+  </body>
+</html>

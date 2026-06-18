@@ -1,0 +1,127 @@
+{%- liquid
+  comment
+    Process triggers
+  endcomment
+  assign triggers_raw = settings.swatches_trigger | newline_to_br | strip_newlines | split: '<br />'
+  assign triggers = '' | split: ','
+  for trigger in triggers_raw
+    assign t = trigger | strip | downcase | split: ','
+    assign triggers = triggers | concat: t
+  endfor
+
+  comment
+    Process colors
+  endcomment
+  assign variant_colors_raw = settings.swatches_colors_override | newline_to_br | strip_newlines | split: '<br />'
+  assign variant_color_names = '' | split: ','
+  assign variant_colors = '' | split: ','
+  for variant_color_raw in variant_colors_raw
+    assign variant_color = variant_color_raw | split: ':' | last | strip
+    if variant_color != ''
+      assign variant_color = variant_color | split: ':'
+      assign variant_colors = variant_colors | concat: variant_color
+      assign variant_color_name = variant_color_raw | split: ':' | first | strip | downcase | split: ':'
+      assign variant_color_names = variant_color_names | concat: variant_color_name
+    endif
+  endfor
+
+  comment
+    Process images
+  endcomment
+  assign variant_images_raw = settings.swatches_images_override | newline_to_br | strip_newlines | split: '<br />'
+  assign variant_image_names = '' | split: ','
+  assign variant_images = '' | split: ','
+  for variant_image_raw in variant_images_raw
+    assign variant_image = variant_image_raw | split: ':' | last | strip
+    if variant_image != ''
+      assign variant_image = variant_image | split: ':'
+      assign variant_images = variant_images | concat: variant_image
+      assign variant_image_name = variant_image_raw | split: ':' | first | strip | downcase | split: ':'
+      assign variant_image_names = variant_image_names | concat: variant_image_name
+    endif
+  endfor
+-%}
+
+function getColorBrightness(rgbColor) {
+  var colorValues = rgbColor.match(/[\d\.]+/g).map(Number);
+  return 0.2126 * (colorValues[0] / 255) + 0.7152 * (colorValues[1] / 255) + 0.0722 * (colorValues[2] / 255);
+}
+
+function isSimilarToBackground(color) {
+  var backgroundColor = '{{ settings.color_bg | color_to_rgb }}';
+
+  var colorBrightness = getColorBrightness(color);
+  var backgroundColorBrightness = getColorBrightness(backgroundColor);
+
+  return (backgroundColorBrightness / colorBrightness) < 1.5;
+}
+
+var SwatchColors = (function() {
+  function SwatchColors() {
+    this.colors = {
+      {%- for color_name in variant_color_names -%}
+        {%- liquid
+          assign color_string = variant_colors[forloop.index0] | replace: ';', '' | color_to_rgb
+          if variant_colors[forloop.index0] contains 'gradient'
+            assign color_string = variant_colors[forloop.index0] | strip | replace: ';', ''
+          endif
+        -%}
+        '{{ color_name | handle }}': '{{ color_string }}',
+      {%- endfor -%}
+    };
+
+    this.images = {
+      {%- for image_name in variant_image_names -%}
+        '{{ image_name | handle }}': 'url("{{ variant_images[forloop.index0] | file_img_url: '120x' }}")',
+      {%- endfor -%}
+    };
+
+    this.triggers = [
+      {%- for trigger in triggers -%}
+        '{{ trigger }}',
+      {%- endfor -%}
+    ];
+  }
+
+  function setSwatchColor(swatch) {
+    var swatchId = swatch.getAttribute('swatch-id');
+
+    if (Object.keys(this.colors).includes(swatchId)) {
+      swatch.style.setProperty("--background-graphic", this.colors[swatchId]);
+
+      if (isSimilarToBackground(this.colors[swatchId])) swatch.classList.add('is-similar-to-background');
+      if (getColorBrightness(this.colors[swatchId]) > 0.5) {
+        swatch.style.setProperty('--tick-color', '#000');
+      } else {
+        swatch.style.setProperty('--tick-color', '#fff');
+      }
+      swatch.classList.remove('is-blank');
+    }
+
+    if (Object.keys(this.images).includes(swatchId)) {
+      swatch.style.setProperty("--background-graphic", this.images[swatchId]);
+      swatch.classList.add('is-image');
+      swatch.classList.remove('is-blank');
+    }
+  }
+  SwatchColors.prototype.setSwatchColor = setSwatchColor;
+
+  return SwatchColors;
+}());
+
+const Swatches = new SwatchColors();
+
+function VariantSwatch() {
+  return Reflect.construct(HTMLElement, [], this.constructor);
+}
+
+VariantSwatch.prototype = Object.create(HTMLElement.prototype);
+VariantSwatch.prototype.constructor = VariantSwatch;
+Object.setPrototypeOf(VariantSwatch, HTMLElement);
+
+VariantSwatch.prototype.connectedCallback = function() {
+  Swatches.setSwatchColor(this);
+};
+customElements.define('variant-swatch', VariantSwatch);
+
+export default Swatches;

@@ -1,0 +1,18 @@
+{% comment %}
+  Cart item price
+
+  Accepts:
+  - value: {String} Cart item price
+  - additional_classes: {String} Additional classes
+  - price_tag: {String} Price tag
+{% endcomment %}
+{%- liquid
+  if price_tag == null
+    assign price_tag = 'money-amount'
+  endif
+-%}
+<div class="price {{ additional_classes }}">
+  <span class="money"
+    ><{{ price_tag }}>{{- value -}}</{{ price_tag }}></span
+  >
+</div>

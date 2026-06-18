@@ -1,0 +1,179 @@
+{% comment %}theme-check-disable NestedSnippet{% endcomment %}
+{%- comment -%}
+  Render cart recommendations
+
+  Accepts:
+  - id: {String} Unique id
+  - title: {String} Title
+  - reduced_title: {Boolean} Show reduced title
+  - enable_quick_shop: {Boolean} Enable quick shop
+  - notify_on_add: {Boolean} Show notification
+  - show_mini_cards: {Boolean} Show mini cards
+  - grid: {Number} Grid size
+  - grid_mobile: {Number} Grid size on mobile
+  - image_sizes: {String} Image sizes
+{%- endcomment -%}
+{%- liquid
+  assign image_ratio = settings.product_grid_image_size
+  assign image_fit = settings.product_grid_image_fit
+
+  assign quick_shop_trigger = settings.quick_shop_trigger
+
+  if enable_quick_shop
+    assign quick_shop_trigger = settings.quick_shop_trigger
+  endif
+
+  if quick_shop_trigger == 'icon-hover'
+    assign quick_shop_trigger = 'icon'
+  endif
+
+  assign small_buttons_on_mobile = true
+
+  assign render_quickshop = true
+-%}
+
+<cart-recommendations
+  class="
+    cart-recommendations
+    {% if title == blank %}cart-recommendations--no-title{% endif %}
+  "
+  id="{{ id }}--recommendations"
+  section-id="{{ id }}"
+  product-recommendations-root="{{ routes.product_recommendations_url }}"
+  product-recommendations-type="{{ settings.cart_recommendations_type }}"
+  hidden
+>
+  {% if title != blank %}
+    <cart-recommendations-title
+      class="cart-recommendations__title cart-recommendations__title--plain js-animate-single"
+      data-animation-displacement="5"
+    >
+      {%- if reduced_title -%}
+        <p class="cart-recommendations__title-text cart-recommendations__title-text--reduced">{{ title | escape }}</p>
+      {%- else -%}
+        <h2 class="cart-recommendations__title-text">{{ title | escape }}</h2>
+      {%- endif -%}
+    </cart-recommendations-title>
+  {% endif %}
+  <link
+    rel="stylesheet"
+    href="{{ 'component-items-scroll.css' | asset_url }}"
+    media="print"
+    onload="this.media='all'"
+  >
+  <noscript>
+    {{ 'component-items-scroll.css' | asset_url | stylesheet_tag }}
+  </noscript>
+  <items-scroll
+    {% unless show_mini_cards %}
+      class="
+        items-scroll
+        {% unless image_ratio == 'natural' %}
+          ratio-navigation
+        {% endunless %}
+      "
+    {% else %}
+      class="items-scroll mini-navigation"
+      snap="start"
+    {% endunless %}
+    image-container-ratio="{{ image_ratio }}"
+  >
+    <div
+      class="
+        grid-layout
+        grid-layout--{{ grid }}
+        grid-layout--{{ grid_mobile }}@mob
+      "
+      data-items
+      cart-recommendations-content
+    ></div>
+  </items-scroll>
+</cart-recommendations>
+
+<script src="{{ 'items-scroll.js' | asset_url }}" type="module"></script>
+
+<div id="{{ id }}--templates" style="display: none">
+  {%- if show_mini_cards -%}
+    {%- liquid
+      unless image_sizes
+        assign image_sizes = '120px'
+      endunless
+    -%}
+    <template id="{{ id }}--template-cart-recommendations-card">
+      {% render 'product-card-mini',
+        section_id: id,
+        image_ratio: image_ratio,
+        fit_image_to_container: image_fit,
+        image_sizes: image_sizes,
+        enable_quick_shop: enable_quick_shop
+      %}
+    </template>
+  {%- else -%}
+    {%- liquid
+      unless image_sizes
+        assign image_sizes = '(min-width: 981px) calc((100vw - 120px) / 3), (min-width: 768px) calc((100vw - 66px) / 2), calc((100vw - 15px) / 2 - 96px)'
+      endunless
+    -%}
+    <template id="{{ id }}--template-cart-recommendations-card">
+      {% render 'product-card',
+        section_id: id,
+        image_ratio: image_ratio,
+        fit_image_to_container: image_fit,
+        image_sizes: image_sizes,
+        small_buttons_on_mobile: small_buttons_on_mobile,
+        enable_quick_shop: enable_quick_shop,
+        quick_shop_trigger: quick_shop_trigger
+      %}
+    </template>
+    <template id="{{ id }}--template-swatch">
+      <li
+        class="
+          product-card__swatch__item-wrapper
+          {% if settings.swatches_as_variant_image %}
+            product-card__swatch__item-wrapper--image
+          {% endif %}
+          o-list-inline__item
+        "
+      >
+        <product-card-variant-swatch
+          class="
+            product-card__swatch__item
+            product-card__swatch__item-space-{{ settings.product_grid_swatch_size }}
+            {% if settings.swatches_as_variant_image %}
+              product-card__swatch__item--image
+              {% if settings.swatches_as_variant_image_ratio == 'circle' %}
+                product-card__swatch__item--circle
+              {% else %}
+                product-card__swatch__item--square
+              {% endif %}
+            {% else %}
+              product-card__swatch__item--{% if settings.use_square_swatch %}square{% else %}circle{% endif %}
+            {% endif %}
+          "
+        >
+          <variant-swatch class="product-card__swatch__graphic{% if settings.use_emphasized_borders %} product-card__swatch__graphic--emphasize{% endif %} product-card__swatch__graphic--{{ settings.product_grid_swatch_size }}" />
+        </product-card-variant-swatch>
+      </li>
+    </template>
+  {%- endif -%}
+  {%- if render_quickshop -%}
+    <template id="{{ id }}--template-quick-shop">
+      {% render 'quick-shop-placeholder',
+        image_ratio: image_ratio,
+        fit_image_to_container: image_fit,
+        notify_on_add: notify_on_add
+      %}
+    </template>
+  {%- endif -%}
+  {%- if show_mini_cards -%}
+    {% render 'product-card-mini-button-trigger-templates', id: id, notify_on_add: notify_on_add %}
+  {%- elsif quick_shop_trigger contains 'button' -%}
+    {% render 'product-card-button-trigger-templates',
+      id: id,
+      small_buttons_on_mobile: small_buttons_on_mobile,
+      notify_on_add: notify_on_add
+    %}
+  {%- endif -%}
+</div>
+
+<script src="{{ 'cart-recommendations.js' | asset_url }}" type="module"></script>

@@ -1,0 +1,28 @@
+.home-carousel--image .home-carousel__item {
+  padding-bottom: 0;
+  display: block;
+  overflow: hidden;
+}
+
+.home-carousel--image_img {
+  width: 100%;
+  object-fit: cover;
+  object-position: var(--image-position, 50% 50%);
+}
+@media (max-width: 47.9275em) {
+  .home-carousel--image_img {
+    object-position: var(--image-position-mobile, var(--image-position));
+  }
+}
+
+.home-carousel--image_link {
+  display: block;
+  -webkit-transition: all 0.2s ease-in-out;
+  -moz-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+}
+
+.home-carousel--image_link:hover {
+  opacity: 0.95;
+}
+/*# sourceMappingURL=section-image-carousel.css.map */

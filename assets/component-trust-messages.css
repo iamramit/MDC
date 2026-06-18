@@ -1,0 +1,59 @@
+/* ==========================================================================
+   #TRUST MESSAGES
+   ========================================================================== */
+.trust-messages {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border: 1px solid var(--border-color, transparent);
+  padding: 24px 30px;
+}
+
+.trust-messages__heading {
+  color: var(--heading-color);
+  margin-bottom: 18px;
+  font-size: var(--heading-size);
+  line-height: 1.3;
+}
+
+.trust-messages__list {
+  display: grid;
+  grid-template-columns: repeat(var(--columns-desktop, 1), 1fr);
+  column-gap: 12px;
+  row-gap: var(--spacing);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+@media (max-width: 47.9275em) {
+  .trust-messages__list {
+    grid-template-columns: auto;
+  }
+}
+.trust-messages__list--bold {
+  font-weight: bold;
+}
+
+.trust-messages__item {
+  display: flex;
+  gap: 12px;
+  align-items: start;
+}
+
+.trust-messages__item-icon {
+  color: var(--icon-color);
+  position: relative;
+  display: inline-block;
+  line-height: 2.4;
+  width: var(--icon-size);
+  height: var(--icon-size);
+}
+
+.trust-messages__item-text {
+  margin: 0;
+  line-height: 1.7;
+}
+
+.trust-messages .payment-icons {
+  margin-top: 18px;
+}
+/*# sourceMappingURL=component-trust-messages.css.map */

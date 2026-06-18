@@ -1,0 +1,247 @@
+{%- liquid
+  assign show_blog_tags = section.settings.show_tags
+  assign show_blog_rss = section.settings.show_rss
+  assign show_tags = section.settings.show_blog_tags
+  assign show_date = section.settings.show_blog_date
+  assign show_read_more = section.settings.show_blog_read_more
+
+  assign paginate_number = 12
+-%}
+
+{% paginate blog.articles by paginate_number %}
+  {% if section.index > 2 %}
+    <link
+      rel="stylesheet"
+      href="{{ 'component-blog.css' | asset_url }}"
+      media="print"
+      onload="this.media='all'"
+    >
+    <noscript>
+      {{ 'component-blog.css' | asset_url | stylesheet_tag }}
+    </noscript>
+  {% else %}
+    {{ 'component-blog.css' | asset_url | stylesheet_tag }}
+  {% endif %}
+  <section
+    class="section section--main-blog blog-page section--{{ section.id }}"
+    data-section-id="{{ section.id }}"
+    data-section-type="blog"
+  >
+    <div class="container">
+      <div class="section__title section__title--center js-animate-single" data-animation-displacement="5">
+        <h1 class="section__title-text h2">
+          {% if current_tags %}{{ current_tags.first }}{% else %}{{ blog.title }}{% endif %}
+          {% if show_blog_rss %}
+            <span class="blog-page__title-rss">
+              <a
+                class="blog-page__title-rss__link icon-fallback js-no-transition"
+                href="{{ shop.url }}{{ blog.url }}.atom"
+              >
+                {%- render 'icons-social', icon: 'rss', title: 'RSS' -%}
+              </a>
+            </span>
+          {% endif %}
+        </h1>
+      </div>
+
+      {% if blog.all_tags.size > 0 and show_blog_tags %}
+        <div class="blog-page__tags js-animate-single" data-animation-displacement="0" data-animation-delay="0.1">
+          {% if blog.all_tags.size > 8 %}
+            <details>
+              <summary class="blog-page__tags-btn">
+                <span class="link link--arrow-down blog-page__tags-btn-link u-large">
+                  {{- 'blogs.blog.tags' | t -}}
+                  {%- render 'icons-theme', icon: 'chevron', additional_classes: 'icon--down' -%}
+                </span>
+              </summary>
+          {% endif %}
+          <ul
+            class="blog-page__tags-items o-list-bare {% if blog.all_tags.size > 8 %}blog-page__tags-items--box{% endif %}"
+            id="blog-tags"
+          >
+            <li class="blog-page__tags-item">
+              <a href="{{ blog.url }}">{{ 'blogs.blog.all' | t }}</a>
+            </li>
+            {% for tag in blog.all_tags %}
+              {% if current_tags contains tag %}
+                <li class="blog-page__tags-item blog-page__tags-item--active">{{ tag }}</li>
+              {% else %}
+                <li class="blog-page__tags-item">{{ tag | link_to_tag: tag }}</li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+          {% if blog.all_tags.size > 8 %}
+            </details>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="container{% if section.settings.grid == 1 %} container--tiny{% else %}{% if section.settings.page_width == 'full' %} container--full{% elsif section.settings.page_width == 'small' %} container--small{% else %} container--large{% endif %}{% endif %}">
+      <div class="blog-page__list blog-page__list--no-bg">
+        {% case section.settings.grid %}
+          {% when 1 %}
+            {%- assign grid_item_width = 'u-1/1@tab' -%}
+          {% when 2 %}
+            {%- assign grid_item_width = 'u-1/2@tab' -%}
+          {% when 3 %}
+            {%- assign grid_item_width = 'u-1/2@tab u-1/3@desk' -%}
+        {% endcase %}
+
+        <div class="blog__items">
+          <div class="o-layout">
+            {% for article in blog.articles %}
+              <div class="o-layout__item u-1/1 {{ grid_item_width }}">
+                {% render 'blog-grid-item',
+                  article: article,
+                  blog_url: blog.url,
+                  show_tags: show_tags,
+                  show_date: show_date,
+                  show_read_more: show_read_more,
+                  grid: section.settings.grid,
+                  image_ratio: section.settings.blog_image_ratio,
+                  page_width: section.settings.page_width,
+                  index: forloop.index
+                %}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        {% if paginate.pages > 1 %}
+          <div class="blog-pagination js-animate-single" data-animation-displacement="0" data-animation-delay="0.1">
+            <div class="container">
+              <div class="pagination">
+                <div class="pagination__items">
+                  {%- capture previous -%}
+                    {%- render 'icons-theme', icon: 'chevron', additional_classes: 'icon--left', title: 'Previous Page' -%}
+                  {%- endcapture -%}
+                  {%- capture next -%}
+                    {%- render 'icons-theme', icon: 'chevron', title: 'Next Page' -%}
+                  {%- endcapture -%}
+                  {{ paginate | default_pagination: next: next, previous: previous }}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+{% endpaginate %}
+
+{% schema %}
+{
+  "name": "Blog",
+  "class": "js-section__blog",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Images"
+    },
+    {
+      "type": "select",
+      "id": "blog_image_ratio",
+      "label": "Image ratio",
+      "default": "4:3",
+      "options": [
+        {
+          "value": "1:1",
+          "label": "Square (1:1)"
+        },
+        {
+          "value": "3:4",
+          "label": "Portrait (3:4)"
+        },
+        {
+          "value": "4:3",
+          "label": "Landscape (4:3)"
+        },
+        {
+          "value": "16:9",
+          "label": "Wide (16:9)"
+        },
+        {
+          "value": "2:3",
+          "label": "Tall (2:3)"
+        },
+        {
+          "value": "natural",
+          "label": "Natural"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Visibility"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rss",
+      "label": "Show RSS feed link",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tags",
+      "label": "Show tags menu",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_blog_tags",
+      "label": "Show post tags",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_blog_date",
+      "label": "Show post date",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_blog_read_more",
+      "label": "Show post 'read more' link",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Width"
+    },
+    {
+      "type": "select",
+      "id": "page_width",
+      "label": "Page width",
+      "default": "small",
+      "options": [
+        {
+          "label": "Default",
+          "value": "large"
+        },
+        {
+          "label": "Narrow",
+          "value": "small"
+        },
+        {
+          "label": "Wide",
+          "value": "full"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "grid",
+      "label": "Posts per row",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "default": 2
+    }
+  ]
+}
+{% endschema %}

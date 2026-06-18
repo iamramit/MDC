@@ -1,0 +1,618 @@
+{% if section.blocks.size > 0 %}
+  {% if section.index > 2 or section.location == 'footer' %}
+    <link
+      rel="stylesheet"
+      href="{{ 'section-testimonials.css' | asset_url }}"
+      media="print"
+      onload="this.media='all'"
+    >
+    <noscript>
+      {{ 'section-testimonials.css' | asset_url | stylesheet_tag }}
+    </noscript>
+  {% else %}
+    {{ 'section-testimonials.css' | asset_url | stylesheet_tag }}
+  {% endif %}
+
+  {% capture margin_class %}
+    {% unless section.settings.section_link_title != blank and section.settings.section_link_link != blank %}
+      {% unless section.settings.desktop_carousel %}section--mb-s--desk{% endunless %}
+      {% unless section.settings.mobile_carousel %}section--mb-s--mob{% endunless %}
+    {% endunless %}
+  {% endcapture %}
+
+  {% if request.visual_preview_mode %}
+    {% assign margin_class = 'section--mb-0' %}
+  {% endif %}
+
+  <section
+    class="
+      section
+      section-testimonials
+      section--padded
+      section--{{ section.id }}
+      {{ margin_class }}
+    "
+    data-section-id="{{ section.id }}"
+    data-section-type="testimonials"
+    style="
+      --space-top: {{ section.settings.padding_top }}px;
+      --space-bottom: {{ section.settings.padding_bottom }}px
+    "
+  >
+    {%- if section.settings.title != blank or section.settings.desc != blank -%}
+      <div class="container container--medium">
+        <div
+          class="
+            section__title
+            {% unless request.visual_preview_mode %}js-animate-single{% endunless %}
+            {% if section.settings.heading_alignment == 'center' %}section__title--center{% endif %}
+            {% unless section.settings.desc == blank %} section__title--desc{% endunless %}
+          "
+          data-animation-displacement="5"
+        >
+          {%- unless section.settings.title == blank -%}
+            <h2 class="section__title-text">{{ section.settings.title | escape }}</h2>
+          {%- endunless -%}
+          {%- unless section.settings.desc == blank -%}
+            <div
+              class="section__title-desc rte js-animate-single"
+              data-animation-displacement="0"
+              data-animation-delay="0.1"
+            >
+              {{ section.settings.desc }}
+            </div>
+          {%- endunless -%}
+        </div>
+      </div>
+    {%- endif -%}
+
+    {%- liquid
+      if section.settings.desktop_carousel
+        assign carousel = true
+        assign featured = false
+      else
+        case section.settings.style_desktop
+          when 'featured-grid'
+            assign carousel = false
+            assign featured = true
+          when 'grid'
+            assign carousel = false
+            assign featured = false
+        endcase
+      endif
+
+      if section.settings.mobile_carousel
+        assign mobile_carousel = true
+      else
+        assign mobile_carousel = false
+      endif
+
+      assign container_tag = 'div'
+      assign slider_tag = 'div'
+      assign wrapper_tag = 'div'
+      assign slide_tag = 'div'
+      assign container_attributes = ''
+      if carousel or mobile_carousel
+        assign container_tag = 'media-carousel'
+        assign slider_tag = 'media-carousel-slider'
+        assign wrapper_tag = 'media-carousel-wrapper'
+        assign slide_tag = 'media-carousel-slide'
+        assign container_attributes = 'data-speed="500" data-loop="true" data-pagination="true" data-space-between="15" data-navigation="true"'
+
+        if carousel and mobile_carousel == false
+          assign container_attributes = container_attributes | append: ' data-breakpoint-min="tab"'
+        endif
+        if carousel == false and mobile_carousel
+          assign container_attributes = container_attributes | append: ' data-breakpoint-max="tab"'
+        endif
+      endif
+    -%}
+
+    <div
+      class="
+        testimonials
+        {% if section.settings.desktop_carousel %}
+          testimonials--carousel
+        {% else %}
+          testimonials--{{ section.settings.style_desktop }}
+        {% endif %}
+        {% if mobile_carousel %}
+          testimonials--mob-carousel
+        {% endif %}
+        js-animate-single
+      "
+      data-animation-displacement="0"
+    >
+      <div class="container container--xlarge{% if mobile_carousel %} container--mob-0{% endif %}">
+        <div class="testimonials__items">
+          {%- if carousel or mobile_carousel -%}
+            {% if section.index > 2 %}
+              <link
+                rel="stylesheet"
+                href="{{ 'component-media-carousel.css' | asset_url }}"
+                media="print"
+                onload="this.media='all'"
+              >
+              <noscript>
+                {{ 'component-media-carousel.css' | asset_url | stylesheet_tag }}
+              </noscript>
+            {% else %}
+              {{ 'component-media-carousel.css' | asset_url | stylesheet_tag }}
+            {% endif %}
+            <script src="{{ 'media-carousel.js' | asset_url }}" type="module"></script>
+          {%- endif -%}
+          <{{ container_tag }}
+            {{ container_attributes }}
+            {% if section.settings.autoplay %}
+              data-autoplay="{{ section.settings.autoplay_speed }}000"
+            {% endif %}
+          >
+            <{{ slider_tag }}>
+              <{{ wrapper_tag }}
+                class="
+                  o-layout
+                  o-layout--small
+                  o-layout--center
+                  o-layout--middle
+                  u-flex--middle
+                "
+              >
+                {% for block in section.blocks %}
+                  {%- liquid
+                    if featured
+                      if forloop.index == 1
+                        assign first_featured = true
+                      else
+                        assign first_featured = false
+                      endif
+                    endif
+
+                    assign item_classes = 'o-layout__item u-1/1'
+                    unless carousel or first_featured
+                      if featured
+                        case section.blocks.size
+                          when 4, 7, 10, 13, 16
+                            assign grid_item_width = '1/3'
+                          else
+                            assign grid_item_width = '1/2'
+                        endcase
+                      else
+                        case section.blocks.size
+                          when 3, 6, 9, 12, 15
+                            assign grid_item_width = '1/3'
+                          else
+                            assign grid_item_width = '1/2'
+                        endcase
+                      endif
+                      assign item_classes = item_classes | append: ' u-1/2@tab u-' | append: grid_item_width | append: '@desk'
+                    endunless
+                  -%}
+
+                  <{{ slide_tag }} class="{{ item_classes }}">
+                    <div {{ block.shopify_attributes }}>
+                      <div
+                        class="testimonials__item{% if first_featured %} testimonials__item--featured{% endif %}"
+                        data-slide-id="{{ forloop.index0 }}"
+                      >
+                        <div class="testimonials__content">
+                          {% unless block.settings.media == 'disabled' %}
+                            <div class="testimonials__media">
+                              {% if block.settings.image != blank %}
+                                <div
+                                  class="o-ratio {% if block.settings.image_round %}o-ratio--circle{% else %}o-ratio--natural{% endif %}"
+                                  {% unless block.settings.image_round %}
+                                    style="padding-bottom: {{ 1 | divided_by: block.settings.image.aspect_ratio | times: 100 | append: '%' }}"
+                                  {% endunless %}
+                                >
+                                  {%- liquid
+                                    assign image_ratio = 'natural'
+                                    if block.settings.image_round
+                                      assign image_ratio = '1:1'
+                                    endif
+                                  -%}
+                                  <div class="o-ratio__content">
+                                    {% render 'image',
+                                      image: block.settings.image,
+                                      additional_classes: 'testimonials__media__item testimonials__media__item--img',
+                                      alt_string: block.settings.image.alt,
+                                      image_ratio: image_ratio,
+                                      image_srcset_widths: '68, 136, 204',
+                                      image_sizes: '68px',
+                                      render_skeleton: true
+                                    %}
+                                  </div>
+                                </div>
+                              {% elsif block.settings.media == 'stars-brand' or block.settings.media == 'stars' %}
+                                <div class="testimonials__media__item testimonials__media__item--{{ block.settings.media }}">
+                                  {%- liquid
+                                    for i in (1..5)
+                                      render 'icon-star'
+                                    endfor
+                                  -%}
+                                </div>
+                              {% else %}
+                                <div class="testimonials__media__item testimonials__media__item--icon">
+                                  {%- if block.settings['svg-code'] != blank -%}
+                                    <span class="icon icon--custom">
+                                      {{-
+                                        block.settings['svg-code']
+                                        | replace: ' width=', ' '
+                                        | replace: ' height=', ' '
+                                      -}}
+                                    </span>
+                                  {%- else -%}
+                                    {%- liquid
+                                      case block.settings.media
+                                        when 'quote'
+                                          render 'icon-quote'
+                                        when 'facebook'
+                                          render 'icons-social', icon: 'facebook'
+                                        when 'x'
+                                          render 'icons-social', icon: 'x'
+                                        when 'twitter'
+                                          render 'icons-social', icon: 'twitter'
+                                        when 'instagram'
+                                          render 'icons-social', icon: 'instagram'
+                                      endcase
+                                    -%}
+                                  {%- endif -%}
+                                </div>
+                              {% endif %}
+                            </div>
+                          {% endunless %}
+
+                          {% unless block.settings.text == blank %}
+                            <div class="testimonials__text">
+                              <h2 class="testimonials__text__text rte">{{ block.settings.text }}</h2>
+                            </div>
+                          {% endunless %}
+
+                          {% unless block.settings.name == blank %}
+                            <div class="testimonials__name">
+                              <h3 class="testimonials__name__text u-medium f-family--body f-caps--false f-space--0">
+                                {{ block.settings.name | escape }}
+                              </h3>
+                            </div>
+                          {% endunless %}
+
+                          {% unless block.settings.source == blank %}
+                            <div class="testimonials__source">
+                              <p class="testimonials__source__text u-small f-family--body">
+                                {{ block.settings.source | escape }}
+                              </p>
+                            </div>
+                          {% endunless %}
+                        </div>
+                      </div>
+                    </div>
+                  </{{ slide_tag }}>
+                {% endfor %}
+              </{{ wrapper_tag }}>
+            </{{ slider_tag }}>
+
+            {%- if section.blocks.size > 1 and carousel or mobile_carousel -%}
+              <media-carousel-navigation class="media-carousel__navigation" hidden>
+                <button
+                  class="
+                    media-carousel__arrow
+                    media-carousel__arrow--prev
+                    js-carousel-prev
+                  "
+                >
+                  {%- render 'icons-theme', icon: 'chevron', additional_classes: 'icon--left' -%}
+                </button>
+                <button
+                  class="
+                    media-carousel__arrow
+                    media-carousel__arrow--next
+                    js-carousel-next
+                  "
+                >
+                  {%- render 'icons-theme', icon: 'chevron' -%}
+                </button>
+              </media-carousel-navigation>
+              <media-carousel-pagination
+                class="media-carousel__pagination swiper-pagination js-carousel-pagination"
+                hidden
+              ></media-carousel-pagination>
+            {%- endif -%}
+          </{{ container_tag }}>
+        </div>
+
+        {% unless section.settings.desktop_carousel %}
+          {% assign secion_link_desk_classes = 'section__link--mt0@desk' %}
+        {% endunless %}
+        {% unless section.settings.mobile_carousel %}
+          {% assign secion_link_mobile_classes = 'section__link--mt0@mob' %}
+        {% endunless %}
+        {% capture secion_link_classes %}
+          {{ secion_link_desk_classes }} {{ secion_link_mobile_classes }}
+        {% endcapture %}
+        {% render 'section-link',
+          title: section.settings.section_link_title,
+          link: section.settings.section_link_link,
+          style: section.settings.section_link_style,
+          additional_classes: secion_link_classes
+        %}
+      </div>
+    </div>
+  </section>
+{% endif %}
+
+{% if section.blocks.size == 0 %}
+  <div class="placeholder-noblocks">
+    {{ 'homepage.onboarding.no_content' | t }}
+  </div>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Testimonials",
+  "class": "js-section__testimonials",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Testimonials"
+    },
+    {
+      "type": "richtext",
+      "id": "desc",
+      "label": "Text"
+    },
+    {
+      "type": "header",
+      "content": "Position"
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "label": "Section heading and text",
+      "default": "center",
+      "options": [
+        {
+          "label": "Left",
+          "value": "left"
+        },
+        {
+          "label": "Center",
+          "value": "center"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Carousel"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Auto rotate carousel",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "label": "Rotate testimonials every",
+      "unit": "sec",
+      "min": 5,
+      "max": 15,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Desktop layout"
+    },
+    {
+      "type": "select",
+      "id": "style_desktop",
+      "label": "Grid style",
+      "default": "featured-grid",
+      "options": [
+        {
+          "label": "Featured grid",
+          "value": "featured-grid"
+        },
+        {
+          "label": "Grid",
+          "value": "grid"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "desktop_carousel",
+      "label": "Enable carousel",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Mobile layout"
+    },
+    {
+      "type": "checkbox",
+      "id": "mobile_carousel",
+      "label": "Enable carousel",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Section button"
+    },
+    {
+      "type": "text",
+      "id": "section_link_title",
+      "label": "Label",
+      "default": "View all"
+    },
+    {
+      "type": "url",
+      "id": "section_link_link",
+      "label": "Link"
+    },
+    {
+      "type": "select",
+      "id": "section_link_style",
+      "label": "Style",
+      "default": "link link--arrow",
+      "options": [
+        {
+          "value": "c-btn c-btn--primary",
+          "label": "Brand button"
+        },
+        {
+          "value": "c-btn c-btn--mono",
+          "label": "Mono button"
+        },
+        {
+          "value": "c-btn c-btn--hollow",
+          "label": "Outline button"
+        },
+        {
+          "value": "link link--arrow",
+          "label": "Chevron"
+        },
+        {
+          "value": "link--underline",
+          "label": "Body text"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "unit": "px",
+      "min": 0,
+      "max": 120,
+      "step": 3,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "unit": "px",
+      "min": 0,
+      "max": 120,
+      "step": 3,
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "name": "Testimonial",
+      "settings": [
+        {
+          "type": "select",
+          "id": "media",
+          "label": "Icon",
+          "default": "quote",
+          "options": [
+            {
+              "value": "disabled",
+              "label": "None"
+            },
+            {
+              "value": "quote",
+              "label": "Quote"
+            },
+            {
+              "value": "facebook",
+              "label": "Facebook"
+            },
+            {
+              "value": "x",
+              "label": "X"
+            },
+            {
+              "value": "twitter",
+              "label": "Twitter"
+            },
+            {
+              "value": "instagram",
+              "label": "Instagram"
+            },
+            {
+              "value": "stars",
+              "label": "Stars"
+            },
+            {
+              "value": "stars-brand",
+              "label": "Stars (brand)"
+            }
+          ]
+        },
+        {
+          "type": "html",
+          "id": "svg-code",
+          "label": "SVG icon code",
+          "info": "Learn more about adding your own SVG icons [here](https://support.safeasmilk.co/article/236-general-add-custom-svg-icons-to-your-theme)."
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "checkbox",
+          "id": "image_round",
+          "label": "Circular image",
+          "default": true
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Use these testimonials to share what customers are saying about your products and your brand.</p>"
+        },
+        {
+          "type": "text",
+          "id": "name",
+          "label": "Name",
+          "default": "Customer name"
+        },
+        {
+          "type": "text",
+          "id": "source",
+          "label": "Source",
+          "default": "Source"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Testimonials",
+      "blocks": [
+        {
+          "type": "text"
+        },
+        {
+          "type": "text",
+          "settings": {
+            "media": "instagram"
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "media": "x"
+          }
+        }
+      ]
+    }
+  ],
+  "enabled_on": {
+    "templates": ["*"],
+    "groups": ["footer"]
+  }
+}
+{% endschema %}

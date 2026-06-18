@@ -1,0 +1,277 @@
+{% if section.index > 2 or section.location == 'footer' %}
+  <link
+    rel="stylesheet"
+    href="{{ 'section-newsletter.css' | asset_url }}"
+    media="print"
+    onload="this.media='all'"
+  >
+  <noscript>
+    {{ 'section-newsletter.css' | asset_url | stylesheet_tag }}
+  </noscript>
+{% else %}
+  {{ 'section-newsletter.css' | asset_url | stylesheet_tag }}
+{% endif %}
+{%- liquid
+  if section.settings.newsletter_bg == 'rgba(0,0,0,0)' or section.settings.newsletter_bg == '#ffffff'
+    assign section_bg = false
+  else
+    assign section_bg = true
+  endif
+
+  if section.settings.section_bottom_margin
+    if section.settings.section_width == 'contained'
+      assign margin_class = 'section--mb-m'
+    else
+      assign margin_class = 'section--mb-0'
+    endif
+  endif
+
+  if request.visual_preview_mode
+    assign margin_class = 'section--mb-0'
+  endif
+
+  if settings.design_radius_button != '0' or settings.design_radius_form != '0'
+    assign radius_form_value = 'true'
+  else
+    assign radius_form_value = 'false'
+  endif
+-%}
+<section
+  class="
+        section
+        section-newsletter
+        section--{{ section.id }}
+    <<<<<<< HEAD
+        {% if section_bg %}section--has-bg{% else %}section--no-bg{% endif %}
+    =======
+    >>>>>>> upstream/develop
+        {{ margin_class }}
+  "
+  data-section-id="{{ section.id }}"
+  data-section-type="newsletter"
+  data-radius-form="{{ radius_form_value }}"
+  style="
+    --space-top: {{ section.settings.padding_top }}px;
+    --space-bottom: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="container {% if section.settings.section_width == 'large' %}container--full container--p-0{% endif %}">
+    <div
+      class="
+        newsletter
+        {% unless request.visual_preview_mode %}js-animate-single{% endunless %}
+        {% if section.settings.divider_top %}
+          newsletter--divider-top
+        {% endif %}
+        {% if section.settings.divider_bottom %}
+          newsletter--divider-bottom
+        {% endif %}
+      "
+      data-animation-displacement="0"
+      style="
+        --text-color: {{ section.settings.newsletter_text }};
+        --text-color-light: {{ section.settings.newsletter_text | color_modify: 'alpha', 0.2 }};
+        --background-color: {{ section.settings.newsletter_bg }};
+        {% unless section.settings.text_border_color -%}
+          --color--title-border: {{ section.settings.newsletter_text }};
+        {%- endunless %}
+      "
+    >
+      <div
+        class="
+          newsletter__content
+          container
+          {% if section.settings.section_width == 'large' %}
+            container--large
+          {% endif %}
+          section--padded
+        "
+      >
+        <div
+          class="newsletter__title section__title section__title--center js-animate-single"
+          data-animation-displacement="5"
+        >
+          {% if section.settings.section_newsletter_title != blank %}
+            <h2 class="section__title-text{% if section.settings.default_title_color %} newsletter__title-text--default{% endif %}">
+              {{ section.settings.section_newsletter_title | escape }}
+            </h2>
+          {% endif %}
+          {% if section.settings.section_newsletter_desc != blank %}
+            <div
+              class="section__title-desc rte js-animate-single"
+              data-animation-displacement="0"
+              data-animation-delay="0.1"
+            >
+              {{ section.settings.section_newsletter_desc }}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="newsletter__form-wrapper">
+          {% form 'customer', id: 'newsletter', class: 'newsletter__form-form' %}
+            {{ form.errors | default_errors }}
+            {% if form.posted_successfully? %}
+              <div class="newsletter__form-message">
+                <h3 class="newsletter__form-message__text f-family--body f-caps--false">
+                  {%- render 'icons-theme', icon: 'check' -%}
+                  {{ 'general.newsletter_form.confirmation' | t }}
+                </h3>
+              </div>
+            {% else %}
+              <div class="o-layout o-layout--flush o-layout--center">
+                <div class="o-layout__item u-1/1 u-7/8@tab u-2/3@desk">
+                  <input type="hidden" name="contact[tags]" value="newsletter">
+                  <label for="Email-{{ section.id }}" class="u-hidden-visually">Email</label>
+                  <input
+                    type="email"
+                    name="contact[email]"
+                    id="Email-{{ section.id }}"
+                    class="newsletter__input"
+                    value="{% if customer %}{{ customer.email }}{% endif %}"
+                    placeholder="{{ 'general.newsletter_form.newsletter_email' | t }}"
+                    autocorrect="off"
+                    autocapitalize="off"
+                  >
+                </div>
+                <div class="o-layout__item u-1/1 u-7/8@tab u-1/3@desk">
+                  <button
+                    type="submit"
+                    class="c-btn c-btn--full c-btn--primary newsletter__btn"
+                    name="commit"
+                    id="Subscribe-Footer"
+                  >
+                    {{ 'general.newsletter_form.submit' | t }}
+                  </button>
+                </div>
+              </div>
+            {% endif %}
+          {% endform %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Newsletter",
+  "class": "js-section__newsletter",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Every sign up will create a 'Customer account' in this store. [Manage customers](/admin/customers?query=&accepts_marketing=1)"
+    },
+    {
+      "type": "text",
+      "id": "section_newsletter_title",
+      "label": "Heading",
+      "default": "Newsletter"
+    },
+    {
+      "type": "richtext",
+      "id": "section_newsletter_desc",
+      "label": "Text",
+      "default": "<p>Let your customers know what to expect if they sign up to your mailing list. A discount code or the latest news from your brand.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Width"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Section width",
+      "default": "contained",
+      "options": [
+        {
+          "value": "contained",
+          "label": "Contained"
+        },
+        {
+          "value": "large",
+          "label": "Full"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Colors and borders"
+    },
+    {
+      "type": "color",
+      "id": "newsletter_bg",
+      "label": "Background",
+      "default": "#F2F2F2"
+    },
+    {
+      "type": "color",
+      "id": "newsletter_text",
+      "label": "Text",
+      "default": "#212121"
+    },
+    {
+      "type": "checkbox",
+      "id": "default_title_color",
+      "label": "Use default heading color",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "text_border_color",
+      "label": "Use default brand border color",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "divider_top",
+      "label": "Show top border",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "divider_bottom",
+      "label": "Show bottom border",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Padding and margin"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "unit": "px",
+      "min": 0,
+      "max": 120,
+      "step": 3,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "unit": "px",
+      "min": 0,
+      "max": 120,
+      "step": 3,
+      "default": 0
+    },
+    {
+      "type": "checkbox",
+      "id": "section_bottom_margin",
+      "label": "Reduce bottom margin",
+      "default": false
+    }
+  ],
+  "presets": [
+    {
+      "name": "Newsletter"
+    }
+  ],
+  "enabled_on": {
+    "templates": ["*"],
+    "groups": ["header", "footer"]
+  }
+}
+{% endschema %}

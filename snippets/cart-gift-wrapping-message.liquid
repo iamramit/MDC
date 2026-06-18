@@ -1,0 +1,29 @@
+{%- comment -%}
+  Cart gift wrapping message
+
+  Accepts:
+  - message: {Srting} Gift wrapping message
+  - form_id: {String} Form id
+{%- endcomment -%}
+<cart-gift-wrapping-message class="gift-wrapping-message">
+  {%- capture label -%}
+    <label for="CartGiftWrappingMessage" class="gift-wrapping-message__label">
+      <div class="gift-wrapping-message__icon">
+        {%- render 'icons-theme', icon: 'note' -%}
+      </div>
+      <span>{{ 'cart.general.gift_wrapping.message' | t }}</span>
+    </label>
+  {%- endcapture -%}
+  {%- capture textarea -%}
+    {%- render 'cart-text-input',
+      value: message,
+      form_id: form_id,
+      input_id: 'CartGiftWrappingMessage',
+      input_name: 'attributes[gift-wrapping-message]',
+      class: 'gift-wrapping-message__content',
+      input_field_class: 'gift-wrapping-message__input',
+      is_textarea: true
+    -%}
+  {%- endcapture -%}
+  {%- render 'cart-accordion', id: 'cart-gift-wrapping-message', summary: label, content: textarea -%}
+</cart-gift-wrapping-message>

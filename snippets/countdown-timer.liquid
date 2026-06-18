@@ -1,0 +1,126 @@
+{% comment %}
+  Renders countdown timer block
+
+  Accepts:
+  - year: {String}
+  - month: {String}
+  - day: {String}
+  - hour: {String}
+  - minute: {String}
+  - completion: {String}
+  - completion_message: {String}
+  - completion_parent_class_to_hide: {String}
+  - content_color: {Object}
+  - text_size: {Number}
+  - text_size_mobile: {Number}
+  - text_style: {String}
+  - text_bold: {Boolean}
+  - divider_style: {String}
+  - divider_gap: {Number}
+  - show_labels: {Boolean}
+  - high_load_priority: {Boolean} - Set to load styles straight away
+{% endcomment %}
+
+{% liquid
+  if year == 'none' or month == 'none' or day == 'none' or hour == 'none'
+    assign is_default = true
+  else
+    assign is_default = false
+  endif
+%}
+
+{% unless high_load_priority %}
+  <link
+    rel="stylesheet"
+    href="{{ 'component-countdown-timer.css' | asset_url }}"
+    media="print"
+    onload="this.media='all'"
+  >
+  <noscript>
+    {{ 'component-countdown-timer.css' | asset_url | stylesheet_tag }}
+  </noscript>
+{% else %}
+  {{ 'component-countdown-timer.css' | asset_url | stylesheet_tag }}
+{% endunless %}
+
+<countdown-timer
+  style="
+    --countdown-timer-text-size: {{ text_size | times: 0.7 | plus: 0.75 | times: 16 }}px;
+    --countdown-timer-text-size-mobile: {{ text_size_mobile | times: 0.4 | plus: 0.75 | times: 16 }}px;
+    --countdown-timer-divider-gap: {{ divider_gap | times: 0.3 | times: 16 }}px;
+    --countdown-timer-content-color: {{ content_color }};
+    --countdown-timer-border-color: {{ content_color | color_modify: 'alpha', 0.7 }};
+  "
+  data-year="{{ year }}"
+  data-month="{{ month }}"
+  data-day="{{ day }}"
+  data-hour="{{ hour }}"
+  data-minute="{{ minute }}"
+  data-is-default="{{ is_default }}"
+  data-completion="{{ completion }}"
+  data-completion-hide-class="{{ completion_parent_class_to_hide }}"
+  role="timer"
+  aria-live="polite"
+>
+  {% if completion == 'zero-with-message' %}
+    <div class="countdown__completion-message" hidden>
+      <div class="rte">{{ completion_message }}</div>
+    </div>
+  {% endif %}
+
+  <div class="countdown countdown--{{ text_style }}{% if text_bold %} countdown--bold{% endif %} countdown--{{ divider_style }}">
+    <div class="countdown__unit" data-unit="days" aria-label="{{ 'sections.countdown_timer.days' | t }}">
+      <span class="countdown__value"></span>
+      {% if show_labels %}
+        <span class="countdown__label">{{ 'sections.countdown_timer.days' | t }}</span>
+      {% endif %}
+    </div>
+
+    <div class="countdown__divider" aria-hidden="true">
+      <span class="countdown__divider--{{ divider_style }}">
+        {% if divider_style == 'colon' %}
+          :
+        {% endif %}
+      </span>
+    </div>
+
+    <div class="countdown__unit" data-unit="hours" aria-label="{{ 'sections.countdown_timer.hours' | t }}">
+      <span class="countdown__value"></span>
+      {% if show_labels %}
+        <span class="countdown__label">{{ 'sections.countdown_timer.hours' | t }}</span>
+      {% endif %}
+    </div>
+
+    <div class="countdown__divider" aria-hidden="true">
+      <span class="countdown__divider--{{ divider_style }}">
+        {% if divider_style == 'colon' %}
+          :
+        {% endif %}
+      </span>
+    </div>
+
+    <div class="countdown__unit" data-unit="minutes" aria-label="{{ 'sections.countdown_timer.minutes' | t }}">
+      <span class="countdown__value"></span>
+      {% if show_labels %}
+        <span class="countdown__label">{{ 'sections.countdown_timer.minutes' | t }}</span>
+      {% endif %}
+    </div>
+
+    <div class="countdown__divider" aria-hidden="true">
+      <span class="countdown__divider--{{ divider_style }}">
+        {% if divider_style == 'colon' %}
+          :
+        {% endif %}
+      </span>
+    </div>
+
+    <div class="countdown__unit" data-unit="seconds" aria-label="{{ 'sections.countdown_timer.seconds' | t }}">
+      <span class="countdown__value"></span>
+      {% if show_labels %}
+        <span class="countdown__label">{{ 'sections.countdown_timer.seconds' | t }}</span>
+      {% endif %}
+    </div>
+  </div>
+</countdown-timer>
+
+<script src="{{ 'countdown-timer.js' | asset_url }}" type="module"></script>

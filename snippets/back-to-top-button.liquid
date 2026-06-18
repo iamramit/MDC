@@ -1,0 +1,23 @@
+<link
+  rel="stylesheet"
+  href="{{ 'component-back-to-top-button.css' | asset_url }}"
+  media="print"
+  onload="this.media='all'"
+>
+<noscript>
+  {{ 'component-back-to-top-button.css' | asset_url | stylesheet_tag }}
+</noscript>
+<back-to-top-button
+  class="back-to-top-button back-to-top-button--{{ btn_color }}"
+  aria-label="Back to top"
+  type="button"
+  role="button"
+  tabindex="0"
+  align-{{ btn_position }}
+  style="opacity: 0;"
+>
+  {% render 'icons-theme', icon: 'chevron', additional_classes: 'back-to-top-button__icon icon--up' %}
+  <span class="visually-hidden">Back to top</span>
+</back-to-top-button>
+
+<script src="{{ 'back-to-top-button.js' | asset_url }}" type="module"></script>

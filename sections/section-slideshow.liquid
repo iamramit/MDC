@@ -1,0 +1,1099 @@
+{% if section.blocks.size > 0 %}
+  {% if section.index > 2 or section.location == 'footer' %}
+    <link
+      rel="stylesheet"
+      href="{{ 'component-media-carousel.css' | asset_url }}"
+      media="print"
+      onload="this.media='all'"
+    >
+    <link
+      rel="stylesheet"
+      href="{{ 'section-slideshow.css' | asset_url }}"
+      media="print"
+      onload="this.media='all'"
+    >
+    <noscript>
+      {{ 'component-media-carousel.css' | asset_url | stylesheet_tag }}
+      {{ 'section-slideshow.css' | asset_url | stylesheet_tag }}
+    </noscript>
+  {% else %}
+    {{ 'component-media-carousel.css' | asset_url | stylesheet_tag }}
+    {{ 'section-slideshow.css' | asset_url | stylesheet_tag }}
+  {% endif %}
+  {%- liquid
+    if request.visual_preview_mode
+      assign slideshow_height = 'large'
+      assign slideshow_height_mobile = 'large'
+    else
+      assign slideshow_height = section.settings.slideshow_height
+      assign slideshow_height_mobile = section.settings.slideshow_height_mobile
+    endif
+    assign text_color_brightness = section.settings.text_color | color_brightness
+    assign nav_dots_base_color = '#fff'
+  -%}
+  <style>
+    /* Loading states */
+    .home-carousel.is-loading {
+      display: block;
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+    }
+    .home-carousel.is-loading media-carousel-slider {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+    }
+    .home-carousel.is-loading::before {
+      content: '';
+      display: block;
+      float: left;
+      position: relative;
+      width: 100%;
+    }
+    .home-carousel.home-carousel--small.is-loading::before {
+      padding-bottom: 40%;
+    }
+    .home-carousel.home-carousel--medium.is-loading::before {
+      padding-bottom: 50%;
+    }
+    .home-carousel.home-carousel--large.is-loading::before {
+      padding-bottom: 62.5%;
+    }
+    .home-carousel.home-carousel--full-screen.is-loading::before {
+      height: calc(
+        var(--window-height) - var(--announcement-height) - var(--utility-height) - var(--header-section-height)
+      );
+      min-height: 400px;
+    }
+    .home-carousel.is-loading media-carousel-slide:not(:first-of-type) {
+      display: none;
+    }
+    .home-carousel.is-loading .home-carousel__nav {
+      display: none;
+    }
+    @media screen and (max-width: 767px) {
+      .home-carousel.home-carousel--small-mobile.is-loading::before {
+        height: auto;
+        padding-bottom: 100%;
+      }
+      .home-carousel.home-carousel--medium-mobile.is-loading::before {
+        height: auto;
+        padding-bottom: 125%;
+      }
+      .home-carousel.home-carousel--large-mobile.is-loading::before {
+        height: auto;
+        padding-bottom: 140%;
+      }
+      .home-carousel.home-carousel--portrait-mobile.is-loading::before {
+        height: auto;
+        padding-bottom: 178%;
+      }
+      .home-carousel.home-carousel--full-screen-mobile.is-loading::before {
+        height: calc(var(--window-height) - var(--announcement-height) - var(--header-section-height));
+        min-height: 400px;
+      }
+    }
+    body[data-anim-zoom='true'] .home-carousel__bg {
+      transform: scale(1.1);
+    }
+  </style>
+  <section
+    class="
+      section
+      section--{{ section.id }}
+      {% if section.settings.slideshow_width == 'full' %} section--full section--full-mobile{% endif %}
+      {% if section.settings.section_bottom_margin or request.visual_preview_mode %}
+        {% if section.settings.slideshow_width == 'contained' %} section--mb-m{% else %} section--mb-0{% endif %}
+      {% endif %}
+    "
+    data-section-id="{{ section.id }}"
+    data-section-type="home-carousel"
+    style="
+      --color-text: {{ section.settings.text_color }};
+      --color-heading: {% if section.settings.text_heading_color %}{{ settings.color_headings }}{% else %}{{ section.settings.text_color }}{% endif %};
+      {% unless section.settings.text_border_color -%}
+        --color--title-border: {{ section.settings.text_color }};
+      {%- endunless %}
+    "
+  >
+    {% if section.settings.slideshow_width == 'contained' %}<div class="container">{% endif %}
+
+    {%- if section.index == 1 -%}
+      <link rel="modulepreload" href="{{ 'media-carousel.js' | asset_url }}">
+      <link rel="modulepreload" href="{{ 'swiper.lib.js' | asset_url }}">
+    {%- endif -%}
+
+    <script src="{{ 'media-carousel.js' | asset_url }}" type="module"></script>
+    <media-carousel
+      class="
+        home-carousel
+        home-carousel--{{ section.settings.style }}
+        home-carousel--title-{{ section.settings.title_size }}
+        {% if section.settings.slideshow_width == 'full' %}
+          home-carousel--full
+        {% else %}
+          home-carousel--contained
+        {% endif %}
+        {% if section.blocks.size == 1 %}
+          home-carousel--single-slide
+        {% endif %}
+        home-carousel--{{ slideshow_height }}
+        home-carousel--{{ slideshow_height_mobile }}-mobile
+        is-loading
+      "
+      data-fade="true"
+      data-speed="400"
+      data-space-between="0"
+      data-loop="true"
+      {% if section.settings.autoplay %}
+        data-autoplay="{{ section.settings.autoplay_speed }}000"
+      {% endif %}
+      {% if section.blocks.size > 1 %}
+        data-navigation="true"
+        data-pagination="true"
+      {% endif %}
+      style="
+        {% if section.settings.style == 'solid' or section.settings.style == 'semi' -%}
+          --background-color: {% if section.settings.style == 'solid' %}{{ section.settings.text_bg_color }}{% elsif section.settings.style == 'semi' %}{{ section.settings.text_bg_color | color_modify: 'alpha', 0.8 }}{% endif %};
+        {%- endif %}
+        --bullet-color: {{ nav_dots_base_color }};
+        --swiper-pagination-color: {% if section.settings.nav_style == 'solid-brand' %}{{ settings.color_brand }}{% else %}{{ nav_dots_base_color }}{% endif %};
+      "
+    >
+      {%- capture slides -%}
+        {% for block in section.blocks %}
+          {%- if forloop.first -%}
+            {%- capture preview_image -%}
+              {%- liquid
+                assign loading = 'eager'
+                assign fetchpriority = 'auto'
+                if section.index == 1
+                  assign fetchpriority = 'high'
+                elsif section.index > 2
+                  assign loading = 'lazy'
+                endif
+              -%}
+              <div
+                class="
+                  home-carousel__item-wrapper
+                  home-carousel__item-wrapper--{{ block.id }}
+                  home-carousel__item-wrapper--{{ slideshow_height }}
+                  home-carousel__item-wrapper--{{ slideshow_height_mobile }}-mobile
+                  o-ratio
+                "
+              >
+                <div
+                  class="o-ratio__content home-carousel__item home-carousel__item--{{ block.type }} home-carousel__item--{{ block.id }} home-carousel__item--middle home-carousel__item--{{ block.settings.alignment }}"
+                >
+                  {%- if block.settings.video_desktop or block.settings.video_mobile -%}
+                    <div class="home-carousel__video u-bg-overlay js-home-carousel-video{% if block.settings.video_desktop or block.settings.video_mobile %} home-carousel__video--self js-home-carousel-video--self{% endif %}">
+                      {%- if block.settings.video_desktop -%}
+                        {{
+                          block.settings.video_desktop.preview_image
+                          | image_url: width: 1946
+                          | image_tag:
+                            loading: loading,
+                            sizes: '100vw',
+                            widths: '246, 493, 600, 713, 823, 990, 1100, 1206, 1346, 1426, 1646, 1946',
+                            fetchpriority: fetchpriority
+                        }}
+                      {%- endif %}
+
+                      {%- if block.settings.video_mobile -%}
+                        {{
+                          block.settings.video_mobile.preview_image
+                          | image_url: width: 1946
+                          | image_tag:
+                            loading: loading,
+                            sizes: '100vw',
+                            widths: '246, 493, 600, 713, 823, 990, 1100, 1206, 1346, 1426, 1646, 1946',
+                            fetchpriority: fetchpriority
+                        }}
+                      {%- endif %}
+                    </div>
+                  {% else %}
+                    {% unless block.settings.image == blank %}
+                        <picture>
+                          <source
+                            {% if block.settings.image_mobile %}
+                              srcset="{% render 'bgset', image: block.settings.image_mobile %}"
+                            {% else %}
+                              srcset="{% render 'bgset', image: block.settings.image %}"
+                            {% endif %}
+                            media="all and (max-width: 767px)"
+                          >
+                          <source
+                            srcset="{% render 'bgset', image: block.settings.image %}"
+                            media="all and (min-width: 768px)"
+                          >
+                          {%- liquid
+                            assign class = 'home-carousel__bg home-carousel__bg--' | append: section.id | append: '--' | append: forloop.index0
+
+                            assign image_width = 600
+                            assign image_height = 600 | divided_by: block.settings.image.aspect_ratio | round
+                          -%}
+                          {%- liquid
+                            assign skeleton_image_height = image_height
+                            if block.settings.image_mobile
+                              assign skeleton_image_height = 600 | divided_by: block.settings.image_mobile.aspect_ratio | round
+                            endif
+
+                            assign loading_alt = 'Loading image: ' | append: block.settings.image.alt
+                          -%}
+                          {%- render 'image-skeleton', alt: loading_alt, width: image_width, height: skeleton_image_height -%}
+                          <img
+                            class="{{ class }}"
+                            src="{{ block.settings.image | image_url: width: 600 }}"
+                            width="{{ image_width }}"
+                            height="{{ image_height }}"
+                            alt="{{ block.settings.image.alt }}"
+                            loading="{{ loading }}"
+                            fetchpriority="{{ fetchpriority }}"
+                            style="
+                              --image-position: {{ block.settings.image.presentation.focal_point }};
+                              --image-position-mobile:  {% if block.settings.image_mobile %}{{ block.settings.image_mobile.presentation.focal_point }}{% else %}{{ block.settings.image.presentation.focal_point }}{% endif %};
+                            "
+                          >
+                        </picture>
+
+                    {% else %}
+                      {% capture current %}{% cycle 1, 2 %}{% endcapture %}
+                      {{ 'lifestyle-' | append: current | placeholder_svg_tag: 'placeholder-svg' }}
+                    {% endunless %}
+                  {% endif %}
+                  <div
+                    class="home-carousel__bg--overlay u-bg-contain u-bg-overlay"
+                    style="
+                      --overlay-color: {{ section.settings.overlay_color }};
+                      --overlay-opacity: {{ section.settings.overlay_strength | times: 1.0 | divided_by: 100 }};
+                    "
+                  ></div>
+                </div>
+              </div>
+            {%- endcapture -%}
+          {%- endif -%}
+          <media-carousel-slide class="swiper-slide">
+            <div
+              class="
+                home-carousel__item-wrapper
+                home-carousel__item-wrapper--{{ block.id }}
+                home-carousel__item-wrapper--{{ slideshow_height }}
+                home-carousel__item-wrapper--{{ slideshow_height_mobile }}-mobile
+                o-ratio
+              "
+              {{ block.shopify_attributes }}
+            >
+              <div
+                class="o-ratio__content home-carousel__item home-carousel__item--{{ block.type }} home-carousel__item--{{ block.id }} home-carousel__item--middle home-carousel__item--{{ block.settings.alignment }}"
+                data-slide-id="{{ forloop.index0 }}"
+              >
+                {%- if block.settings.video_desktop or block.settings.video_mobile -%}
+                  <div class="home-carousel__video js-home-carousel-video{% if block.settings.video_desktop or block.settings.video_mobile %} home-carousel__video--self js-home-carousel-video--self{% endif %}">
+                    {%- if block.settings.video_desktop and block.settings.video_mobile -%}
+                      <lazy-video-switcher>
+                    {%- endif -%}
+
+                    {%- if block.settings.video_desktop -%}
+                      {%- render 'lazy-video',
+                        video: block.settings.video_desktop,
+                        class: 'js-home-carousel-video__video',
+                        screen_size: 'desktop'
+                      -%}
+                    {%- endif -%}
+
+                    {%- if block.settings.video_mobile -%}
+                      {%- render 'lazy-video',
+                        video: block.settings.video_mobile,
+                        class: 'js-home-carousel-video__video',
+                        screen_size: 'mobile'
+                      -%}
+                    {%- endif -%}
+
+                    {%- if block.settings.video_desktop and block.settings.video_mobile -%}
+                      </lazy-video-switcher>
+                    {%- endif -%}
+
+                  </div>
+
+                  <div
+                    class="home-carousel__bg--overlay u-bg-contain u-bg-overlay"
+                    style="
+                      --overlay-color: {{ section.settings.overlay_color }};
+                      --overlay-opacity: {{ section.settings.overlay_strength | times: 1.0 | divided_by: 100 }};
+                    "
+                  ></div>
+                {% else %}
+                  {% unless block.settings.image == blank %}
+                    <div class="home-carousel__bg-wrapper">
+                      <div class="theme-spinner theme-spinner--white"></div>
+                      <picture>
+                        <source
+                          {% if block.settings.image_mobile %}
+                            srcset="{% render 'bgset', image: block.settings.image_mobile %}"
+                          {% else %}
+                            srcset="{% render 'bgset', image: block.settings.image %}"
+                          {% endif %}
+                          media="all and (max-width: 767px)"
+                        >
+                        <source
+                          srcset="{% render 'bgset', image: block.settings.image %}"
+                          media="all and (min-width: 768px)"
+                        >
+                        {%- liquid
+                          assign loading = 'eager'
+                          assign fetchpriority = 'auto'
+                          if section.index == 1
+                            assign fetchpriority = 'high'
+                          elsif section.index > 2
+                            assign loading = 'lazy'
+                          endif
+
+                          assign class = 'home-carousel__bg home-carousel__bg--' | append: section.id | append: '--' | append: forloop.index0
+
+                          assign image_width = 600
+                          assign image_height = 600 | divided_by: block.settings.image.aspect_ratio | round
+                        -%}
+                        {%- liquid
+                          assign skeleton_image_height = image_height
+                          if block.settings.image_mobile
+                            assign skeleton_image_height = 600 | divided_by: block.settings.image_mobile.aspect_ratio | round
+                          endif
+
+                          assign loading_alt = 'Loading image: ' | append: block.settings.image.alt
+                        -%}
+                        {%- render 'image-skeleton', alt: loading_alt, width: image_width, height: skeleton_image_height -%}
+                        <img
+                          class="{{ class }}"
+                          src="{{ block.settings.image | image_url: width: 600 }}"
+                          width="{{ image_width }}"
+                          height="{{ image_height }}"
+                          alt="{{ block.settings.image.alt }}"
+                          loading="{{ loading }}"
+                          fetchpriority="{{ fetchpriority }}"
+                          style="
+                            --image-position: {{ block.settings.image.presentation.focal_point }};
+                            --image-position-mobile: {% if block.settings.image_mobile %}{{ block.settings.image_mobile.presentation.focal_point }}{% else %}{{ block.settings.image.presentation.focal_point }}{% endif %};
+                          "
+                        >
+                      </picture>
+
+                      <div
+                        class="home-carousel__bg--overlay u-bg-contain u-bg-overlay"
+                        style="
+                          --overlay-color: {{ section.settings.overlay_color }};
+                          --overlay-opacity: {{ section.settings.overlay_strength | times: 1.0 | divided_by: 100 }};
+                        "
+                      ></div>
+                    </div>
+
+                  {% else %}
+                    <div
+                      class="home-carousel__bg u-bg-cover u-bg-overlay"
+                      style="
+                        --overlay-color: {{ section.settings.overlay_color }};
+                        --overlay-opacity: {{ section.settings.overlay_strength | times: 1.0 | divided_by: 100 }};
+                      "
+                    >
+                      {% capture current %}{% cycle 1, 2 %}{% endcapture %}
+                      {{ 'lifestyle-' | append: current | placeholder_svg_tag: 'placeholder-svg' }}
+                    </div>
+                  {% endunless %}
+                {% endif %}
+
+                {% unless block.settings.title == blank
+                  and block.settings.text == blank
+                  and block.settings.link_title == blank
+                  and block.settings.link_title_2 == blank
+                %}
+                  <div class="home-carousel__content{% if block.settings.link_title != blank or block.settings.link_title_2 != blank %} home-carousel__content--btn{% endif %}">
+                    {% unless block.settings.title == blank %}
+                      <div
+                        class="home-carousel__title section__title h2"
+                      >
+                        <h2 class="section__title-text">{{ block.settings.title | escape }}</h2>
+                      </div>
+                    {% endunless %}
+                    {% unless block.settings.text == blank %}
+                      <div class="home-carousel__text rte">{{ block.settings.text }}</div>
+                    {% endunless %}
+                    {% if block.settings.link_title != blank or block.settings.link_title_2 != blank %}
+                      <div class="home-carousel__btn__wrapper u-flex u-flex--middle">
+                        {% unless block.settings.link_title == blank %}
+                          {%- liquid
+                            assign link_style = block.settings.link_style
+                            assign button_color = 'initial'
+                            assign button_hover_color = 'initial'
+                            assign button_background_color = 'initial'
+                            assign button_hover_background_color = 'initial'
+                            if link_style == 'c-btn c-btn--hollow'
+                              assign button_color = section.settings.text_color
+                              if text_color_brightness > 125
+                                assign text_contrast_color = '#000'
+                              else
+                                assign text_contrast_color = '#fff'
+                              endif
+                              assign button_hover_color = text_contrast_color
+                              assign button_hover_background_color = section.settings.text_color
+                            elsif link_style == 'c-btn c-btn--mono'
+                              assign button_background_color = section.settings.text_color
+                              if text_color_brightness < 125
+                                assign button_color = 'white'
+                                assign button_hover_color = 'white'
+                                assign button_hover_background_color = section.settings.text_color | color_lighten: 10
+                              else
+                                assign button_color = 'black'
+                                assign button_hover_color = 'black'
+                                assign button_hover_background_color = section.settings.text_color | color_darken: 10
+                              endif
+                              unless section.settings.style == 'transparent'
+                                assign button_color = section.settings.text_bg_color
+                                assign button_hover_color = section.settings.text_bg_color
+                              endunless
+                            endif
+                          -%}
+                          <a
+                            href="{{ block.settings.link }}"
+                            class="home-carousel__btn {{ block.settings.link_style }}"
+                            style="
+                              --button-color: {{ button_color }};
+                              --button-hover-color: {{ button_hover_color }};
+                              --button-background-color: {{ button_background_color }};
+                              --button-hover-background-color: {{ button_hover_background_color }};
+                            "
+                          >
+                            {{- block.settings.link_title | escape -}}
+                          </a>
+                        {% endunless %}
+                        {% unless block.settings.link_title_2 == blank %}
+                          {%- liquid
+                            assign link_style = block.settings.link_style_2
+                            assign button_color = 'initial'
+                            assign button_hover_color = 'initial'
+                            assign button_background_color = 'initial'
+                            assign button_hover_background_color = 'initial'
+                            if link_style == 'c-btn c-btn--hollow'
+                              assign button_color = section.settings.text_color
+                              if text_color_brightness > 125
+                                assign text_contrast_color = '#000'
+                              else
+                                assign text_contrast_color = '#fff'
+                              endif
+                              assign button_hover_color = text_contrast_color
+                              assign button_hover_background_color = section.settings.text_color
+                            elsif link_style == 'c-btn c-btn--mono'
+                              assign button_background_color = section.settings.text_color
+                              if text_color_brightness < 125
+                                assign button_color = 'white'
+                                assign button_hover_color = 'white'
+                                assign button_hover_background_color = section.settings.text_color | color_lighten: 10
+                              else
+                                assign button_color = 'black'
+                                assign button_hover_color = 'black'
+                                assign button_hover_background_color = section.settings.text_color | color_darken: 10
+                              endif
+                              unless section.settings.style == 'transparent'
+                                assign button_color = section.settings.text_bg_color
+                                assign button_hover_color = section.settings.text_bg_color
+                              endunless
+                            endif
+                          -%}
+                          <a
+                            href="{{ block.settings.link_2 }}"
+                            class="home-carousel__btn {{ block.settings.link_style_2 }}"
+                            style="
+                              --button-color: {{ button_color }};
+                              --button-hover-color: {{ button_hover_color }};
+                              --button-background-color: {{ button_background_color }};
+                              --button-hover-background-color: {{ button_hover_background_color }};
+                            "
+                          >
+                            {{- block.settings.link_title_2 | escape -}}
+                          </a>
+                        {% endunless %}
+                      </div>
+                    {% endif %}
+                  </div>
+                {% endunless %}
+              </div>
+            </div>
+          </media-carousel-slide>
+
+        {% endfor %}
+      {%- endcapture -%}
+
+      <media-carousel-preview-image>
+        {{- preview_image -}}
+      </media-carousel-preview-image>
+      <media-carousel-slider class="swiper">
+        <media-carousel-wrapper class="swiper-wrapper">
+          {{- slides -}}
+        </media-carousel-wrapper>
+      </media-carousel-slider>
+
+      {%- if section.blocks.size > 1 -%}
+        <div
+          class="home-carousel__nav {% if section.settings.nav_style contains 'solid' %}home-carousel__nav--solid{% endif %}{% if section.settings.nav_style contains 'outline' %} home-carousel__nav--outline{% endif %}"
+        >
+          {%- unless section.settings.hide_nav_arrows -%}
+            <media-carousel-navigation class="media-carousel__navigation">
+              <button
+                class="
+                  media-carousel__arrow
+                  media-carousel__arrow--prev
+                  js-carousel-prev
+                "
+              >
+                {%- render 'icons-theme', icon: 'chevron', additional_classes: 'icon--left' -%}
+              </button>
+              <button
+                class="
+                  media-carousel__arrow
+                  media-carousel__arrow--next
+                  js-carousel-next
+                "
+              >
+                {%- render 'icons-theme', icon: 'chevron' -%}
+              </button>
+            </media-carousel-navigation>
+          {%- endunless -%}
+
+          <media-carousel-pagination
+            class="media-carousel__pagination swiper-pagination js-carousel-pagination"
+          ></media-carousel-pagination>
+        </div>
+      {%- endif -%}
+    </media-carousel>
+
+    {% if section.settings.slideshow_width == 'contained' %}</div>{% endif %}
+
+    {%- liquid
+      assign has_responsive_video = false
+
+      for block in section.blocks
+        if block.settings.video_desktop and block.settings.video_mobile
+          assign has_responsive_video = true
+          break
+        endif
+      endfor
+    -%}
+
+    {% if has_responsive_video %}
+      <script src="{{ 'lazy-video-switcher.js' | asset_url }}" type="module"></script>
+    {% endif %}
+  </section>
+{% endif %}
+
+{% if section.blocks.size == 0 %}
+  <div class="placeholder-noblocks">
+    {{ 'homepage.onboarding.no_content' | t }}
+  </div>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Slideshow",
+  "class": "js-section__home-slider",
+  "max_blocks": 5,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Height and width"
+    },
+    {
+      "type": "select",
+      "id": "slideshow_height",
+      "label": "Section height (desktop)",
+      "default": "full-screen",
+      "options": [
+        {
+          "label": "Small (5:2)",
+          "value": "small"
+        },
+        {
+          "label": "Medium (2:1)",
+          "value": "medium"
+        },
+        {
+          "label": "Large (16:10)",
+          "value": "large"
+        },
+        {
+          "label": "Full screen",
+          "value": "full-screen"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "slideshow_height_mobile",
+      "label": "Section height (mobile)",
+      "default": "full-screen",
+      "info": "For information on image cropping [click here](https://support.safeasmilk.co/article/138-slideshow-image-sizes-cropping).",
+      "options": [
+        {
+          "label": "Small (1:1)",
+          "value": "small"
+        },
+        {
+          "label": "Medium (4:5)",
+          "value": "medium"
+        },
+        {
+          "label": "Large (10:14)",
+          "value": "large"
+        },
+        {
+          "label": "Reel (9:16)",
+          "value": "portrait"
+        },
+        {
+          "label": "Full screen",
+          "value": "full-screen"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "slideshow_width",
+      "label": "Section width",
+      "default": "full",
+      "options": [
+        {
+          "label": "Contained",
+          "value": "contained"
+        },
+        {
+          "label": "Full",
+          "value": "full"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Carousel"
+    },
+    {
+      "type": "select",
+      "id": "nav_style",
+      "label": "Navigation buttons",
+      "default": "solid-brand",
+      "options": [
+        {
+          "value": "solid-brand",
+          "label": "Solid dots (brand)"
+        },
+        {
+          "value": "solid-mono",
+          "label": "Solid dots (mono)"
+        },
+        {
+          "value": "outline",
+          "label": "Outline dots"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_nav_arrows",
+      "label": "Hide navigation arrows",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Auto rotate carousel",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "label": "Change slides every",
+      "unit": "sec",
+      "min": 5,
+      "max": 10,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "select",
+      "id": "style",
+      "label": "Text container style",
+      "default": "transparent",
+      "options": [
+        {
+          "label": "Solid",
+          "value": "solid"
+        },
+        {
+          "label": "Semi-opaque",
+          "value": "semi"
+        },
+        {
+          "label": "Transparent",
+          "value": "transparent"
+        }
+      ]
+    },
+    {
+      "type": "color",
+      "id": "text_bg_color",
+      "label": "Text container",
+      "default": "#212121"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Overlay",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "overlay_strength",
+      "label": "Overlay strength",
+      "unit": "%",
+      "min": 0,
+      "max": 100,
+      "step": 10,
+      "default": 10
+    },
+    {
+      "type": "checkbox",
+      "id": "text_heading_color",
+      "label": "Use default heading color",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "text_border_color",
+      "label": "Use default brand border color",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "label": "Heading size",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "header",
+      "content": "Margin"
+    },
+    {
+      "type": "checkbox",
+      "id": "section_bottom_margin",
+      "label": "Reduce bottom margin",
+      "default": false
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "Image slide",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "2200px width recommended."
+        },
+        {
+          "type": "image_picker",
+          "id": "image_mobile",
+          "label": "Mobile image",
+          "info": "Alternative image for mobile devices. 1200px width and portrait ratio recommended."
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Image slide"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Subheading",
+          "default": "<p>Use these slides to tell the world about your brand. You can use images or background video along with text and links.</p>"
+        },
+        {
+          "type": "select",
+          "id": "alignment",
+          "label": "Content position",
+          "default": "left",
+          "options": [
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "center",
+              "label": "Center"
+            },
+            {
+              "value": "right",
+              "label": "Right"
+            },
+            {
+              "value": "bottom-left",
+              "label": "Bottom left"
+            },
+            {
+              "value": "bottom-center",
+              "label": "Bottom center"
+            },
+            {
+              "value": "bottom-right",
+              "label": "Bottom right"
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Button 1"
+        },
+        {
+          "type": "text",
+          "id": "link_title",
+          "label": "Label",
+          "default": "Shop all"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "link_style",
+          "label": "Style",
+          "options": [
+            {
+              "value": "c-btn c-btn--primary",
+              "label": "Solid button (brand)"
+            },
+            {
+              "value": "c-btn c-btn--mono",
+              "label": "Solid button (mono)"
+            },
+            {
+              "value": "c-btn c-btn--hollow",
+              "label": "Outline button"
+            }
+          ],
+          "default": "c-btn c-btn--hollow"
+        },
+        {
+          "type": "header",
+          "content": "Button 2"
+        },
+        {
+          "type": "text",
+          "id": "link_title_2",
+          "label": "Label",
+          "default": "Shop new"
+        },
+        {
+          "type": "url",
+          "id": "link_2",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "link_style_2",
+          "label": "Style",
+          "options": [
+            {
+              "value": "c-btn c-btn--primary",
+              "label": "Solid button (brand)"
+            },
+            {
+              "value": "c-btn c-btn--mono",
+              "label": "Solid button (mono)"
+            },
+            {
+              "value": "c-btn c-btn--hollow",
+              "label": "Outline button"
+            }
+          ],
+          "default": "c-btn c-btn--primary"
+        }
+      ]
+    },
+    {
+      "type": "video",
+      "name": "Video slide",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Background video",
+          "info": "Background videos are looped with muted sound."
+        },
+        {
+          "type": "video",
+          "id": "video_desktop",
+          "label": "Desktop video"
+        },
+        {
+          "type": "video",
+          "id": "video_mobile",
+          "label": "Mobile video"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Video slide"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Subheading",
+          "default": "<p>Use these slides to tell the world about your brand. You can use images or background video along with text and links.</p>"
+        },
+        {
+          "type": "select",
+          "id": "alignment",
+          "label": "Content position",
+          "default": "left",
+          "options": [
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "center",
+              "label": "Center"
+            },
+            {
+              "value": "right",
+              "label": "Right"
+            },
+            {
+              "value": "bottom-left",
+              "label": "Bottom left"
+            },
+            {
+              "value": "bottom-center",
+              "label": "Bottom center"
+            },
+            {
+              "value": "bottom-right",
+              "label": "Bottom right"
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Button 1"
+        },
+        {
+          "type": "text",
+          "id": "link_title",
+          "label": "Label",
+          "default": "Shop all"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "link_style",
+          "label": "Style",
+          "options": [
+            {
+              "value": "c-btn c-btn--primary",
+              "label": "Solid button (brand)"
+            },
+            {
+              "value": "c-btn c-btn--mono",
+              "label": "Solid button (mono)"
+            },
+            {
+              "value": "c-btn c-btn--hollow",
+              "label": "Outline button"
+            }
+          ],
+          "default": "c-btn c-btn--hollow"
+        },
+        {
+          "type": "header",
+          "content": "Button 2"
+        },
+        {
+          "type": "text",
+          "id": "link_title_2",
+          "label": "Label",
+          "default": "Shop new"
+        },
+        {
+          "type": "url",
+          "id": "link_2",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "link_style_2",
+          "label": "Style",
+          "options": [
+            {
+              "value": "c-btn c-btn--primary",
+              "label": "Solid button (brand)"
+            },
+            {
+              "value": "c-btn c-btn--mono",
+              "label": "Solid button (mono)"
+            },
+            {
+              "value": "c-btn c-btn--hollow",
+              "label": "Outline button"
+            }
+          ],
+          "default": "c-btn c-btn--primary"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Slideshow",
+      "settings": {
+        "autoplay": true,
+        "autoplay_speed": 8
+      },
+      "blocks": [
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        }
+      ]
+    }
+  ],
+  "enabled_on": {
+    "templates": ["*"],
+    "groups": ["footer"]
+  }
+}
+{% endschema %}

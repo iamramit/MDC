@@ -1,0 +1,154 @@
+{%- liquid
+  assign sold_out_label = false
+  if settings.product_grid_label_sold_out and product.available == false
+    assign sold_out_label = true
+  endif
+
+  assign discount_label = false
+  if settings.product_grid_label_discount and product.compare_at_price > product.price or product.compare_at_price_varies
+    assign discount_label = true
+  endif
+
+  assign new_label = false
+  assign product_created_at = product.created_at | date: '%s'
+  assign time_ago = 'now' | date: '%s' | minus: product_created_at | divided_by: 86400
+  if time_ago < settings.product_grid_label_new_days and settings.product_grid_label_new
+    assign new_label = true
+  endif
+
+  assign pre_order_label = false
+  if settings.product_grid_label_pre_order and product.template_suffix contains 'pre-order'
+    assign pre_order_label = true
+  endif
+
+  assign custom_label_1 = false
+  if settings.product_grid_label_custom_1
+    for collection in product.collections
+      if collection.title == collections[settings.product_grid_label_collection_1].title
+        assign custom_label_1 = true
+        break
+      endif
+    endfor
+  endif
+
+  assign custom_label_2 = false
+  if settings.product_grid_label_custom_2
+    for collection in product.collections
+      if collection.title == collections[settings.product_grid_label_collection_2].title
+        assign custom_label_2 = true
+        break
+      endif
+    endfor
+  endif
+-%}
+{%- if sold_out_label or discount_label or new_label or pre_order_label or custom_label_1 or custom_label_2 -%}
+  <!-- snippet/product-grid-label.liquid -->
+  <ul class="product-card__label__items o-list-bare{% if settings.product_grid_label_position_left %} product-card__label__items--left{% endif %}">
+    {%- if sold_out_label -%}
+      <li class="product-card__label product-card__label--sold label label--sold_out">
+        <p class="product-card__label-text label__text">{{ 'products.product_labels.sold_out_label' | t }}</p>
+      </li>
+    {%- endif -%}
+
+    {%- if discount_label -%}
+      {%- liquid
+        assign discount_format_percentage = product.compare_at_price | minus: product.price | times: 100.0 | divided_by: product.compare_at_price | round
+        assign discount_format_currency = product.compare_at_price | minus: product.price | round | money
+
+        comment
+          This logic is necessary because the differences in variant prices
+          are not possible to discern from product.price and product.compare_at_price
+          BUT this will only work for products with less then 250 variants
+        endcomment
+        if product.variants_count <= 250
+          if product.compare_at_price > product.price
+            assign difference = product.compare_at_price | minus: product.price
+            assign compare_at_price = product.compare_at_price
+          endif
+
+          if product.compare_at_price_varies
+            assign difference = 0
+            for variant in product.variants
+              if variant.compare_at_price > variant.price
+                assign variant_price_difference = variant.compare_at_price | minus: variant.price
+                if variant_price_difference > difference
+                  assign difference = variant_price_difference
+                  assign compare_at_price = variant.compare_at_price
+                endif
+              endif
+            endfor
+          endif
+        endif
+
+        assign discount_format_percentage = difference | times: 100.0 | divided_by: compare_at_price | round
+        assign discount_format_currency = difference | round | money
+      -%}
+      <li
+        class="product-card__label product-card__label--sale label label--discount"
+        {% if settings.product_grid_label_hide_all and product.available == false %}
+          hidden
+        {% endif %}
+      >
+        {%- case settings.product_grid_label_discount_type -%}
+          {%- when 'currency' -%}
+            <p class="product-card__label-text label__text">
+              {{ 'products.product_labels.discount_currency' | t: discount_format_currency: discount_format_currency }}
+            </p>
+          {%- when 'percentage' -%}
+            <p class="product-card__label-text label__text">
+              {{
+                'products.product_labels.discount_percentage'
+                | t: discount_format_percentage: discount_format_percentage
+              }}
+            </p>
+          {%- when 'text' -%}
+            <p class="product-card__label-text label__text">{{ 'products.product_labels.discount_text' | t }}</p>
+        {%- endcase -%}
+      </li>
+    {%- endif -%}
+
+    {% if new_label %}
+      <li
+        class="product-card__label product-card__label--new label label--new"
+        {% if settings.product_grid_label_hide_all and product.available == false %}
+          hidden
+        {% endif %}
+      >
+        <p class="product-card__label-text label__text">{{ settings.product_grid_label_title_new }}</p>
+      </li>
+    {% endif %}
+
+    {% if pre_order_label %}
+      <li
+        class="product-card__label product-card__label--pre-order label label--pre-order"
+        {% if settings.product_grid_label_hide_all and product.available == false %}
+          hidden
+        {% endif %}
+      >
+        <p class="product-card__label-text label__text">{{ 'products.product_labels.pre_order_label' | t }}</p>
+      </li>
+    {% endif %}
+
+    {% if custom_label_1 %}
+      <li
+        class="product-card__label product-card__label--custom__1 label label--custom_1"
+        {% if settings.product_grid_label_hide_all and product.available == false %}
+          hidden
+        {% endif %}
+      >
+        <p class="product-card__label-text label__text">{{ settings.product_grid_label_title_custom_1 }}</p>
+      </li>
+    {% endif %}
+
+    {% if custom_label_2 %}
+      <li
+        class="product-card__label product-card__label--custom__2 label label--custom_2"
+        {% if settings.product_grid_label_hide_all and product.available == false %}
+          hidden
+        {% endif %}
+      >
+        <p class="product-card__label-text label__text">{{ settings.product_grid_label_title_custom_2 }}</p>
+      </li>
+    {% endif %}
+  </ul>
+{%- endif -%}

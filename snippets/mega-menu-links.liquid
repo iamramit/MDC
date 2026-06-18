@@ -1,0 +1,69 @@
+{%- comment -%}
+  Renders mega menu links panel
+
+  Accepts:
+  - block: {Object} Menu block
+  - link: {Object} Parent link
+  - animation_delay: {Number} Animation delay in seconds
+  - item_start_position: {Number} Item position in menu context
+{%- endcomment -%}
+{%- if link.links.size > 0 -%}
+  {%- liquid
+    assign item_position = item_start_position
+  -%}
+  <div
+    class="
+      mega-panel__block
+      {% if block.settings.links_per_row > link.links.size %}
+        mega-panel__block--incomplete
+      {% endif %}
+      {% comment %} {% unless block.settings.enable_column_uniform_width %}
+        mega-panel__block--auto-widths
+      {% endunless %} {% endcomment %}
+      mega-links
+      mega-links--text-align-{{ block.settings.linklist_alignment }}
+    "
+    style="
+      --width: {{ block.settings.linklist_width }};
+      --per-row: {{ block.settings.links_per_row }};
+      --spacing: {{ block.settings.links_columns_spacing }};
+    "
+  >
+    <ul class="mega-panel__items">
+      {% for child_link in link.links %}
+        {%- liquid
+          assign item_position = item_position | plus: 1
+        -%}
+        <li
+          class="mega-panel__item has-animation mega-links__item{% if child_link.active %} mega-links__item--active{% endif %}{% if child_link.links != blank %} mega-links__item--sub {% endif %}"
+          style="animation-delay: {{ animation_delay | times: item_position }}ms;"
+        >
+          <a
+            href="{{ child_link.url }}"
+            class="mega-links__link{% if child_link.links != blank %} mega-links__link--has-children js-header-sub-t-a{% endif %} f-family--{{ settings.type_mega_menu_style }} f-caps--{{ settings.type_mega_menu_capitalize }} f-space--{{ settings.type_mega_menu_letterspace }}"
+            {% if link.links != blank %}
+              aria-expanded="false" aria-controls="sub-t-{{ parentIndex }}-{{ forloop.index }}"
+            {% endif %}
+          >
+            {{- child_link.title | escape -}}
+          </a>
+          {% if child_link.links != blank %}
+            <div class="js-nav-sub-t" id="sub-t-{{ parentIndex }}-{{ forloop.index }}">
+              {%- if child_link.links.size > 0 -%}
+                <ul class="list-menu">
+                  {% for grandchild_link in child_link.links %}
+                    <li class="list-menu__item{% if grandchild_link.current %} list-menu__item--active{% endif %}">
+                      <a href="{{ grandchild_link.url }}" class="list-menu__link">
+                        <span class="list-menu__text">{{ grandchild_link.title | escape }}</span>
+                      </a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              {%- endif -%}
+            </div>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+{%- endif -%}

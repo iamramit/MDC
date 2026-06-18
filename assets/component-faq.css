@@ -1,0 +1,109 @@
+/* ==========================================================================
+   #FAQs PAGE
+   ========================================================================== */
+.section--faq {
+  position: static;
+  padding: 0.01px;
+}
+
+.faq__categories {
+  position: sticky;
+  top: 18px;
+  float: left;
+  margin-left: -200px;
+  width: 180px;
+  padding-top: 6px;
+}
+
+.faq__categories.faq__categories.faq__categories.faq__categories {
+  -webkit-transition: opacity 0.3s ease-in, top 350ms ease;
+  -moz-transition: opacity 0.3s ease-in, top 350ms ease;
+  transition: opacity 0.3s ease-in, top 350ms ease;
+}
+
+.faq__categories {
+  top: calc(var(--header-height) * var(--header-is-sticky) + 18px);
+}
+
+.header-down .faq__categories {
+  top: calc(var(--header-height) + 18px);
+}
+
+.faq__categories-title {
+  margin-bottom: 6px;
+}
+
+.faq__categories-item {
+  position: relative;
+  margin: 0 0 3px;
+}
+
+scroll-to-target,
+.faq__categories-link {
+  display: block;
+}
+
+@media screen and (max-width: 1120px) {
+  .faq__categories {
+    display: none;
+  }
+}
+.faq__category {
+  margin-top: 42px;
+  border-bottom: 1px solid var(--color--bg);
+  top: 1px;
+  position: relative;
+  padding: 0 0.5rem;
+}
+
+.faq__category__title.faq__category__title {
+  margin-bottom: 24px;
+}
+
+.faq__accordion accordion-group details {
+  border-bottom: 0 none;
+}
+.faq__accordion accordion-group summary {
+  padding: 0.25em 3em 0.25em 0.5rem;
+  overflow: initial;
+  background-color: transparent;
+  transition: background-color 0.25s ease-in-out;
+}
+.faq__accordion accordion-group summary:hover {
+  opacity: 1;
+  text-decoration: none;
+  background: var(--color--text-bg);
+  transition: background-color 0.25s ease-in-out;
+}
+.faq__accordion accordion-group summary summary-icon {
+  right: 0.5rem;
+}
+.faq__accordion accordion-group details-content {
+  padding: 0.5em 0.5rem 1em;
+}
+.faq__accordion accordion-group details-content img {
+  margin-top: 18px;
+}
+
+.faq__accordion__item-wrap *:last-child {
+  margin-bottom: 0;
+}
+
+.faq__accordion__item__image {
+  margin-top: 15px;
+}
+
+.faq__cta {
+  margin-top: 36px;
+  overflow: hidden;
+}
+
+@media (max-width: 47.9275em) {
+  .faq__accordion__title-text {
+    font-size: 1.1em;
+  }
+  .faq__cta {
+    margin-top: 24px;
+  }
+}
+/*# sourceMappingURL=component-faq.css.map */

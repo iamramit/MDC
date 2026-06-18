@@ -1,0 +1,141 @@
+<script>
+  theme.setHeaderHeightVars = () => {
+    const headerSection = document.querySelector('header-container');
+    const header = document.querySelector('.js-header');
+    const announcement = document.querySelector('.shopify-section-group-header-group.js-section__announcement');
+    const utility = document.querySelector('.shopify-section-group-header-group.js-section__utility-bar');
+
+    document.documentElement.style.setProperty('--window-height', `${window.innerHeight}px`);
+
+    document.documentElement.style.setProperty(
+      '--announcement-height',
+      `${announcement ? announcement.offsetHeight : 0}px`,
+    );
+
+    document.documentElement.style.setProperty('--utility-height', `${utility ? utility.offsetHeight : 0}px`);
+
+    //header section (zero height if transparent)
+    if (headerSection)
+      document.documentElement.style.setProperty('--header-section-height', `${headerSection.offsetHeight}px`);
+    //header element (has height if transparent)
+    if (header) document.documentElement.style.setProperty('--header-height', `${header.offsetHeight}px`);
+  };
+
+  theme.setHeaderLogoVars = () => {
+    //header logo width
+    const logoLink = document.querySelector('.header__logo-link');
+    if (logoLink) document.documentElement.style.setProperty('--header-logo-width', `${logoLink.offsetWidth}px`);
+  };
+
+  theme.setHeaderStyle = () => {
+    const header = document.querySelector('.js-header');
+    if (!header) return;
+
+    //get element width witout padding
+    const getElementContentWidth = (element) => {
+      if (!element) return 0;
+
+      const styles = window.getComputedStyle(element);
+      const padding = parseFloat(styles.paddingLeft) + parseFloat(styles.paddingRight);
+
+      return element.clientWidth - padding;
+    };
+
+    const iconsNavDisplayStyle = (style, element) => {
+      if (!element) return;
+
+      element.style.display = style;
+    };
+
+    const headerNavs = header.querySelector('.js-heaver-navs');
+    const mobileDraw = header.querySelector('.js-mobile-draw-icon');
+    const searchDraw = header.querySelector('.js-search-draw-icon');
+    const cartDraw = header.querySelector('.js-cart-draw-icon');
+    const primaryNav = header.querySelector('.js-primary-nav');
+    const primaryNavItems = header.querySelector('.js-primary-nav-items');
+    const secondaryNav = header.querySelector('.js-secondary-nav');
+    const secondaryNavLocalize = header.querySelector('.js-secondary-nav-localize');
+    const secondaryNavActions = header.querySelector('.js-secondary-nav-actions');
+    const logoImg = header.querySelector('.js-main-logo');
+    const mobileBrkp = 767;
+
+    //set sizes
+    const winWidth = window.innerWidth;
+    const navsWidth = getElementContentWidth(headerNavs);
+    const secondaryWidth = getElementContentWidth(secondaryNav);
+    const secondaryLocalizeWidth = getElementContentWidth(secondaryNavLocalize);
+    const secondaryActionsWidth = getElementContentWidth(secondaryNavActions);
+    const secondaryItemsWidth = secondaryLocalizeWidth + secondaryActionsWidth + 6;
+    const logoWidth = getElementContentWidth(logoImg);
+    const primaryWidth = getElementContentWidth(primaryNavItems);
+
+    if (header.dataset.headerStyle == 'icons') {
+      iconsNavDisplayStyle('flex', mobileDraw);
+      iconsNavDisplayStyle('flex', cartDraw);
+      iconsNavDisplayStyle('flex', searchDraw);
+    } else if (winWidth >= mobileBrkp) {
+      if (header.dataset.headerStyle !== 'center') {
+        //inline style logic
+        if (header.dataset.headerStyle === 'left') {
+          const availableLeftSpace = (winWidth - logoWidth) / 2;
+          if (availableLeftSpace - primaryWidth < 40) {
+            header.classList.remove('header--left');
+            header.classList.add('header--center');
+          } else if (availableLeftSpace - secondaryItemsWidth < 40) {
+            header.classList.remove('header--left');
+            header.classList.add('header--center');
+          } else {
+            header.classList.add('header--left');
+            header.classList.remove('header--center');
+          }
+        }
+
+        //logo left style logic
+        if (header.dataset.headerStyle === 'logo-left') {
+          const availableCenterSpace = winWidth - logoWidth;
+          if (availableCenterSpace - primaryWidth - secondaryItemsWidth < 120) {
+            header.classList.remove('header--logo-left');
+            header.classList.add('header--center');
+          } else {
+            header.classList.add('header--logo-left');
+            header.classList.remove('header--center');
+          }
+        }
+      }
+
+      iconsNavDisplayStyle('none', mobileDraw);
+      iconsNavDisplayStyle('none', cartDraw);
+      iconsNavDisplayStyle('none', searchDraw);
+    } else {
+      iconsNavDisplayStyle('flex', mobileDraw);
+      iconsNavDisplayStyle('flex', cartDraw);
+      iconsNavDisplayStyle('flex', searchDraw);
+    }
+  };
+
+  theme.setUpHeaderResizeObservers = () => {
+    const debounce = (f, delay) => {
+      let timer = 0;
+      return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => f.apply(this, args), delay);
+      };
+    };
+
+    const headerSection = document.querySelector('header-container');
+    const header = document.querySelector('header');
+    const logo = document.querySelector('.header__logo-link');
+
+    theme.setHeaderHeightVars();
+    const headerSectionObserver = new ResizeObserver(debounce(theme.setHeaderHeightVars, 50));
+    headerSectionObserver.observe(headerSection);
+
+    theme.setHeaderLogoVars();
+    const headerLogoObserver = new ResizeObserver(debounce(theme.setHeaderLogoVars, 50));
+    headerLogoObserver.observe(logo);
+
+    theme.setHeaderStyle();
+    const headerObserver = new ResizeObserver(debounce(theme.setHeaderStyle, 50));
+    headerObserver.observe(header);
+  };
+</script>

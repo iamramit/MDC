@@ -1,0 +1,22 @@
+{% comment %}
+  Cart unit price
+
+  Accepts:
+  - price: {String} Cart item property name
+  - base_unit: {String} Cart item property value
+  - label: {Boolean} Whether or not to display the unit price label
+{% endcomment %}
+<span class="unit-price">
+  {%- unless label -%}
+    <span class="u-hidden-visually">{{ 'products.general.unit_price_label' | t }}</span>
+  {%- endunless %}
+  {%- capture unit_price_separator -%}
+    <span aria-hidden="true">/</span><span class="u-hidden-visually">{{ 'products.general.unit_price_separator' | t }}&nbsp;</span>
+  {%- endcapture -%}
+  {%- if label -%}
+    {{ 'products.general.unit_price_label' | t }}:&nbsp;
+  {%- endif -%}
+  <unit-price class="money">{{- price -}}</unit-price>
+  {{- unit_price_separator -}}
+  <base-unit>{{- base_unit -}}</base-unit>
+</span>

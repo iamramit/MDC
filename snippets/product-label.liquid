@@ -1,0 +1,63 @@
+{% comment %}
+  Renders product label
+
+  Accepts:
+  - product: {Object} Product
+  - id: {String} Unique label id
+  - color: {Color} Color of the label
+  - text_color: {Color} Text color of the label
+  - border: {Boolean} Show border
+  - type: {String} Label type: currency / percentage / text
+  - component: {String} Component main class
+
+  Usage:
+  {% render 'product-label',
+      product: product,
+      color: block.settings.label_color,
+      text_color: block.settings.label_text_color,
+      border: block.settings.show_border,
+      type: 'currency',
+      component: 'product-single'
+  %}
+
+  !!! NOTE: When changing this element, update the HTML in
+  VariantSelects.onVariantChange()
+{% endcomment %}
+
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign border_color = settings.color_text | color_modify: 'alpha', 0.2
+-%}
+
+<div
+  id="{{ id }}"
+  {% if border %}
+    class="label--border"
+  {% endif %}
+  style="
+    --background-color: {{ color }};
+    --text-color: {{ text_color }};
+    {% if border %}
+      --border-color: {{ border_color }};
+    {% endif %}
+  "
+  data-type="{{ type }}"
+>
+  {%- if current_variant.compare_at_price > current_variant.price -%}
+    {%- liquid
+      case type
+        when 'currency'
+          assign discount_format_currency = current_variant.compare_at_price | minus: current_variant.price | round | money
+          assign text = 'products.product_labels.discount_currency' | t: discount_format_currency: discount_format_currency
+        when 'percentage'
+          assign discount_format_percentage = current_variant.compare_at_price | minus: current_variant.price | times: 100.0 | divided_by: current_variant.compare_at_price | round
+          assign text = 'products.product_labels.discount_percentage' | t: discount_format_percentage: discount_format_percentage
+        when 'text'
+          assign text = 'products.product_labels.discount_text' | t
+      endcase
+    -%}
+    <div class="label">
+      <div class="label__text">{{ text }}</div>
+    </div>
+  {%- endif -%}
+</div>

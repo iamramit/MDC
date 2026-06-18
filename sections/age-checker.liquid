@@ -1,0 +1,119 @@
+{{ 'section-age-checker.css' | asset_url | stylesheet_tag }}
+<popup-dialog
+  id="age-checker"
+  class="
+    popup
+    popup--restrictive
+    age-checker
+    {% if section.settings.image != blank %}
+      age-checker--image
+    {% endif %}
+  "
+  data-open-on-page-load
+  data-disable-body-scroll
+  data-remember-state="14"
+  aria-hidden="true"
+  aria-labelledby="age-checker-title"
+  role="alertdialog"
+>
+  <div class="popup__overlay"></div>
+
+  <div class="popup__wrapper">
+    <div
+      class="popup__content"
+      role="document"
+    >
+      {% if section.settings.image != blank %}
+        <div class="age-checker__media">
+          {% comment %} TODO: Image loading skeleton here  {% endcomment %}
+          <img
+            class="age-checker__media-bg"
+            src="{{ section.settings.image | image_url: width: 300 }}"
+            srcset="{% render 'bgset', image: section.settings.image %}"
+            sizes="(min-width: 801px) 800px, (min-width: 501px) 500px, 100vw"
+            width="300"
+            height="{{ 300 | divided_by: section.settings.image.aspect_ratio | round }}"
+            alt="{{ section.settings.image.alt }}"
+            loading="lazy"
+            style="object-position:{{ section.settings.image.presentation.focal_point }}"
+          >
+        </div>
+      {% endif %}
+
+      <div class="age-checker__content">
+        <div
+          class="section__title section__title--center age-checker__title js-animate-single"
+          data-animation-displacement="5"
+        >
+          <h3 id="age-checker-title" class="section__title-text">
+            {{ section.settings.title | escape }}
+          </h3>
+        </div>
+
+        <div class="age-checker__desc">{{ section.settings.text }}</div>
+
+        <div class="age-checker__actions">
+          <button type="button" class="age-checker__btn c-btn c-btn--primary c-btn--full" data-a11y-dialog-hide>
+            {{- section.settings.enter_btn_label | escape -}}
+          </button>
+          {% unless section.settings.leave_link == blank %}
+            <a href="{{ section.settings.leave_link }}" class="age-checker__btn c-btn c-btn--hollow c-btn--full">
+              {{- section.settings.leave_btn_label | escape -}}
+            </a>
+          {% endunless %}
+        </div>
+      </div>
+    </div>
+  </div>
+</popup-dialog>
+
+{% schema %}
+{
+  "name": "Age checker",
+  "class": "js-section__age-checker",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Age verification"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>By clicking enter you are verifying that you are old enough to consume alcohol.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Images"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Supporting image"
+    },
+    {
+      "type": "header",
+      "content": "Button"
+    },
+    {
+      "type": "text",
+      "id": "enter_btn_label",
+      "label": "Enter button label",
+      "default": "Enter"
+    },
+    {
+      "type": "text",
+      "id": "leave_btn_label",
+      "label": "Leave button label",
+      "default": "Leave"
+    },
+    {
+      "type": "url",
+      "id": "leave_link",
+      "label": "Leave button link"
+    }
+  ]
+}
+{% endschema %}

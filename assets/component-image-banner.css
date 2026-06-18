@@ -1,0 +1,233 @@
+/* ==========================================================================
+   #IMAGE WITH TEXT BANNER
+   ========================================================================== */
+.image-banner {
+  width: 100%;
+  padding: 48px;
+  position: relative;
+  overflow: hidden;
+  min-height: var(--height-desktop);
+  color: var(--color-text);
+  background-color: var(--background-color);
+}
+@media (max-width: 47.9275em) {
+  .image-banner {
+    padding: 30px 18px;
+    min-height: var(--height-mobile);
+  }
+}
+
+.image-banner--full-screen {
+  height: calc(var(--window-height) - var(--announcement-height) - var(--utility-height) - var(--header-section-height));
+  min-height: 400px;
+}
+
+.image-banner--full.image-banner--full-screen {
+  height: var(--window-height);
+}
+
+.image-banner--contained.image-banner--full-screen {
+  height: calc(var(--window-height) - 60px);
+}
+@media (max-width: 61.24em) {
+  .image-banner--contained.image-banner--full-screen {
+    height: calc(var(--window-height) - 36px);
+  }
+}
+@media (max-width: 47.9275em) {
+  .image-banner--contained.image-banner--full-screen {
+    height: var(--window-height);
+  }
+}
+
+.image-banner--center .image-banner__content {
+  text-align: center;
+  margin: 0 auto;
+}
+
+.image-banner--left .image-banner__content {
+  text-align: left;
+}
+.image-banner--left .image-banner__content .image-banner__text,
+.image-banner--left .image-banner__content .image-banner__media,
+.image-banner--left .image-banner__content countdown-timer .countdown,
+.image-banner--left .image-banner__content countdown-timer .countdown__completion-message {
+  margin: 0;
+}
+.image-banner--left .image-banner__content countdown-timer .countdown {
+  justify-content: start;
+}
+.image-banner--left .image-banner__content countdown-timer .countdown__unit {
+  text-align: center;
+}
+
+.image-banner--right .image-banner__content {
+  text-align: right;
+  margin-left: auto;
+}
+.image-banner--right .image-banner__content .image-banner__text,
+.image-banner--right .image-banner__content .image-banner__media,
+.image-banner--right .image-banner__content countdown-timer .countdown,
+.image-banner--right .image-banner__content countdown-timer .countdown__completion-message {
+  margin-left: auto;
+  margin-right: 0;
+}
+.image-banner--right .image-banner__content countdown-timer .countdown {
+  justify-content: end;
+}
+.image-banner--right .image-banner__content countdown-timer .countdown__unit {
+  text-align: center;
+}
+
+.image-banner__content {
+  width: 100%;
+  position: relative;
+}
+
+.image-banner__content__block {
+  margin: 18px 0;
+}
+.image-banner__content__block:first-child {
+  margin-top: 0;
+}
+.image-banner__content__block:last-child {
+  margin-bottom: 0;
+}
+.image-banner__content__block countdown-timer .countdown__completion-message {
+  margin-top: 12px;
+}
+
+.image-banner__bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--image-position, 50% 50%);
+}
+@media (max-width: 47.9275em) {
+  .image-banner__bg {
+    object-position: var(--image-position-mobile, var(--image-position));
+  }
+}
+
+.image-banner__text {
+  margin: 0 auto;
+}
+
+.image-banner__text--heading {
+  font-family: var(--font--title);
+  font-weight: var(--font--title-weight);
+  font-style: var(--font--title-style);
+  letter-spacing: var(--font--title-space);
+  text-transform: var(--font--title-transform);
+}
+.image-banner__text--heading h2 {
+  color: var(--color-heading);
+  margin-bottom: 0;
+  font-size: var(--heading-font-size);
+  line-height: max(1.15, var(--heading-line-height));
+}
+@media (max-width: 47.9275em) {
+  .image-banner__text--heading h2 {
+    font-size: var(--heading-font-size-mobile);
+    line-height: max(1.15, var(--heading-line-height-mobile));
+  }
+}
+
+.image-banner__text--body :is(p, h1, h2, h3, h4, h5, h6) {
+  font-family: var(--font--body);
+  font-weight: var(--font--body-weight);
+  font-style: var(--font--body-style);
+  letter-spacing: 0;
+  text-transform: none;
+  font-size: var(--font-size);
+  line-height: max(1.15, var(--line-height));
+}
+@media (max-width: 47.9275em) {
+  .image-banner__text--body :is(p, h1, h2, h3, h4, h5, h6) {
+    font-size: var(--font-size-mobile);
+    line-height: max(1.15, var(--line-height-mobile));
+  }
+}
+
+.image-banner__text .rte a {
+  color: var(--color-text, var(--color--headings));
+  border-color: var(--color-text, var(--color--headings));
+}
+
+.image-banner__media {
+  position: relative;
+  margin: 0 auto;
+  max-width: 800px;
+  overflow: hidden;
+  max-width: 100%;
+  width: var(--inline-image-width);
+}
+@media (max-width: 47.9275em) {
+  .image-banner__media {
+    width: var(--inline-image-width-mobile);
+  }
+}
+
+.image-banner__media-img {
+  width: 100%;
+  min-width: 30px;
+  border-radius: var(--inline-image-radius);
+}
+
+.image-banner__link-wrap {
+  gap: 9px 15px;
+}
+@media (max-width: 47.9275em) {
+  .image-banner__link-wrap {
+    gap: 9px 12px;
+  }
+}
+
+.image-banner__link.link-body, .image-banner__link.link {
+  color: var(--color-text);
+  padding: 0 6px;
+}
+
+.image-banner__content__block--spacer {
+  margin: -18px 0;
+}
+
+.image-banner__spacer {
+  padding-top: calc(18px + var(--height));
+}
+
+.image-banner--hero-video lazy-video,
+.image-banner--countdown-timer lazy-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.image-banner__bg-video,
+.image-banner--hero-video lazy-video media-poster,
+.image-banner--hero-video lazy-video media-poster img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-banner__custom-content,
+.image-banner__custom-content a {
+  color: var(--color-text);
+}
+
+.image-banner__text .rte :is(h1, h2, h3, h4, h5, h6),
+.image-banner__text .rte :is(h1, h2, h3, h4, h5, h6) a,
+.image-banner__custom-content :is(h1, h2, h3, h4, h5, h6),
+.image-banner__custom-content :is(h1, h2, h3, h4, h5, h6) a {
+  color: var(--color-heading);
+}
+/*# sourceMappingURL=component-image-banner.css.map */

@@ -1,0 +1,612 @@
+{% if section.settings.menu != blank %}
+  {%- liquid
+    if section.settings.bg_color.alpha == 0 or section.settings.bg_color == settings.color_bg
+      assign section_bg = false
+    else
+      assign section_bg = true
+    endif
+
+    if section.settings.divider_top == true or section.settings.divider_bottom == true
+      assign section_divider = true
+    else
+      assign section_divider = false
+    endif
+
+    if section.settings.section_bottom_margin
+      assign margin_class = 'section--mb-0'
+    endif
+
+    if section.settings.color_text.alpha > 0
+      assign color_text = section.settings.color_text
+    else
+      assign color_text = settings.color_text
+    endif
+
+    assign text_color_brightness = color_text | color_brightness
+  -%}
+
+  {% if section.index > 2 %}
+    <link
+      rel="stylesheet"
+      href="{{ 'section-sub-collections.css' | asset_url }}"
+      media="print"
+      onload="this.media='all'"
+    >
+    <noscript>
+      {{ 'section-sub-collections.css' | asset_url | stylesheet_tag }}
+    </noscript>
+  {% else %}
+    {{ 'section-sub-collections.css' | asset_url | stylesheet_tag }}
+  {% endif %}
+
+  <section
+    class="
+      section
+      section--{{ section.id }}
+      section--sub-collections
+      {{ margin_class }}
+      {% if section_bg %}
+        section--has-bg
+      {% else %}
+        section--no-bg
+      {% endif %}
+    "
+    data-section-id="{{ section.id }}"
+    data-section-type="sub-collections"
+    style="
+      display: none;
+      --color-text: {{ color_text }};
+      --color-heading: {% if section.settings.color_default_heading %}{{ settings.color_headings }}{% else %}{{ color_text }}{% endif %};
+      {% unless section.settings.color_default_border -%}
+        --color--title-border: {{ color_text }};
+      {%- endunless %}
+    "
+  >
+    <div class="container{% if section.settings.section_width == 'full' %} container--full container--p-0{% endif %}{% unless section_bg or section_divider %} container--p-0{% endunless %}">
+      <sub-collections
+        class="
+          sub-collections
+          {% if section.settings.divider_top %}
+            section-divider--top
+            {% if section_bg == false %}
+              section-divider--top-p
+            {% endif %}
+          {% endif %}
+          {% if section.settings.divider_bottom %}
+            section-divider--bottom
+            {% if section_bg == false %}
+              section-divider--bottom-p
+            {% endif %}
+          {% endif %}
+        "
+        style="--background-color: {{ section.settings.bg_color }};"
+      >
+        <div
+          class="sub-collections__content"
+          style="
+            --space-top: {{ section.settings.padding_top }}px;
+            --space-bottom: {{ section.settings.padding_bottom }}px
+          "
+        >
+          {% if section.settings.title != blank or section.settings.desc != blank %}
+            <div class="container">
+              <div
+                class="section__title {% if section.settings.heading_alignment == 'center' %}section__title--center{% endif %} {% if section.settings.enable_carousel_mobile == false %}u-ph0@mob{% endif %}{% unless section.settings.desc == blank %} section__title--desc{% endunless %} js-animate-single"
+                data-animation-displacement="5"
+              >
+                {% unless section.settings.title == blank %}
+                  <h2 class="section__title-text js-underline">{{ section.settings.title | escape }}</h2>
+                {% endunless %}
+                {% unless section.settings.desc == blank %}
+                  <div
+                    class="section__title-desc rte js-animate-single"
+                    data-animation-displacement="0"
+                    data-animation-delay="0.1"
+                  >
+                    {{ section.settings.desc }}
+                  </div>
+                {% endunless %}
+              </div>
+            </div>
+          {% endif %}
+          {% liquid
+            assign layout_spacing_desktop_fraction = section.settings.layout_spacing_desktop | divided_by: 10.0 | plus: 1
+            assign layout_spacing_desktop = section.settings.layout_spacing_desktop | times: 2 | plus: 3 | times: layout_spacing_desktop_fraction | round
+
+            assign layout_size_desktop_fraction = section.settings.layout_size_desktop | divided_by: 10.0 | plus: 1
+            assign layout_size_desktop = section.settings.layout_size_desktop | times: 10 | plus: 70 | times: layout_size_desktop_fraction
+
+            assign layout_spacing_mobile_fraction = section.settings.layout_spacing_mobile | divided_by: 10.0 | plus: 1
+            assign layout_spacing_mobile = section.settings.layout_spacing_mobile | times: 2 | plus: 3 | times: layout_spacing_mobile_fraction | round
+
+            assign layout_size_mobile_fraction = section.settings.layout_size_mobile | divided_by: 10.0 | plus: 1
+            assign layout_size_mobile = section.settings.layout_size_mobile | times: 8 | plus: 50 | times: layout_size_mobile_fraction
+
+            assign text_size_desktop = section.settings.text_size_desktop | times: 0.05 | plus: 0.75
+            assign text_size_mobile = section.settings.text_size_mobile | times: 0.05 | plus: 0.7
+
+            if section.settings.image_color != 'rgba(0,0,0,0)'
+              assign empty_image_color = section.settings.image_color
+            else
+              assign empty_image_color = color_text | color_modify: 'alpha', 0.06
+            endif
+
+            if section.settings.image_ratio == 'circle'
+              assign image_ratio = '1:1'
+            else
+              assign image_ratio = section.settings.image_ratio
+            endif
+
+            assign ratio_values = image_ratio | split: ':'
+            assign ratio_i_w = ratio_values[0] | plus: 0.0
+            assign ratio_i_h = ratio_values[1] | plus: 0.0
+            assign ratio_fraction = ratio_i_w | divided_by: ratio_i_h
+            assign section_padding_desktop = 0 | plus: 18
+            assign section_padding_mobile = 0
+            assign navigation_height = layout_size_desktop | divided_by: ratio_fraction | plus: section_padding_desktop
+            assign navigation_height_mobile = layout_size_mobile | divided_by: ratio_fraction | plus: section_padding_mobile
+          %}
+          {%- capture animation_settings -%}
+            [
+            {
+                "selector": ".sub-collections__item",
+                "interval": "0.15",
+                "duration": "0.5"
+            }
+            ]
+          {%- endcapture -%}
+
+          <nav
+            class="sub-collections__navigation"
+            style="
+              --navigation-height: {{ navigation_height }}px;
+              --navigation-height-mobile: {{ navigation_height_mobile }}px;
+              --navigation-button-size: 42px;
+            "
+          >
+            <button
+              class="sub-collections__navigation-button sub-collections__navigation-button--prev"
+              aria-label="Previous page"
+              data-sub-prev
+              tabindex="-1"
+            >
+              {%- render 'icons-theme', icon: 'chevron', additional_classes: 'icon--left' -%}
+            </button>
+            <button
+              class="sub-collections__navigation-button sub-collections__navigation-button--next"
+              aria-label="Next page"
+              data-sub-next
+              tabindex="-1"
+            >
+              {%- render 'icons-theme', icon: 'chevron' -%}
+            </button>
+          </nav>
+          <div
+            class="
+              sub-collections__items
+              sub-collections__items--text-{{ section.settings.text_style }}
+              {% if section.settings.text_bold %}sub-collections__items--text-bold{% endif %}
+              {% if section.settings.text_capitalize %}sub-collections__items--text-capitalize{% endif %}
+              {% if section.settings.heading_alignment == 'center' %}sub-collections__items--center{% endif %}
+               js-animate-sequence
+            "
+            data-sub-container
+            data-animation="{{ animation_settings | escape }}"
+            style="
+              --collection-spacing: {{ layout_spacing_desktop }}px;
+              --collection-size: {{ layout_size_desktop }}px;
+              --collection-spacing-mobile: {{ layout_spacing_mobile }}px;
+              --collection-size-mobile: {{layout_size_mobile }}px;
+
+              --text-size-desktop: {{ text_size_desktop }}em;
+              --text-size-mobile: {{ text_size_mobile }}em;
+              --text-letter-spacing: {{ section.settings.text_letter_spacing }}px;
+              --image-background: {{ section.settings.image_color }};
+              --image-padding: {{ section.settings.image_padding | times: 2 }}%;
+              --empty-image-background: {{ empty_image_color }};
+            "
+          >
+            {%- liquid
+              assign show_section = false
+              if section.settings.menu.links.size > 0
+                assign show_parent = section.settings.show_parent
+                assign show_related = section.settings.show_related
+
+                for link in section.settings.menu.links
+                  if link.active and link.levels > 0 and link.child_active == false
+                    if link.links.size > 0
+                      assign show_section = true
+                    endif
+                    render 'sub-collections', sub_collections: link.links, show_parent: false, image_source: section.settings.image_source, image_ratio: section.settings.image_ratio, image_fit: section.settings.image_fit, image_size_desktop: layout_size_desktop, image_size_mobile: layout_size_mobile
+                  endif
+
+                  if show_related
+                    if link.child_active and link.levels == 1
+                      if link.links.size > 0
+                        assign show_section = true
+                      endif
+                      render 'sub-collections', sub_collections: link.links, show_parent: show_parent, parent_link: link, image_source: section.settings.image_source, image_ratio: section.settings.image_ratio, image_fit: section.settings.image_fit, image_size_desktop: layout_size_desktop, image_size_mobile: layout_size_mobile
+                    endif
+                  endif
+
+                  if link.child_active and link.levels == 2
+                    assign has_level_2 = false
+                    assign has_level_3 = false
+
+                    for sub_link in link.links
+                      if sub_link.active and sub_link.levels == 1
+                        assign has_level_2 = true
+                        if sub_link.links.size > 0
+                          assign show_section = true
+                        endif
+                        render 'sub-collections', sub_collections: sub_link.links, show_parent: show_parent, parent_link: link, image_source: section.settings.image_source, image_ratio: section.settings.image_ratio, image_fit: section.settings.image_fit, image_size_desktop: layout_size_desktop, image_size_mobile: layout_size_mobile
+                      endif
+                    endfor
+
+                    for sub_link in link.links
+                      if sub_link.levels == 1
+                        if sub_link.child_active
+                          assign has_level_2 = true
+                          assign has_level_3 = true
+                          if show_related
+                            if sub_link.links.size > 0
+                              assign show_section = true
+                            endif
+                            render 'sub-collections', sub_collections: sub_link.links, show_parent: show_parent, parent_link: sub_link, image_source: section.settings.image_source, image_ratio: section.settings.image_ratio, image_fit: section.settings.image_fit, image_size_desktop: layout_size_desktop, image_size_mobile: layout_size_mobile
+                          endif
+                        endif
+                      endif
+                    endfor
+
+                    if show_related and has_level_2 == false and has_level_3 == false
+                      if link.links.size > 0
+                        assign show_section = true
+                      endif
+                      render 'sub-collections', sub_collections: link.links, show_parent: show_parent, parent_link: link, image_source: section.settings.image_source, image_ratio: section.settings.image_ratio, image_fit: section.settings.image_fit, image_size_desktop: layout_size_desktop, image_size_mobile: layout_size_mobile
+                    endif
+                  endif
+                endfor
+              endif
+            -%}
+          </div>
+        </div>
+      </sub-collections>
+      <script src="{{ 'sub-collections.js' | asset_url }}" type="module"></script>
+    </div>
+  </section>
+  {% if show_section %}
+    <style>
+      .section--{{ section.id }} {
+        display: block !important;
+      }
+    </style>
+  {% endif %}
+{% endif %}
+
+{% schema %}
+{
+  "name": "Subcollections",
+  "class": "js-section__sub-collections",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Create a single menu in the admin containing all of your collections and  their subcollections. [Learn more](https://support.safeasmilk.co/article/266-venue-sections-add-dynamic-subcollections-to-a-collection-page)"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "Menu"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading"
+    },
+    {
+      "type": "richtext",
+      "id": "desc",
+      "label": "Text"
+    },
+    {
+      "type": "header",
+      "content": "Images"
+    },
+    {
+      "type": "select",
+      "id": "image_source",
+      "label": "Thumbnail",
+      "default": "collection",
+      "options": [
+        {
+          "label": "Collection image",
+          "value": "collection"
+        },
+        {
+          "label": "First product image",
+          "value": "first_product_image"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Image ratio",
+      "default": "1:1",
+      "options": [
+        {
+          "value": "1:1",
+          "label": "Square (1:1)"
+        },
+        {
+          "value": "3:4",
+          "label": "Portrait (3:4)"
+        },
+        {
+          "value": "4:3",
+          "label": "Landscape (4:3)"
+        },
+        {
+          "value": "16:9",
+          "label": "Wide (16:9)"
+        },
+        {
+          "value": "2:3",
+          "label": "Tall (2:3)"
+        },
+        {
+          "value": "circle",
+          "label": "Circle"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "image_fit",
+      "label": "Fit image to container",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "image_padding",
+      "label": "Padding",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Position and visibility"
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "label": "Heading and content position",
+      "default": "center",
+      "options": [
+        {
+          "label": "Left",
+          "value": "left"
+        },
+        {
+          "label": "Center",
+          "value": "center"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "show_related",
+      "label": "Show related collections",
+      "default": true,
+      "info": "Keep related collections visible when viewing last level of subcollection."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_parent",
+      "label": "Show parent collection",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Width"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Section width",
+      "default": "full",
+      "options": [
+        {
+          "label": "Contained",
+          "value": "large"
+        },
+        {
+          "label": "Full",
+          "value": "full"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Desktop layout"
+    },
+    {
+      "type": "range",
+      "id": "layout_size_desktop",
+      "label": "Collection size",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "range",
+      "id": "layout_spacing_desktop",
+      "label": "Collection spacing",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "header",
+      "content": "Mobile layout"
+    },
+    {
+      "type": "range",
+      "id": "layout_size_mobile",
+      "label": "Collection size",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "range",
+      "id": "layout_spacing_mobile",
+      "label": "Collection spacing",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "header",
+      "content": "Colors and borders"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Section background",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "color",
+      "id": "image_color",
+      "label": "Image background",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "color",
+      "id": "color_text",
+      "label": "Text",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "checkbox",
+      "id": "color_default_heading",
+      "label": "Use default heading color",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "color_default_border",
+      "label": "Use default brand border color",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "divider_top",
+      "label": "Show top border",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "divider_bottom",
+      "label": "Show bottom border",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "text_size_desktop",
+      "label": "Collection text size (desktop)",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "range",
+      "id": "text_size_mobile",
+      "label": "Collection text size (mobile)",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "select",
+      "id": "text_style",
+      "label": "Collection text style",
+      "default": "body",
+      "options": [
+        {
+          "label": "Body",
+          "value": "body"
+        },
+        {
+          "label": "Heading",
+          "value": "heading"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "text_bold",
+      "label": "Bold",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "text_capitalize",
+      "label": "Capitalize",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "text_letter_spacing",
+      "label": "Letter spacing",
+      "unit": "px",
+      "min": 0,
+      "max": 3,
+      "step": 1,
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Padding and margin"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "unit": "px",
+      "min": 0,
+      "max": 120,
+      "step": 3,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "unit": "px",
+      "min": 0,
+      "max": 120,
+      "step": 3,
+      "default": 0
+    },
+    {
+      "type": "checkbox",
+      "id": "section_bottom_margin",
+      "label": "Reduce bottom margin",
+      "default": false
+    }
+  ]
+}
+{% endschema %}

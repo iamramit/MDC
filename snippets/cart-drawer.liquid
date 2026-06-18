@@ -1,0 +1,192 @@
+{% comment %}theme-check-disable NestedSnippet{% endcomment %}
+{%- liquid
+  case settings.product_grid_image_size
+    when '4:3'
+      assign cart_item_image_size_multiplyer = 0.225
+      assign recommendations_image_size_multiplyer = 0.35
+    when '16:9'
+      assign cart_item_image_size_multiplyer = 0.275
+      assign recommendations_image_size_multiplyer = 0.4
+    when '2:3'
+      assign cart_item_image_size_multiplyer = 0.15
+      assign recommendations_image_size_multiplyer = 0.25
+    when '3:4'
+      assign cart_item_image_size_multiplyer = 0.175
+      assign recommendations_image_size_multiplyer = 0.275
+    else
+      assign cart_item_image_size_multiplyer = 0.2
+      assign recommendations_image_size_multiplyer = 0.3
+  endcase
+
+  if settings.cart_gift_wrapping_product
+    assign gift_wrapping_product_id = settings.cart_gift_wrapping_product.variants.first.id
+  endif
+-%}
+{%- capture cart_item_image_sizes -%}
+  (min-width: 504px) {{ 405 | times: cart_item_image_size_multiplyer | round }}px,
+  {{ 400 | times: cart_item_image_size_multiplyer | round }}px
+{%- endcapture -%}
+{%- capture recommendations_image_sizes -%}
+  (min-width: 504px) {{ 245 | times: recommendations_image_size_multiplyer | round }}px,
+  calc((100vw - 96px - 18px - 24px) * {{ recommendations_image_size_multiplyer }})
+{%- endcapture -%}
+<style>
+  .cart {
+    --drawer-background: {{ settings.color_drawer_bg }};
+  }
+</style>
+<link
+  rel="stylesheet"
+  href="{{ 'component-cart.css' | asset_url }}"
+  media="print"
+  onload="this.media='all'"
+>
+<div id="cart-drawer-templates" style="display: none">
+  {%- liquid
+    assign cart_id = 'drawer-cart'
+  -%}
+  <template id="template-cart">
+    <cart-full class="cart__wrapper">
+      {%- liquid
+        if settings.cart_free_shipping_bar_enable
+          render 'cart-free-shipping-bar'
+        endif
+      -%}
+      <cart-contents class="cart__contents">
+        <cart-items
+          class="cart__items"
+          form-id="{{ cart_id }}"
+          {% if gift_wrapping_product_id %}
+            gift-wrapping-product-id="{{ gift_wrapping_product_id }}"
+          {% endif %}
+        ></cart-items>
+        {%- render 'cart-gift-wrapping-banner' -%}
+        {%- if settings.cart_show_recommendations -%}
+          {% render 'cart-recommendations',
+            id: 'drawer-cart-recommendations',
+            title: settings.cart_recommendations_title,
+            reduced_title: true,
+            enable_quick_shop: settings.quick_shop_enabled,
+            show_mini_cards: true,
+            grid: 1,
+            grid_mobile: 1,
+            image_sizes: recommendations_image_sizes
+          %}
+        {%- endif -%}
+      </cart-contents>
+      {% render 'cart-details', form_id: cart_id, note_inside_accordion: true, show_view_cart_button: true %}
+    </cart-full>
+  </template>
+  <template id="template-cart-item">
+    {% render 'cart-item', form_id: cart_id, image_sizes: cart_item_image_sizes, title_tag: 'div' %}
+  </template>
+  <template id="template-quantity-input">
+    {% render 'cart-quantity-input', form_id: cart_id %}
+  </template>
+</div>
+
+{%- if settings.cart_announcement -%}
+  <div class="cart-draw__announcement">
+    {%- render 'cart-announcement' -%}
+  </div>
+{%- endif -%}
+
+<div class="cart-draw__head">
+  <h3 id="modal-cart-title" class="cart-draw__title">{{ 'cart.general.title' | t }}</h3>
+  {%- liquid
+    assign cart_quantity_info_content = 'cart.general.items.plural' | t
+    if cart.item_count == 1
+      assign cart_quantity_info_content = 'cart.general.items.singular' | t
+    endif
+  -%}
+  <cart-quantity-info
+    class="cart-draw__quantity-info"
+    {% if cart.item_count == 0 %}
+      hidden
+    {% endif %}
+    >(<items-count>{{- cart.item_count -}}</items-count>&nbsp;<info-content>
+      {{- cart_quantity_info_content -}}</info-content
+    >)</cart-quantity-info
+  >
+
+  <button
+    title="{{ 'layout.drawers.close' | t }}"
+    type="button"
+    class="modal__close"
+    aria-label="{{ 'layout.drawers.close' | t }}"
+    data-a11y-dialog-hide
+  >
+    {% render 'icons-theme', icon: 'close' %}
+  </button>
+</div>
+
+<interactive-cart
+  id="drawer-cart"
+  class="cart cart--draw{% if cart.cart_level_discount_applications != blank %} has-cart-discounts{% endif %}"
+  drawer
+  note-inside-accordion
+  height-control="360"
+>
+  {%- if cart.item_count > 0 -%}
+    {%- liquid
+      assign cart_id = 'drawer-cart'
+    -%}
+    <cart-full class="cart__wrapper">
+      {%- liquid
+        if settings.cart_free_shipping_bar_enable
+          render 'cart-free-shipping-bar', current_cart: cart, reveal_delay: 200
+        endif
+      -%}
+      <cart-contents class="cart__contents">
+        <cart-items
+          class="cart__items"
+          form-id="{{ cart_id }}"
+          {% if gift_wrapping_product_id %}
+            gift-wrapping-product-id="{{ gift_wrapping_product_id }}"
+          {% endif %}
+        >
+          {%- liquid
+            assign contains_gift_wrapping = false
+            for item in cart.items
+              unless item.id == gift_wrapping_product_id
+                assign item_key = item.key
+
+                render 'cart-item', cart_item: item, key: item_key, index: forloop.index, form_id: cart_id, image_sizes: cart_item_image_sizes, title_tag: 'div'
+              else
+                assign contains_gift_wrapping = true
+                assign gift_wrapping_message = ''
+                if settings.cart_gift_wrapping_message_enable
+                  capture gift_wrapping_message
+                    render 'cart-gift-wrapping-message', form_id: cart_id, message: cart.attributes['gift-wrapping-message']
+                  endcapture
+                endif
+                render 'cart-item', cart_item: item, index: forloop.index, form_id: cart_id, no_links: true, no_quantity_input: true, image_sizes: cart_item_image_sizes, additional_classes: 'cart-item--full-details', additional_details: gift_wrapping_message, title_tag: 'div'
+              endunless
+            endfor
+          -%}
+        </cart-items>
+        {%- render 'cart-gift-wrapping-banner', hidden: contains_gift_wrapping -%}
+        {%- if settings.cart_show_recommendations -%}
+          {% render 'cart-recommendations',
+            id: 'drawer-cart-recommendations',
+            title: settings.cart_recommendations_title,
+            reduced_title: true,
+            enable_quick_shop: settings.quick_shop_enabled,
+            show_mini_cards: true,
+            grid: 1,
+            grid_mobile: 1,
+            image_sizes: recommendations_image_sizes
+          %}
+        {%- endif -%}
+      </cart-contents>
+      {% render 'cart-details',
+        current_cart: cart,
+        form_id: cart_id,
+        note_inside_accordion: true,
+        show_view_cart_button: true
+      %}
+    </cart-full>
+  {%- else -%}
+    {% render 'cart-empty' %}
+  {%- endif -%}
+</interactive-cart>

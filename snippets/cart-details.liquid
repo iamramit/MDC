@@ -1,0 +1,178 @@
+{% comment %}theme-check-disable NestedSnippet{% endcomment %}
+{%- comment -%}
+  Cart footer
+
+  Accepts:
+    - form_id: {String} Form id
+    - current_cart: {Object} Cart
+    - note_inside_accordion: {Boolean} Show note inside accordion
+    - show_heading: {Boolean} Show heading
+    - show_view_cart_button: {Boolean} Show view cart button
+    - show_additional_checkout_buttons: {Boolean} Show additional checkout buttons
+{%- endcomment -%}
+{%- liquid
+  assign total_cart_price = current_cart.total_price | money
+  if settings.currency_codes_on_totals_enabled
+    assign total_cart_price = current_cart.total_price | money_with_currency
+  endif
+-%}
+<div class="cart__controls">
+  <div class="cart__details">
+    {%- if show_heading -%}
+      <div class="cart__label">
+        {{ 'cart.general.order_summary' | t }}
+      </div>
+    {%- endif -%}
+
+    {%- if settings.cart_notes_enable -%}
+      <div class="cart__note">
+        {% render 'cart-note', form_id: form_id, note: current_cart.note, inside_accordion: note_inside_accordion %}
+      </div>
+    {%- endif -%}
+
+    <div class="cart__order-details">
+      <cart-discounts>
+        <discount-list>
+          {%- if current_cart.cart_level_discount_applications != blank -%}
+            <ul class="discounts">
+              {%- for discount_application in current_cart.cart_level_discount_applications -%}
+                <li class="discount">
+                  {%- assign discount_amount = discount_application.total_allocated_amount | money -%}
+                  {% render 'cart-discount', title: discount_application.title, amount: discount_amount %}
+                </li>
+              {%- endfor -%}
+            </ul>
+          {%- endif -%}
+        </discount-list>
+      </cart-discounts>
+
+      <noscript>
+        <p class="cart__total">
+          <span>{{ 'cart.general.subtotal' | t }}</span><cart-total class="money">{{- total_cart_price -}}</cart-total>
+        </p>
+      </noscript>
+      {%- unless settings.cart_checkout_button_type == 'checkout_cart_amount' -%}
+        <p class="cart__total">
+          <span>{{ 'cart.general.subtotal' | t }}</span
+          ><cart-total class="money" data-cart-subtotal>{{- total_cart_price -}}</cart-total>
+        </p>
+      {%- endunless -%}
+
+      <p class="cart__message">
+        {%- if cart.taxes_included and shop.shipping_policy.body != blank -%}
+          {{ 'cart.general.taxes_included_and_shipping_policy_html' | t: link: shop.shipping_policy.url }}
+        {%- elsif cart.taxes_included -%}
+          {{ 'cart.general.taxes_included_but_shipping_at_checkout' | t }}
+        {%- elsif shop.shipping_policy.body != blank -%}
+          {{ 'cart.general.taxes_and_shipping_policy_at_checkout_html' | t: link: shop.shipping_policy.url }}
+        {%- else -%}
+          {{ 'cart.general.taxes_and_shipping_at_checkout' | t }}
+        {%- endif -%}
+      </p>
+    </div>
+  </div>
+
+  <div class="cart__actions">
+    <div
+      class="
+        cart__buttons
+        {% if show_view_cart_button and settings.cart_checkout_button_type contains 'checkout_view_cart' -%}
+          cart__buttons--view-cart
+          {% if settings.cart_checkout_button_type == 'checkout_view_cart_stacked' -%}
+            cart__buttons--view-cart-stacked
+          {% endif %}
+        {%- endif %}
+        {% if settings.cart_terms -%}
+          cart__buttons--terms
+        {%- endif %}
+        {% if show_additional_checkout_buttons and additional_checkout_buttons -%}
+          cart__buttons--additional-checkout-buttons
+        {%- endif %}
+        {% if settings.cart_payment_icons_enable and shop.enabled_payment_types -%}
+          cart__buttons--payment-icons
+        {%- endif %}
+      "
+    >
+      {%- form 'cart', cart, id: form_id %}
+        {{- form | payment_terms -}}
+        <div class="cart__form">
+          {%- if show_view_cart_button and settings.cart_checkout_button_type contains 'checkout_view_cart' -%}
+            <a href="{{ routes.cart_url }}" class="c-btn c-btn--hollow c-btn--full cart__view">
+              {{- 'cart.general.view_cart' | t -}}
+            </a>
+          {%- endif -%}
+          <noscript>
+            <button type="submit" name="update" class="c-btn c-btn--hollow cart__button-update update-cart">
+              {{ 'cart.general.update' | t }}
+            </button>
+          </noscript>
+          <button type="submit" class="c-btn c-btn--full c-btn--primary cart__checkout" name="checkout">
+            {%- liquid
+              if settings.cart_checkout_button_icon_enable
+                render 'icons-theme', icon: 'lock'
+              endif
+            -%}
+            <span>{{- 'cart.general.checkout' | t -}}</span>
+            {%- if settings.cart_checkout_button_type == 'checkout_cart_amount' -%}
+              <span>&ndash;</span><cart-total class="money" data-cart-subtotal>{{- total_cart_price -}}</cart-total>
+            {%- endif -%}
+          </button>
+
+          {%- if show_additional_checkout_buttons and additional_checkout_buttons -%}
+            <dynamic-button class="dynamic-button">
+              <div class="dynamic-button__placeholder skeleton-button">
+                <span
+                  class="skeleton-text skeleton-text--inverse skeleton-text--small skeleton-text--inline skeleton-text--1/2"
+                ></span>
+              </div>
+              <div class="additional-checkout-buttons">
+                {{ content_for_additional_checkout_buttons }}
+              </div>
+            </dynamic-button>
+          {%- endif %}
+
+          {%- if settings.cart_terms -%}
+            {% comment %} TODO: Color has to depend on context {% endcomment %}
+            {%- liquid
+              assign text_brightness = settings.color_text | color_brightness
+              if text_brightness > 125
+                assign check_color = 'dark'
+              else
+                assign check_color = 'light'
+              endif
+            -%}
+
+            <cart-terms class="cart-terms">
+              <div class="cart-terms__content">
+                <cart-terms-error class="cart-terms__error" hidden>
+                  {{- 'cart.general.cart_error' | t -}}
+                </cart-terms-error>
+                <label for="{{ form_id }}-agree" class="cart-terms__label checkbox-label rte">
+                  <input
+                    type="checkbox"
+                    class="cart-terms__input checkbox checkbox--{{ check_color }}"
+                    id="{{ form_id }}-agree"
+                    form="{{ form_id }}"
+                  >
+                  {%- render 'icons-theme', icon: 'check' -%}
+                  <span class="cart-terms__label-text">
+                    {{ settings.cart_terms_text }}
+                  </span>
+                </label>
+              </div>
+            </cart-terms>
+          {%- endif -%}
+        </div>
+      {%- endform -%}
+      {%- if settings.cart_payment_icons_enable and shop.enabled_payment_types -%}
+        <ul class="cart__icons icons-list">
+          {%- for type in shop.enabled_payment_types -%}
+            <li class="icons-list__item">
+              {{- type | payment_type_svg_tag: class: 'payment-icon' -}}
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+    </div>
+  </div>
+</div>

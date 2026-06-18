@@ -1,0 +1,447 @@
+{% if section.index > 2 or section.location == 'footer' %}
+  <link
+    rel="stylesheet"
+    href="{{ 'section-contact-form.css' | asset_url }}"
+    media="print"
+    onload="this.media='all'"
+  >
+  <noscript>
+    {{ 'section-contact-form.css' | asset_url | stylesheet_tag }}
+  </noscript>
+{% else %}
+  {{ 'section-contact-form.css' | asset_url | stylesheet_tag }}
+{% endif %}
+{%- liquid
+  if section.settings.color_bg == 'rgba(0,0,0,0)' or section.settings.color_bg == settings.color_bg
+    assign section_bg = false
+  else
+    assign section_bg = true
+  endif
+
+  if section.settings.section_bottom_margin or request.visual_preview_mode
+    assign margin_class = 'section--mb-0'
+  endif
+
+  if section.settings.color_text == 'rgba(0,0,0,0)'
+    assign color_text = settings.color_text
+  else
+    assign color_text = section.settings.color_text
+  endif
+
+  assign section_size = section.settings.section_width
+  if section.settings.section_width == 'large'
+    assign section_size = 'contained'
+  endif
+-%}
+<section
+  class="
+    section
+    section-contact-form
+    section--{{ section.id }}
+    section--{{ section_size }}
+    {{ margin_class }}
+    {% if section_bg %}section--has-bg{% else %}section--no-bg{% endif %}
+  "
+  style="
+    --color-text: {{ color_text }};
+    --color-text-light: {{ color_text | color_modify: 'alpha', 0.3 }};
+    --color-text-lightest: {{ color_text | color_modify: 'alpha', 0.1 }};
+    --color-heading: {% if section.settings.color_default_heading %}{{ settings.color_headings }}{% else %}{{ color_text }}{% endif %};
+    {% unless section.settings.color_default_border %}
+      --color--title-border: {{ color_text }};
+    {% endunless %}
+  "
+  data-section-id="{{ section.id }}"
+  data-section-type="contact-form"
+>
+  {%- if section.settings.section_width == 'large' -%}<div class="container">{%- endif -%}
+  <div
+    class="section__content section__content--padded"
+    style="
+      --space-top: {{ section.settings.padding_top }}px;
+      --space-bottom: {{ section.settings.padding_bottom }}px;
+    "
+  >
+    <div
+      class="
+        contact-form
+        {% if section.settings.divider_top %}
+          section-divider--top
+        {% endif %}
+        {% if section.settings.divider_bottom %}
+          section-divider--bottom
+        {% endif %}
+      "
+      style="--background-color: {{ section.settings.color_bg }};"
+    >
+      <div class="container container--tiny container--mob-0">
+        {%- if section.settings.title != blank or section.settings.desc != blank -%}
+          <div
+            class="
+              section__title
+              js-animate-single
+              {% if section.settings.heading_alignment == 'center' %}section__title--center{% endif %}
+              {% unless section.settings.desc == blank %} section__title--desc{% endunless %}
+            "
+            data-animation-displacement="5"
+          >
+            {%- unless section.settings.title == blank -%}
+              <h2 class="section__title-text">{{ section.settings.title | escape }}</h2>
+            {%- endunless -%}
+            {%- unless section.settings.desc == blank -%}
+              <div
+                class="section__title-desc rte js-animate-single"
+                data-animation-displacement="0"
+                data-animation-delay="0.1"
+              >
+                {{ section.settings.desc }}
+              </div>
+            {%- endunless -%}
+          </div>
+        {%- endif -%}
+
+        {% form 'contact', class: 'contact-form__form' %}
+          {% if form.posted_successfully? %}
+            <p class="contact-form__note form-success">{{ 'contact.form.post_success' | t }}</p>
+          {% endif %}
+
+          {{ form.errors | default_errors }}
+
+          <div class="o-layout">
+            <div class="o-layout__item u-1/1 u-1/2@tab">
+              <label for="ContactFormName">{{ 'contact.form.name' | t }}</label>
+              <input
+                type="text"
+                id="ContactFormName"
+                name="contact[name]"
+                value="{% if form['name'] %}{{ form['name'] }}{% elsif customer %}{{ customer.name }}{% endif %}"
+              >
+            </div>
+            <div class="o-layout__item u-1/1 u-1/2@tab">
+              <label for="ContactFormEmail" class="{% if form.errors contains 'email' %}label--error{% endif %}">
+                {{- 'contact.form.email' | t -}}
+              </label>
+              <input
+                type="email"
+                id="ContactFormEmail"
+                name="contact[email]"
+                autocorrect="off"
+                autocapitalize="off"
+                value="{% if form.email %}{{ form.email }}{% elsif customer %}{{ customer.email }}{% endif %}"
+                class="{% if form.errors contains 'email' %}input--error{% endif %}"
+              >
+            </div>
+
+            {%- for block in section.blocks -%}
+              {%- case block.type -%}
+                {%- when 'text' -%}
+                  {%- if block.settings.label != blank -%}
+                    <div class="o-layout__item u-1/1" {{ block.shopify_attributes }}>
+                      <label for="ContactForm-{{ block.id }}">{{ block.settings.label }}</label>
+
+                      {%- capture input_attributes -%}
+                      {% if block.settings.required %}required{% endif %}
+                      id="ContactForm-{{ block.id }}"
+                      type="text"
+                      name="contact[{{ block.settings.label }}]"
+                    {%- endcapture -%}
+
+                      {%- if block.settings.long -%}
+                        <textarea {{ input_attributes }}></textarea>
+                      {%- else -%}
+                        <input {{ input_attributes }}>
+                      {%- endif -%}
+                    </div>
+                  {%- endif -%}
+
+                {%- when 'checkbox' -%}
+                  {%- if block.settings.label != blank -%}
+                    <div class="o-layout__item u-1/1" {{ block.shopify_attributes }}>
+                      <fieldset>
+                        <label for="ContactForm-{{ block.id }}" class="checkbox-label">
+                          <input
+                            type="hidden"
+                            name="contact[{{ block.settings.label }}]"
+                            value="{{ block.settings.no }}"
+                          >
+
+                          <input
+                            {% if block.settings.required %}
+                              required
+                            {% endif %}
+                            id="ContactForm-{{ block.id }}"
+                            class="checkbox"
+                            type="checkbox"
+                            name="contact[{{ block.settings.label }}]"
+                            value="{{ block.settings.yes }}"
+                          >
+                          {%- render 'icons-theme', icon: 'check' -%}
+                          {{- block.settings.label -}}
+                        </label>
+                      </fieldset>
+                    </div>
+                  {%- endif -%}
+
+                {%- when 'dropdown' -%}
+                  {%- if block.settings.label != blank -%}
+                    {% assign options = block.settings.options | split: ', ' %}
+
+                    <div class="o-layout__item u-1/1" {{ block.shopify_attributes }}>
+                      <div class="selector-wrapper selector-wrapper--standalone-labels">
+                        <label for="ContactForm-{{ block.id }}" class="contact-form__dropdown-label">
+                          {{- block.settings.label -}}
+                        </label>
+
+                        <select
+                          class="contact-form__dropdown"
+                          id="ContactForm-{{ block.id }}"
+                          name="contact[{{ block.settings.label }}]"
+                        >
+                          {% for option in options %}
+                            <option value="{{ option }}">{{ option }}</option>
+                          {% endfor %}
+                        </select>
+                        {%- render 'icons-theme', icon: 'chevron', additional_classes: 'icon--down' -%}
+                      </div>
+                    </div>
+                  {%- endif -%}
+              {%- endcase -%}
+            {%- endfor -%}
+
+            <div class="o-layout__item u-1/1">
+              <label for="ContactFormMessage">{{ 'contact.form.message' | t }}</label>
+              <textarea
+                rows="10"
+                id="ContactFormMessage"
+                name="contact[body]"
+              >{% if form.body %}{{ form.body }}{% endif %}</textarea>
+            </div>
+
+            <div class="o-layout__item u-1/1">
+              <input
+                type="submit"
+                class="c-btn c-btn--primary c-btn--center c-btn--full u-mt- u-mb0"
+                value="{{ 'contact.form.send' | t }}"
+              >
+            </div>
+          </div>
+        {% endform %}
+      </div>
+    </div>
+  </div>
+  {%- if section.settings.section_width == 'large' -%}</div>{%- endif -%}
+</section>
+
+{% schema %}
+{
+  "name": "Contact form",
+  "class": "js-section__contact-form",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Send us an email"
+    },
+    {
+      "type": "richtext",
+      "id": "desc",
+      "label": "Text"
+    },
+    {
+      "type": "header",
+      "content": "Position"
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "label": "Section heading and text",
+      "default": "center",
+      "options": [
+        {
+          "label": "Left",
+          "value": "left"
+        },
+        {
+          "label": "Center",
+          "value": "center"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Width"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Section width",
+      "default": "full",
+      "options": [
+        {
+          "label": "Contained",
+          "value": "large"
+        },
+        {
+          "label": "Full",
+          "value": "full"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Colors and borders"
+    },
+    {
+      "type": "color",
+      "id": "color_bg",
+      "label": "Section background",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "color",
+      "id": "color_text",
+      "label": "Text",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "checkbox",
+      "id": "color_default_heading",
+      "label": "Use default heading color",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "color_default_border",
+      "label": "Use default brand border color",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "divider_top",
+      "label": "Show top border",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "divider_bottom",
+      "label": "Show bottom border",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Padding and margin"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "unit": "px",
+      "min": 0,
+      "max": 120,
+      "step": 3,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "unit": "px",
+      "min": 0,
+      "max": 120,
+      "step": 3,
+      "default": 0
+    },
+    {
+      "type": "checkbox",
+      "id": "section_bottom_margin",
+      "label": "Reduce bottom margin",
+      "default": false
+    }
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "name": "Text field",
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "required",
+          "label": "Required",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "long",
+          "label": "Allow long text",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Text field"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "name": "Checkbox",
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "required",
+          "label": "Required",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Checkbox"
+        },
+        {
+          "type": "text",
+          "id": "yes",
+          "label": "Checked value",
+          "default": "Yes"
+        },
+        {
+          "type": "text",
+          "id": "no",
+          "label": "Unchecked value",
+          "default": "No"
+        }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "Dropdown",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Dropdown"
+        },
+        {
+          "type": "text",
+          "id": "options",
+          "label": "Options",
+          "default": "Value 1, Value 2, Value 3",
+          "info": "Separate your options with a comma."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Contact form"
+    }
+  ],
+  "enabled_on": {
+    "templates": ["*"],
+    "groups": ["footer"]
+  }
+}
+{% endschema %}

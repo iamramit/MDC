@@ -1,0 +1,39 @@
+<section class="section section--{{ section.id }}" data-section-id="{{ section.id }}" data-section-type="section-apps">
+  {% if section.settings.include_margins %}
+    <div class="container">
+  {% endif %}
+
+  {%- for block in section.blocks -%}
+    {% render block %}
+  {%- endfor -%}
+
+  {% if section.settings.include_margins %}
+    </div>
+  {% endif %}
+</section>
+
+{% schema %}
+{
+  "name": "Apps",
+  "tag": "section",
+  "class": "js-section__apps",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "include_margins",
+      "default": true,
+      "label": "Match section width to theme width"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Apps"
+    }
+  ]
+}
+{% endschema %}

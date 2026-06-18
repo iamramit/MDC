@@ -1,0 +1,325 @@
+{% if section.index > 2 or section.location == 'footer' %}
+  <link
+    rel="stylesheet"
+    href="{{ 'component-faq.css' | asset_url }}"
+    media="print"
+    onload="this.media='all'"
+  >
+  <noscript>
+    {{ 'component-faq.css' | asset_url | stylesheet_tag }}
+  </noscript>
+{% else %}
+  {{ 'component-faq.css' | asset_url | stylesheet_tag }}
+{% endif %}
+<section
+  class="
+    section
+    section--{{ section.id }}
+    section--faq
+  "
+  data-section-id="{{ section.id }}"
+  data-section-type="faq"
+>
+  <div
+    class="section__content section__content--padded"
+    style="
+      --space-top: {{ section.settings.padding_top }}px;
+      --space-bottom: {{ section.settings.padding_bottom }}px
+    "
+  >
+    <div class="container container--tiny">
+      {%- if section.settings.title != blank or section.settings.desc != blank -%}
+        <div
+          class="
+            section__title
+            js-animate-single
+            {% if section.settings.heading_alignment == 'center' %}section__title--center{% endif %}
+            {% unless section.settings.desc == blank %} section__title--desc{% endunless %}
+          "
+          data-animation-displacement="5"
+        >
+          {%- unless section.settings.title == blank -%}
+            <h2 class="section__title-text">{{ section.settings.title | escape }}</h2>
+          {%- endunless -%}
+          {%- unless section.settings.desc == blank -%}
+            <div
+              class="section__title-desc rte js-animate-single"
+              data-animation-displacement="0"
+              data-animation-delay="0.1"
+            >
+              {{ section.settings.desc }}
+            </div>
+          {%- endunless -%}
+        </div>
+      {%- endif -%}
+      <div class="faq__wrapper">
+        {% if section.settings.enable_sidebar %}
+          <div class="faq__categories u-hidden@desk-down">
+            <h2 class="faq__categories-title h5">{{ 'faq.general.categories_title' | t }}</h2>
+            <ul class="faq__categories-items o-list-bare">
+              {% for block in section.blocks %}
+                {% if block.type == 'category' %}
+                  <li class="faq__categories-item">
+                    <script src="{{ 'scroll-to-target.js' | asset_url }}" type="module"></script>
+                    <scroll-to-target>
+                      <a href="#cat-{{ section.id }}-{{ forloop.index }}" class="faq__categories-link">
+                        {{- block.settings.title -}}
+                      </a>
+                    </scroll-to-target>
+                  </li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+
+        <div class="faq__accordion js-animate-single" data-animation-displacement="0" data-animation-delay="0.2">
+          {%- for block in section.blocks -%}
+            {%- liquid
+              assign previous_block = null
+              assign next_block = null
+              if forloop.index0 > 0
+                assign prev_index = forloop.index0 | minus: 1
+                assign previous_block = section.blocks[prev_index]
+              endif
+              unless forloop.last
+                assign next_index = forloop.index0 | plus: 1
+                assign next_block = section.blocks[next_index]
+              endunless
+            -%}
+            {%- case block.type -%}
+              {%- when 'category' -%}
+                <div class="faq__category" id="cat-{{ section.id }}-{{ forloop.index }}" {{ block.shopify_attributes }}>
+                  <div class="section__title faq__category__title js-animate-single" data-animation-displacement="5">
+                    <h2 class="section__title-text faq__category__title-text h3">
+                      {{ block.settings.title }}
+                    </h2>
+                  </div>
+                </div>
+              {%- when 'article' -%}
+                {%- if previous_block.type != 'article' -%}
+                  <accordion-group>
+                {%- endif -%}
+
+                <details id="faq-{{ section.id }}-{{ forloop.index }}" {{ block.shopify_attributes }}>
+                  <summary>
+                    <span class="u-large">{{ block.settings.title | escape }}</span>
+                    <summary-icon>
+                      {% render 'icons-theme', icon: 'plus' %}
+                    </summary-icon>
+                  </summary>
+
+                  <details-content>
+                    {% unless block.settings.text == blank %}
+                      <div class="faq__accordion__item-wrap rte">
+                        {{ block.settings.text }}
+                      </div>
+                    {% endunless %}
+                    {% if block.settings.image %}
+                      {{ block.settings.image | image_url: width: 1200 | image_tag }}
+                    {% endif %}
+                  </details-content>
+                </details>
+
+                {%- if next_block.type != 'article' -%}
+                  </accordion-group>
+                {%- endif -%}
+            {%- endcase -%}
+          {%- endfor -%}
+        </div>
+
+        {% render 'section-link',
+          title: section.settings.section_link_title,
+          link: section.settings.section_link_link,
+          style: section.settings.section_link_style
+        %}
+      </div>
+    </div>
+  </div>
+  <script src="{{ 'accordion-group.js' | asset_url }}" type="module"></script>
+</section>
+
+{% schema %}
+{
+  "name": "FAQs",
+  "class": "js-section__faq-page",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Faqs"
+    },
+    {
+      "type": "richtext",
+      "id": "desc",
+      "label": "Text"
+    },
+    {
+      "type": "header",
+      "content": "Position and visibility"
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "label": "Section heading and text",
+      "default": "center",
+      "options": [
+        {
+          "label": "Left",
+          "value": "left"
+        },
+        {
+          "label": "Center",
+          "value": "center"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_sidebar",
+      "label": "Enable category sidebar on desktop",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Section button"
+    },
+    {
+      "type": "text",
+      "id": "section_link_title",
+      "label": "Label",
+      "default": "View all"
+    },
+    {
+      "type": "url",
+      "id": "section_link_link",
+      "label": "Link"
+    },
+    {
+      "type": "select",
+      "id": "section_link_style",
+      "label": "Style",
+      "default": "link link--arrow",
+      "options": [
+        {
+          "value": "c-btn c-btn--primary",
+          "label": "Brand button"
+        },
+        {
+          "value": "c-btn c-btn--mono",
+          "label": "Mono button"
+        },
+        {
+          "value": "c-btn c-btn--hollow",
+          "label": "Outline button"
+        },
+        {
+          "value": "link link--arrow",
+          "label": "Chevron"
+        },
+        {
+          "value": "link--underline",
+          "label": "Body text"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "unit": "px",
+      "min": 0,
+      "max": 120,
+      "step": 3,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "unit": "px",
+      "min": 0,
+      "max": 120,
+      "step": 3,
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "article",
+      "name": "Article",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Article heading"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Use these articles to answer questions that customers have about your products and services. You can use text, links and images and also group articles into categories.</p>"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "name": "Category",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Category"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FAQs",
+      "blocks": [
+        {
+          "type": "category"
+        },
+        {
+          "type": "article"
+        },
+        {
+          "type": "article"
+        },
+        {
+          "type": "article"
+        },
+        {
+          "type": "category"
+        },
+        {
+          "type": "article"
+        },
+        {
+          "type": "article"
+        },
+        {
+          "type": "article"
+        }
+      ]
+    }
+  ],
+  "enabled_on": {
+    "templates": ["*"],
+    "groups": ["footer"]
+  }
+}
+{% endschema %}

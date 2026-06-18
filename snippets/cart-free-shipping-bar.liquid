@@ -1,0 +1,110 @@
+{%- comment -%}
+  Renders free shipping bar
+
+  Accepts:
+    - current_cart: {Object} Cart
+    - reveal_delay: {Number} Delay to reveal free shipping bar in miliseconds
+    - align_left: {Boolean} Align left
+    - show_goal_animation: {Boolean} Show animation when minimum is reqched
+    - hide_icon: {Boolean} Hide icon
+{%- endcomment -%}
+{%- liquid
+  assign display_free_shipping = true
+  assign free_shipping_value = settings.free_shipping_value | times: 100
+  if localization.market.metafields.shipping.free_shipping != null
+    if localization.market.metafields.shipping.free_shipping < 0
+      assign display_free_shipping = false
+    endif
+    assign free_shipping_value = localization.market.metafields.shipping.free_shipping | times: 100
+  endif
+
+  assign free_shipping_value_with_currency = free_shipping_value | money_without_trailing_zeros
+
+  if current_cart
+    assign cart_total = current_cart.total_price
+    assign money_left = free_shipping_value | minus: cart_total
+    if money_left <= 0
+      assign money_left = 0
+    endif
+  else
+    assign cart_total = 0
+    assign money_left = free_shipping_value
+  endif
+  assign money_left_with_currency = money_left | money_without_trailing_zeros
+  assign percent_left = money_left | times: 1.0 | divided_by: free_shipping_value | times: 100
+  assign displacement = percent_left | round
+
+  assign track_color = settings.free_shipping_progress_bar_color
+  if settings.free_shipping_progress_bar_gradient != blank
+    assign track_color = settings.free_shipping_progress_bar_gradient
+  endif
+
+  if show_goal_animation == null
+    assign show_goal_animation = settings.free_shipping_enable_animation_on_completion
+  endif
+
+  if align_left == null
+    assign align_left = settings.free_shipping_align_left
+  endif
+-%}
+{%- if display_free_shipping -%}
+  <free-shipping-bar
+    class="
+      free-shipping-bar
+      {% if align_left %}free-shipping-bar--align-left{% endif %}
+    "
+    value="{{ cart_total }}"
+    minimum-value="{{ free_shipping_value }}"
+    style="--track-color: {{ track_color }}"
+    {% if reveal_delay %}
+      reveal-delay="{{ reveal_delay }}"
+    {% endif %}
+  >
+    <free-shipping-bar-text class="free-shipping-bar__text">
+      {%- unless settings.free_shipping_icon == 'none' or hide_icon -%}
+        <span class="free-shipping-bar__icon">
+          {%- liquid
+            assign custom_svg = null
+            if settings.free_shipping_icon_svg != blank
+              assign custom_svg = settings.free_shipping_icon_svg
+            endif
+          -%}
+
+          {% render 'icons-selection', icon: settings.free_shipping_icon, custom_svg: custom_svg %}
+        </span>
+      {%- endunless -%}
+      <amount-to-spend
+        {% if cart_total > 0 %}
+          hidden
+        {% endif %}
+      >
+        {{- 'cart.free_shipping.spend_amount_html' | t: amount: free_shipping_value_with_currency -}}
+      </amount-to-spend>
+      <amount-left
+        {% if cart_total == 0 or money_left == 0 %}
+          hidden
+        {% endif %}
+      >
+        {{- 'cart.free_shipping.encouragement_html' | t: amount: money_left_with_currency -}}
+      </amount-left>
+      <minimum-reached
+        {% if money_left > 0 %}
+          hidden
+        {% endif %}
+      >
+        {{- 'cart.free_shipping.goal_reached_html' | t -}}
+      </minimum-reached>
+    </free-shipping-bar-text>
+    <free-shipping-bar-track
+      class="free-shipping-bar__track"
+      style="--displacement: {{ displacement }}%"
+    ></free-shipping-bar-track>
+    {%- if show_goal_animation -%}
+      <free-shipping-bar-goal-animation
+        class="free-shipping-bar__animation"
+        data-url="{{ 'animation.confetti.lottie' | asset_url }}"
+        ><canvas width="300" height="300"></canvas
+      ></free-shipping-bar-goal-animation>
+    {%- endif -%}
+  </free-shipping-bar>
+{%- endif -%}

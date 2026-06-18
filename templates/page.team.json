@@ -1,0 +1,309 @@
+{
+  "sections": {
+    "b51333f2-524f-4c0c-9d13-d1d2e0f3e202": {
+      "type": "section-slideshow",
+      "blocks": {
+        "90624671-6083-48c3-9ccb-ee47db654275": {
+          "type": "video",
+          "settings": {
+            "title": "Welcome to our world",
+            "text": "<p>Our story began in 2001 in a small studio in the middle of nowhere. With hardly any money and next to no free time, our brand was born.</p>",
+            "alignment": "bottom-left",
+            "link_title": "",
+            "link": "",
+            "link_style": "c-btn c-btn--primary",
+            "link_title_2": "",
+            "link_2": "",
+            "link_style_2": "c-btn c-btn--hollow"
+          }
+        }
+      },
+      "block_order": ["90624671-6083-48c3-9ccb-ee47db654275"],
+      "settings": {
+        "slideshow_height": "medium",
+        "slideshow_height_mobile": "full-screen",
+        "slideshow_width": "contained",
+        "nav_style": "bars",
+        "hide_nav_arrows": false,
+        "autoplay": true,
+        "autoplay_speed": 8,
+        "style": "transparent",
+        "text_bg_color": "#ffffff",
+        "text_color": "#ffffff",
+        "overlay_color": "#000000",
+        "overlay_strength": 0,
+        "text_heading_color": false,
+        "text_border_color": true,
+        "title_size": 4,
+        "section_bottom_margin": false
+      }
+    },
+    "main": {
+      "type": "main-page",
+      "settings": {}
+    },
+    "01c20684-06b7-49db-a28a-a0f574fd956c": {
+      "type": "section-image-text-banner",
+      "blocks": {
+        "template--16580782358782__01c20684-06b7-49db-a28a-a0f574fd956c-166755120801f875f7-0": {
+          "type": "text",
+          "settings": {
+            "text": "<p>\"We live to create only beautiful things and high quality products. Every one of our items, from material to method, is meticulously considered.\"</p>",
+            "text_size": 6,
+            "text_width": 65,
+            "text_size_mobile": 3
+          }
+        },
+        "9644e532-ccd8-49ad-9b2a-d9e1b0125574": {
+          "type": "text",
+          "settings": {
+            "text": "<p><em>Aurora Sinclair -  Founder</em></p>",
+            "text_size": 3,
+            "text_width": 30,
+            "text_size_mobile": 3
+          }
+        }
+      },
+      "block_order": [
+        "template--16580782358782__01c20684-06b7-49db-a28a-a0f574fd956c-166755120801f875f7-0",
+        "9644e532-ccd8-49ad-9b2a-d9e1b0125574"
+      ],
+      "settings": {
+        "content_alignment": "center",
+        "section_height": 390,
+        "section_height_mobile": 250,
+        "section_full_screen": false,
+        "section_width": "contained",
+        "bg_color": "#ffffff",
+        "content_color": "#212121",
+        "overlay_color": "#000000",
+        "overlay_strength": 10,
+        "content_heading_color": false,
+        "divider_top": false,
+        "divider_bottom": false,
+        "section_bottom_margin": false
+      }
+    },
+    "5037cc39-1412-4b00-b1f7-4c5d68cf3c4a": {
+      "type": "section-multi-column-images",
+      "blocks": {
+        "template--16580782358782__5037cc39-1412-4b00-b1f7-4c5d68cf3c4a-16675516654d3e1ad2-0": {
+          "type": "image",
+          "settings": {
+            "title": "Aurora Sinclair",
+            "sub_title": "",
+            "desc": "<p>Aurora is the founder and managing director. With a background in product design and a passion for thoughtful craftsmanship, she brings years of experience and clear direction to the team.</p>",
+            "link_title": "",
+            "link": ""
+          }
+        },
+        "template--16580782358782__5037cc39-1412-4b00-b1f7-4c5d68cf3c4a-16675516654d3e1ad2-1": {
+          "type": "image",
+          "settings": {
+            "title": "Emily Maier",
+            "sub_title": "",
+            "desc": "<p>Emily is the creative director. She’s passionate about quality, clean aesthetics, and making things that are built to last. Her open-minded approach influences everything the team brings to life.</p>",
+            "link_title": "",
+            "link": ""
+          }
+        },
+        "template--16580782358782__5037cc39-1412-4b00-b1f7-4c5d68cf3c4a-16675516654d3e1ad2-2": {
+          "type": "image",
+          "settings": {
+            "title": "Harry The Dog",
+            "sub_title": "",
+            "desc": "<p>Harry is a friendly (and hungry) Retriever Mix who’s been part of the studio team for years. Always up for a stroll or a nap in the sun, he’s become a familiar and much-loved presence to visitors and staff.</p>",
+            "link_title": "",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "template--16580782358782__5037cc39-1412-4b00-b1f7-4c5d68cf3c4a-16675516654d3e1ad2-0",
+        "template--16580782358782__5037cc39-1412-4b00-b1f7-4c5d68cf3c4a-16675516654d3e1ad2-1",
+        "template--16580782358782__5037cc39-1412-4b00-b1f7-4c5d68cf3c4a-16675516654d3e1ad2-2"
+      ],
+      "settings": {
+        "title": "Meet the team",
+        "desc": "",
+        "image_toggle": true,
+        "image_ratio": "circle",
+        "image_fit": false,
+        "image_size": 50,
+        "image_padding": 0,
+        "heading_alignment": "center",
+        "alignment": "center",
+        "container": "large",
+        "grid": 3,
+        "spacing": 3,
+        "grid_mobile": "1",
+        "mobile_carousel": true,
+        "bg_color": "#f5f1ed",
+        "color_image": "rgba(0,0,0,0)",
+        "color_text": "#212121",
+        "text_heading_color": false,
+        "text_border_color": true,
+        "divider_top": false,
+        "divider_bottom": false,
+        "heading_size": 3,
+        "block_link_style": "hollow",
+        "section_link_title": "View all",
+        "section_link_link": "",
+        "section_link_style": "link link--arrow",
+        "padding_top": 0,
+        "padding_bottom": 0,
+        "section_bottom_margin": false
+      }
+    },
+    "a90f2124-9209-4fa3-a09b-e8c26a8aa97d": {
+      "type": "section-rich-text",
+      "settings": {
+        "section_title": "Good products for all",
+        "text": "<p>Our products bring together the finest materials and stunning design to create something very special. We believe in quality, care, and creating unique products that everyone can enjoy. Colorful, creative, and inspired by what we see everyday, each product represents what we love.</p>",
+        "section_width": "tiny",
+        "padding_top": 0,
+        "padding_bottom": 0,
+        "section_bottom_margin": false
+      }
+    },
+    "0c54c5c8-8c51-4102-8750-13e283bb15cd": {
+      "type": "section-image-with-text",
+      "blocks": {
+        "template--16580782358782__0c54c5c8-8c51-4102-8750-13e283bb15cd-166755169405dfbb94-1": {
+          "type": "image",
+          "settings": {
+            "video": "",
+            "video_button_color": "primary",
+            "title": "Quality matters",
+            "desc": "<p>Quality, care, and producing unique items that everyone can enjoy are the issues we care about most. Every item connects to what we love about the world we live in, the way we see it every day.</p>",
+            "horizontal_align": "left",
+            "link_title": "",
+            "link": "",
+            "bg_color_block": "rgba(0,0,0,0)",
+            "bg_color_content": "#ffffff",
+            "color_text": "#212121",
+            "text_heading_color": false,
+            "text_border_color": true
+          }
+        },
+        "template--16580782358782__0c54c5c8-8c51-4102-8750-13e283bb15cd-166755169405dfbb94-0": {
+          "type": "image",
+          "settings": {
+            "video": "",
+            "video_button_color": "primary",
+            "title": "Made by hand",
+            "desc": "<p>Carefully chosen materials and consistent standards guide everything we make. It’s about doing things properly, with attention to detail and a commitment to making something considered.</p>",
+            "horizontal_align": "right",
+            "link_title": "",
+            "link": "",
+            "bg_color_block": "rgba(0,0,0,0)",
+            "bg_color_content": "#ffffff",
+            "color_text": "#212121",
+            "text_heading_color": false,
+            "text_border_color": true
+          }
+        }
+      },
+      "block_order": [
+        "template--16580782358782__0c54c5c8-8c51-4102-8750-13e283bb15cd-166755169405dfbb94-1",
+        "template--16580782358782__0c54c5c8-8c51-4102-8750-13e283bb15cd-166755169405dfbb94-0"
+      ],
+      "settings": {
+        "image_ratio": "4:3",
+        "block_align": "left",
+        "vertical_align": "middle",
+        "container": "large",
+        "block_spacing": 2,
+        "block_layout": "2/3",
+        "heading_size": 2,
+        "link_style": "body",
+        "padding_top": 0,
+        "padding_bottom": 66,
+        "section_bottom_margin": false
+      }
+    },
+    "71be4421-0540-47be-8642-e4ff2d8de9f7": {
+      "type": "section-contact-form",
+      "blocks": {
+        "c0d14fd5-405b-4298-bfb4-32ed0247124a": {
+          "type": "text",
+          "settings": {
+            "required": false,
+            "long": false,
+            "label": "Which countries do you operate in?"
+          }
+        },
+        "60d7cc0f-cdbd-4fe7-92e8-6f8d9c648f74": {
+          "type": "dropdown",
+          "settings": {
+            "label": "What products are you interested in?",
+            "options": "Prints, Framing services, Commissions"
+          }
+        },
+        "5bca0f36-a5a1-44ca-b858-bbc3286a65ac": {
+          "type": "checkbox",
+          "settings": {
+            "required": false,
+            "label": "Shall we add you to our mailing list?",
+            "yes": "Yes",
+            "no": "No"
+          }
+        }
+      },
+      "block_order": [
+        "c0d14fd5-405b-4298-bfb4-32ed0247124a",
+        "60d7cc0f-cdbd-4fe7-92e8-6f8d9c648f74",
+        "5bca0f36-a5a1-44ca-b858-bbc3286a65ac"
+      ],
+      "settings": {
+        "title": "Trade program",
+        "desc": "<p>We work with professionals across a range of industries to offer trade pricing and project support. If you’re interested in joining our program, please get in touch below.</p>",
+        "heading_alignment": "center",
+        "section_width": "full",
+        "color_bg": "rgba(0,0,0,0)",
+        "color_text": "rgba(0,0,0,0)",
+        "color_default_heading": true,
+        "color_default_border": true,
+        "divider_top": false,
+        "divider_bottom": false,
+        "padding_top": 0,
+        "padding_bottom": 36,
+        "section_bottom_margin": false
+      }
+    },
+    "8224cc5e-0def-4c00-b83d-2dbb170af4ca": {
+      "type": "section-blog",
+      "settings": {
+        "title": "Our latest thoughts",
+        "desc": "",
+        "blog": "",
+        "blog_image_ratio": "16:9",
+        "heading_alignment": "center",
+        "blog_show_tags": false,
+        "blog_show_date": false,
+        "blog_show_read_more": true,
+        "section_width": "small",
+        "post_limit": 2,
+        "grid": 2,
+        "divider_top": false,
+        "divider_bottom": false,
+        "section_link_title": "View all",
+        "section_link_link": "",
+        "section_link_style": "link link--arrow",
+        "padding_top": 30,
+        "padding_bottom": 0,
+        "section_bottom_margin": false
+      }
+    }
+  },
+  "order": [
+    "b51333f2-524f-4c0c-9d13-d1d2e0f3e202",
+    "main",
+    "01c20684-06b7-49db-a28a-a0f574fd956c",
+    "5037cc39-1412-4b00-b1f7-4c5d68cf3c4a",
+    "a90f2124-9209-4fa3-a09b-e8c26a8aa97d",
+    "0c54c5c8-8c51-4102-8750-13e283bb15cd",
+    "71be4421-0540-47be-8642-e4ff2d8de9f7",
+    "8224cc5e-0def-4c00-b83d-2dbb170af4ca"
+  ]
+}

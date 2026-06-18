@@ -1,0 +1,116 @@
+/* ==========================================================================
+   #IMAGE GRID WITH TEXT
+   ========================================================================== */
+.image-grid__item {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 36px;
+  margin-bottom: 30px;
+  overflow: hidden;
+  min-height: var(--height-desktop);
+}
+@media (max-width: 47.9275em) {
+  .image-grid__item {
+    padding: 24px;
+    margin-bottom: 18px;
+    min-height: var(--height-mobile);
+  }
+}
+
+.image-grid__item--p- {
+  padding: 24px 18px;
+}
+
+.image-grid__bg,
+.image-grid__item--video lazy-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-grid__link .image-grid__bg:before {
+  -webkit-transition: all 0.2s ease-in-out;
+  -moz-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+}
+.image-grid__link .image-grid__bg--no-overlay:before {
+  opacity: 0;
+}
+.image-grid__link:hover {
+  opacity: 1;
+}
+
+.image-grid__title.image-grid__title.image-grid__title--adapt-border:after {
+  background: rgb(255, 255, 255);
+}
+
+.image-grid__content {
+  width: 100%;
+  max-width: 440px;
+}
+
+.image-grid__title,
+.image-grid__desc {
+  color: rgb(255, 255, 255);
+  position: relative;
+  margin: 0;
+}
+
+.image-grid__title {
+  margin-bottom: 6px;
+}
+
+.image-grid__item--text {
+  text-align: center;
+}
+
+.image-grid__btn {
+  margin-top: 18px;
+}
+.image-grid__btn.c-btn {
+  min-width: 120px;
+}
+@media (max-width: 47.9275em) {
+  .image-grid__btn.c-btn {
+    min-width: 110px;
+  }
+}
+
+.image-grid__btn.link {
+  display: block;
+  line-height: 1;
+}
+
+.image-grid__item--text .image-grid__title,
+.image-grid__item--text .image-grid__desc {
+  color: var(--block-text-color);
+}
+.image-grid__item--text .image-grid__title.image-grid__title.image-grid__title--adapt-border:after {
+  background: var(--block-text-color);
+}
+.image-grid__item--text .link,
+.image-grid__item--text .link--underline {
+  color: var(--block-text-color);
+}
+.image-grid__item--text .c-btn--mono {
+  background-color: var(--block-text-color);
+  color: var(--block-text-contrast-color);
+}
+.image-grid__item--text .c-btn--hollow {
+  color: var(--block-text-color);
+  box-shadow: inset 0px 0px 0px 1px var(--block-text-color);
+}
+.image-grid__item--text .c-btn--hollow:hover:not([disabled]) {
+  color: var(--block-text-contrast-color);
+  background-color: var(--block-text-color);
+}
+.image-grid__item--text .image-grid__desc.rte a,
+.image-grid__item--text .image-grid__desc.rte :is(h1, h2, h3, h4, h5, h6) {
+  color: var(--block-text-color);
+  border-color: var(--block-text-color);
+}
+/*# sourceMappingURL=section-image-grid.css.map */

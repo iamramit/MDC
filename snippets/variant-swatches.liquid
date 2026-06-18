@@ -1,0 +1,143 @@
+{% doc %}
+  Renders theme variant swatches
+
+  @param {object} option - Product_option Liquid object
+  @param {string} unique_id - Unique id
+  @param {boolean} [native] - Render native variant swatches
+  @param {string} [form_id] - Unique form id
+  @param {string} [popup] - Popup HTML
+  @param {boolean} [display_swatches_as_variant_image] - Display swatches as variant image
+
+  @example
+  {% render 'variant-swatches', form_id: product_form_id, option: option, unique_id: unique_id %}
+{% enddoc %}
+
+<variant-swatches data-form-id="{{ form_id }}" style="--swatch-size: {{ settings.design_variant_swatch_size }}px">
+  <fieldset class="product-form__swatch {% if display_swatches_as_variant_image %}product-form__swatch--variant-image{% endif %}">
+    <div class="product-form__swatch__title">
+      <legend class="f-family--{{ settings.type_product_form_headings_style }} f-caps--{{ settings.type_product_form_headings_capitalize }} f-space--{{ settings.type_product_form_headings_letterspace }}">
+        {{ option.name }}:
+        <span class="product-form__swatch__sub-title js-option-title">{{ option.selected_value }}</span>
+      </legend>
+      {%- if popup -%}
+        {{ popup }}
+      {%- endif -%}
+    </div>
+    {%- for value in option.values -%}
+      {%- liquid
+        assign swatch_id = value | strip | downcase | handle
+
+        if native
+          assign swatch = value.swatch
+          if swatch.image
+            assign swatch_image_width = settings.design_variant_swatch_size | times: 4 | plus: 15 | times: 3
+            assign swatch_image_url = swatch.image | image_url: width: swatch_image_width, height: swatch_image_width, crop: 'center'
+            assign swatch_value = 'url(' | append: swatch_image_url | append: ')'
+          elsif swatch.color
+            assign swatch_value = 'rgb(' | append: swatch.color.rgb | append: ')'
+          endif
+        else
+          assign swatch_value = swatch_id | replace: '-', ''
+        endif
+      -%}
+
+      <span
+        class="
+          product-form__swatch__item
+          {% unless display_swatches_as_variant_image %}
+            product-form__swatch__item--color
+            {% if settings.use_emphasized_borders %}
+              product-form__swatch__item--emphasize
+            {% endif %}
+            product-form__swatch__item--{% if settings.use_square_swatch %}square{% else %}circle{% endif %}
+          {% else %}
+            product-form__swatch__item--image
+            {% if settings.swatches_as_variant_image_ratio == 'circle' %}
+              product-form__swatch__item--circle
+            {% else %}
+              product-form__swatch__item--square
+            {% endif %}
+          {% endunless %}
+        "
+        {% if display_swatches_as_variant_image %}
+          style="--width: {{ settings.swatches_as_variant_image_width }}px;"
+        {% endif %}
+      >
+        <input
+          type="radio"
+          id="option-{{ option.position }}-{{ forloop.index0 }}-{{ unique_id }}"
+          name="{{ option.name }}"
+          value="{{ value | escape }}"
+          form="{{ form_id }}"
+          class="product-form__swatch__input u-hidden-visually"
+          {% if option.selected_value == value %}
+            checked
+          {% endif %}
+          data-option-value-id="{{ value.id }}"
+          {% if value.product_url %}
+            data-product-url="{{ value.product_url }}"
+          {% endif %}
+        >
+        <label
+          for="option-{{ option.position }}-{{ forloop.index0 }}-{{ unique_id }}"
+          class="
+            product-form__swatch__label
+            {% unless value.available %}
+              is-disabled
+            {% endunless %}
+          "
+        >
+          {%- if display_swatches_as_variant_image -%}
+            {%- liquid
+              assign variant_image = value.variant.featured_media
+              if value.product_url
+                assign variant_image = value.variant.product.featured_media
+              endif
+
+              assign image_sizes = settings.swatches_as_variant_image_width | append: 'px'
+
+              assign image_ratio = settings.swatches_as_variant_image_ratio
+              if image_ratio == 'circle'
+                assign image_ratio = '1:1'
+              endif
+            -%}
+            <div>
+              <span class="visually-hidden">{{ value | replace: '"', '' }}</span>
+              <div
+                class="o-ratio o-ratio--{{ settings.swatches_as_variant_image_ratio }}"
+                {% if settings.swatches_as_variant_image_ratio == 'natural' %}
+                  style="padding-bottom:{{ 1 | divided_by: variant_image.aspect_ratio | times: 100 }}%;"
+                {% endif %}
+              >
+                <div class="o-ratio__content">
+                  {%- if variant_image -%}
+                    {% render 'image',
+                      image: variant_image,
+                      additional_classes: 'product-form__swatch__image',
+                      alt_string: variant_image.alt,
+                      image_ratio: image_ratio,
+                      image_srcset_widths: '30, 60, 90, 120, 150, 180, 240, 300, 360',
+                      image_sizes: image_sizes,
+                      render_skeleton: false
+                    %}
+                  {%- endif -%}
+                </div>
+              </div>
+            </div>
+          {%- else -%}
+            <variant-swatch
+              {% unless native %}
+                swatch-id="{{ swatch_id }}"
+              {% endunless %}
+              class="product-form__swatch__label__graphic"
+              style="--background-graphic: {{ swatch_value }}"
+            >
+              <span class="visually-hidden">{{ value | replace: '"', '' }}</span>
+              {{- value -}}
+            </variant-swatch>
+          {%- endif -%}
+        </label>
+      </span>
+    {%- endfor -%}
+  </fieldset>
+</variant-swatches>

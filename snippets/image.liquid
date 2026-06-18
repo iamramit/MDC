@@ -1,0 +1,216 @@
+{% comment %}theme-check-disable RemoteAsset, ImgLazyLoading{% endcomment %}
+{%- doc -%}
+  Render properly resized image if passed, else render placeholder
+
+  Accepts:
+
+  @param {object} image - Image object
+  @param {string} image_ratio - Image ratio string. Values are "1:1", "3:4", "4:3", "16:9", "2:3", "natural"
+  @param {string} image_srcset_widths - Image srcset width string
+  @param {string} image_sizes - Image sizes attribute string
+  @param {string} [additional_classes] - Additional classes string
+  @param {string} [additional_styles] - Additional styles string
+  @param {string} [alt_string] - Alt attribute string
+  @param {string} [fetch_priority] - Fetch priority: "high", "auto" or "low"
+  @param {string} [focal_points] - Focal point attribute string
+  @param {number} [image_default_width] - Image default width
+  @param {boolean} [image_fit] - Fit image into container, or resize
+  @param {string} [loading] - Loading attribute string: "lazy", "eager"
+  @param {number} [minimum_reveal_delay] - Minimum reveal delay
+  @param {string} [placeholder_image] - Placeholder image string
+  @param {boolean} [preload] - Preload image
+  @param {boolean} [render_skeleton] - Render skeleton
+  @param {string} [skeleton_ratio] - Override skeleton ratio
+  @param {string} [skeleton_color] - Override skeleton background color
+{%- enddoc -%}
+{%- liquid
+  unless additional_classes
+    assign additional_classes = ''
+  endunless
+
+  unless image_default_width
+    assign image_default_width = 300
+  endunless
+
+  unless alt_string
+    assign alt_string = image.alt
+  endunless
+
+  unless loading
+    assign loading = 'lazy'
+  endunless
+
+  unless placeholder_image
+    assign placeholder_image = 'placeholder.png'
+  endunless
+
+  unless fetch_priority
+    assign fetch_priority = 'auto'
+  endunless
+
+  assign uncropped_image = true
+  if image_ratio != 'natural'
+    assign values = image_ratio | split: ':'
+    assign i_w = values[0] | plus: 0.0
+    assign i_h = values[1] | plus: 0.0
+    assign image_ratio = i_h | divided_by: i_w
+
+    unless image_fit
+      assign uncropped_image = false
+    endunless
+  endif
+
+  assign image_srcset_widths_array = image_srcset_widths | split: ', '
+
+  assign image_srcset = ''
+
+  assign is_placeholder = false
+  if image
+    for w in image_srcset_widths_array
+      assign width = w | plus: 0
+
+      if uncropped_image
+        assign height = width | divided_by: image.aspect_ratio | round
+      else
+        assign height = width | times: image_ratio | round
+      endif
+
+      if width > image.width or height > image.height
+        break
+      endif
+
+      if uncropped_image
+        assign image_url = image | image_url: width: width
+      else
+        assign image_url = image | image_url: width: width, height: height
+      endif
+
+      assign image_srcset = image_srcset | append: image_url | append: ' ' | append: width | append: 'w ' | append: height | append: 'h, '
+    endfor
+
+    assign master_width = image.width
+    if uncropped_image
+      assign master_height = image.height
+      assign master_image_url = image | image_url
+
+      assign default_height = image_default_width | divided_by: image.aspect_ratio | round
+      assign image_default_url = image | image_url: width: image_default_width
+    else
+      assign master_height = master_width | times: image_ratio | round
+      assign default_height = image_default_width | times: image_ratio | round
+      if master_height > image.height
+        assign master_height = image.height
+        assign master_width = master_height | divided_by: image_ratio | round
+      endif
+      assign master_image_url = image | image_url: width: master_width, height: master_height
+      assign image_default_url = image | image_url: width: image_default_width, height: default_height
+    endif
+    assign image_srcset = image_srcset | append: master_image_url | append: ' ' | append: master_width | append: 'w ' | append: master_height | append: 'h'
+
+    assign default_width = image_default_width
+    if default_width > image.width
+      assign default_width = image.width
+    endif
+    if uncropped_image
+      assign default_height = default_width | divided_by: image.aspect_ratio | round
+      assign image_default_url = image | image_url: width: default_width
+    else
+      assign default_height = default_width | times: image_ratio | round
+      if default_height > image.height
+        assign default_height = image.height
+        assign default_width = default_height | divided_by: image_ratio | round
+      endif
+      assign image_default_url = image | image_url: width: default_width, height: default_height
+    endif
+  else
+    assign is_placeholder = true
+    for w in image_srcset_widths_array
+      assign width = w | plus: 0
+
+      if uncropped_image
+        assign height = width
+      else
+        assign height = width | times: image_ratio | round
+      endif
+
+      assign image_url_suffix = width | append: 'x' | append: height
+
+      assign image_url = placeholder_image | asset_img_url: image_url_suffix
+
+      assign image_srcset = image_srcset | append: image_url | append: ' ' | append: width | append: 'w ' | append: height | append: 'h, '
+    endfor
+
+    assign default_width = image_default_width
+    if uncropped_image
+      assign default_height = default_width
+    else
+      assign default_height = default_width | times: image_ratio | round
+    endif
+    assign image_default_url_suffix = default_width | append: 'x' | append: default_height
+    assign image_default_url = placeholder_image | asset_img_url: image_default_url_suffix
+  endif
+
+  assign image_width = default_width
+  assign image_height = default_height
+
+  assign style = ''
+  if focal_points
+    assign style = style | append: 'object-position: ' | append: image.presentation.focal_point | append: '; '
+  endif
+  if additional_styles
+    assign style = style | append: additional_styles
+  endif
+-%}
+{%- if render_skeleton -%}
+  {%- liquid
+    assign alt = 'general.media.loading_image' | t: alt: alt_string
+    if skeleton_ratio and skeleton_ratio != 'natural'
+      assign values = skeleton_ratio | split: ':'
+      assign s_w = values[0] | plus: 0.0
+      assign s_h = values[1] | plus: 0.0
+      assign skeleton_ratio = s_w | divided_by: s_h
+      assign image_height = image_width | divided_by: skeleton_ratio | round
+    endif
+    unless skeleton_color
+      assign skeleton_color = settings.color_text | color_modify: 'alpha', 0.06
+    endunless
+  -%}
+
+  {% render 'image-skeleton',
+    alt: alt,
+    width: image_width,
+    height: image_height,
+    minimum_reveal_delay: minimum_reveal_delay,
+    contain: image_fit,
+    color: skeleton_color
+  %}
+{%- endif -%}
+{%- if is_placeholder -%}
+  <img
+    {% if additional_classes %}
+      class="{{ additional_classes }}"
+    {% endif %}
+    src="{{ image_default_url }}"
+    srcset="{{ image_srcset }}"
+    sizes="{{ image_sizes }}"
+    width="{{ image_width }}"
+    height="{{ image_height }}"
+    alt="{{ alt_string }}"
+    loading="{{ loading }}"
+    fetchpriority="{{ fetch_priority }}"
+  >
+{%- else -%}
+  {{
+    image_default_url
+    | image_tag:
+      alt: alt_string,
+      class: additional_classes,
+      fetchpriority: fetch_priority,
+      loading: loading,
+      preload: preload,
+      sizes: image_sizes,
+      srcset: image_srcset,
+      fetchpriority: fetch_priority,
+      style: style
+  }}
+{%- endif -%}

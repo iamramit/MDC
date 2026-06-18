@@ -1,0 +1,24 @@
+{%- comment -%}
+  This snippet is used to load critical styles in editor mode.
+  Otherwise some calculations are wrong, as the block settings
+  change reloads the section together with the styles, thus
+  creating a FOUC, which confuses the calculations.
+{%- endcomment -%}
+{%- liquid
+  assign transparent_header = false
+  if template.name == 'collection' and section.settings.header_transparent_collection
+    assign transparent_header = true
+  elsif template == 'index' and section.settings.header_transparent
+    assign transparent_header = true
+  endif
+-%}
+{{ 'section-announcement-bar.css' | asset_url | stylesheet_tag }}
+{{ 'component-header.css' | asset_url | stylesheet_tag }}
+{{ 'component-navigation-drawer.css' | asset_url | stylesheet_tag }}
+{%- if transparent_header -%}
+  {{ 'component-header-transparent.css' | asset_url | stylesheet_tag }}
+{%- endif -%}
+{{ 'component-media-carousel.css' | asset_url | stylesheet_tag }}
+{{ 'component-media-gallery.css' | asset_url | stylesheet_tag }}
+{{ 'component-product.css' | asset_url | stylesheet_tag }}
+{{ 'section-product.css' | asset_url | stylesheet_tag }}

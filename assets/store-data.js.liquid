@@ -1,0 +1,8 @@
+export const CART_TYPE = "{{ settings.cart_type }}" || "drawer";
+
+export const ANIMATION_LOAD = "{{ settings.anim_load }}" === "true";
+export const ANIMATION_INTERVAL =
+  "{{ settings.anim_load_style }}" === "default" ? 0 : 0.05;
+// fade_up, fade_down, fade_in
+export const ANIMATION_INTERVAL_STYLE =
+  "{{ settings.anim_interval_style }}" || "fade_up";

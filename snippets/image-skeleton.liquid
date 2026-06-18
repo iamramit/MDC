@@ -1,0 +1,34 @@
+{% comment %}
+  Image skeleton background for smoother loading
+
+   Accepts:
+   - alt: {String} Image alt text
+   - width: {String} Image width
+   - height: {String} Image height
+   - minimum_reveal_delay: {Number} Minimum reveal delay (optional)
+   - contain: {Boolean} Contain image (optional)
+   - color: {String} Background color (optional)
+{% endcomment %}
+
+<image-skeleton
+  {% if minimum_reveal_delay -%}
+    minimum-reveal-delay="250"
+  {%- endif -%}
+  {% if color %}
+    style="--color: {{ color }};"
+  {% endif %}
+>
+  <span class="visually-hidden">{{ alt | escape }}</span>
+  <svg
+    id="visual"
+    viewBox="0 0 {{ width }} {{ height }}"
+    width="{{ width }}"
+    height="{{ height }}"
+    xmlns="http://www.w3.org/2000/svg"
+    {% unless contain %}
+      preserveAspectRatio="xMinYMin slice"
+    {% endunless %}
+  >
+    <rect x="0" y="0" width="{{ width }}" height="{{ height }}"></rect>
+  </svg>
+</image-skeleton>

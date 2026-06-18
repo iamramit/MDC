@@ -1,0 +1,64 @@
+{%- comment -%}
+  Render product card button trigger templates
+
+  Accepts:
+    - id: {String} Unique id
+    - small_buttons_on_mobile: {Boolean} Small buttons on the image grid @ mobile size
+    - notify_on_add: {Boolean} Show notification
+
+  TODO: Sync with product-card
+{%- endcomment -%}
+<template id="{{ id }}--template-sold-out-button">
+  <button
+    type="submit"
+    class="c-btn c-btn--full{% if settings.quick_shop_product_grid_button == 'outline' %} c-btn--hollow{% else %} c-btn--primary{% endif %} product-card-btn__btn {% if small_buttons_on_mobile %}c-btn--small@mobile{% endif %}"
+    disabled="disabled"
+  >
+    {{ 'products.product.sold_out' | t }}
+  </button>
+</template>
+<template id="{{ id }}--template-quick-shop-button">
+  <a
+    quickshop-trigger
+    href="#"
+    class="c-btn c-btn--full{% if settings.quick_shop_product_grid_button == 'outline' %} c-btn--hollow{% else %} c-btn--primary{% endif %} {% if small_buttons_on_mobile %}c-btn--small@mobile{% endif %} product-card-btn__btn"
+    aria-hidden="true"
+    tabindex="-1"
+    data-trigger-quick-shop
+  >
+    {{- 'products.product.select_options' | t -}}
+  </a>
+</template>
+<template id="{{ id }}--template-add-to-cart-form">
+  <product-form
+    {% if settings.cart_type == 'page' %}
+      redirect-on-add="{{ routes.cart_url }}"
+    {% elsif notify_on_add %}
+      notify-on-add
+    {% endif %}
+  >
+    <form action="{{ routes.cart_add_url }}" method="post" enctype="multipart/form-data">
+      <input type="hidden" name="form_type" value="product">
+      <input type="hidden" name="id" value="">
+      <button
+        type="submit"
+        name="add"
+        class="c-btn c-btn--full{% if settings.quick_shop_product_grid_button == 'outline' %} c-btn--hollow{% else %} c-btn--primary{% endif %} {% if small_buttons_on_mobile %}c-btn--small@mobile{% endif %} product-card-btn__btn js-product-add"
+        aria-hidden="true"
+        tabindex="-1"
+      >
+        <staged-action class="staged-action">
+          <staged-action-text class="staged-action__text">
+            {{ 'products.product.add_to_cart' | t }}
+          </staged-action-text>
+          <staged-action-tick class="staged-action__tick">
+            {% render 'icons-theme', icon: 'check' %}
+          </staged-action-tick>
+          <staged-action-spinner class="staged-action__spinner">
+            {% render 'theme-spinner' %}
+          </staged-action-spinner>
+        </staged-action>
+      </button>
+    </form>
+  </product-form>
+</template>

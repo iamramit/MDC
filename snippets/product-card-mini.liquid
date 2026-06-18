@@ -1,0 +1,281 @@
+{% comment %}theme-check-disable RemoteAsset, TemplateLength{% endcomment %}
+{%- doc -%}
+  Render mini product card
+
+  Accepts:
+
+  @param {string} id - Unique id of the item. By default section_id--current_product.id is used (optional)
+  @param {object} current_product - Product object (optional)
+  @param {string} [section_id] - Section id
+  @param {object} collection - Collection if product is within one
+  @param {string} image_ratio - Image ratio string. Values are "1:1", "3:4", "4:3", "16:9", "2:3", "natural"
+  @param {string} image_sizes - Image sizes attribute string
+  @param {boolean} [fit_image_to_container] - Fit image into container, or resize
+  @param {boolean} [enable_quick_shop] - Enable quick shop
+  @param {boolean} [show_details] - Show details
+  @param {boolean} [show_price] - Show price
+  @param {boolean} move_quick_shop - Move quick shop modal to outside container
+{%- enddoc -%}
+{%- liquid
+  unless image_ratio
+    assign image_ratio = settings.product_grid_image_size
+  endunless
+
+  if fit_image_to_container == null
+    assign fit_image_to_container = settings.product_grid_image_fit
+  endif
+
+  if enable_quick_shop == null
+    assign enable_quick_shop = settings.quick_shop_enabled
+  endif
+
+  if show_details == null
+    assign show_details = true
+  endif
+
+  if show_price == null
+    assign show_price = settings.product_grid_price
+  endif
+
+  assign container_ratio = image_ratio
+
+  unless image_sizes
+    assign image_sizes = '100vw'
+  endunless
+
+  comment
+    Quickshop settings
+  endcomment
+  if enable_quick_shop
+    assign quick_shop_id = id | append: '--qiuck-shop'
+
+    assign quick_shop_trigger = 'button'
+    if current_product
+      if current_product.variants_count > 1 and current_product.available
+        assign render_quickshop = true
+      else
+        assign render_quickshop = false
+      endif
+    else
+      assign render_quickshop = true
+    endif
+
+    assign quick_shop_image_sizes = '(min-width: 444px) 360px, calc(100vw - 24px - 18px * 2)'
+  else
+    assign quick_shop_trigger = null
+  endif
+
+  assign product_card_classes = 'product-card product-card--mini js-product js-product-card'
+  if fit_image_to_container
+    assign product_card_classes = product_card_classes | append: ' product-card--fit'
+  else
+    assign product_card_classes = product_card_classes | append: ' product-card--crop'
+  endif
+  assign product_card_classes = product_card_classes | append: ' product-card--media-ratio-' | append: container_ratio
+
+  assign image = null
+  assign enable_secondary_image = false
+  if settings.product_grid_hover == 'image'
+    assign enable_secondary_image = true
+  endif
+
+  if current_product
+    if current_product.featured_media.preview_image != null
+      assign image = current_product.featured_media.preview_image
+
+      assign secondary_image = null
+      if settings.product_grid_hover == 'image' and current_product.media[1] != blank
+        assign secondary_image = current_product.media[1].preview_image
+      endif
+    endif
+
+    if container_ratio == 'natural'
+      assign image_container_bottom_padding = '100%'
+      if current_product and current_product.featured_media.preview_image != null
+        assign image_container_bottom_padding = 1 | divided_by: current_product.featured_media.preview_image.aspect_ratio | times: 100 | append: '%'
+      endif
+    endif
+
+    unless current_product.available
+      assign product_card_classes = product_card_classes | append: ' product-card--sold-out'
+    endunless
+    if current_product.compare_at_price > current_product.price and current_product.available
+      assign product_card_classes = product_card_classes | append: ' product-card--sale'
+    endif
+
+    assign link = current_product.url | within: collection
+
+    if secondary_image
+      assign product_card_classes = product_card_classes | append: ' product-card--hover-image'
+    elsif settings.product_grid_hover == 'zoom'
+      assign product_card_classes = product_card_classes | append: ' product-card--hover-zoom'
+    endif
+  else
+    assign link = '#'
+
+    if settings.product_grid_hover == 'zoom'
+      assign product_card_classes = product_card_classes | append: ' product-card--hover-zoom'
+    endif
+  endif
+-%}
+<product-card-mini
+  {% if current_product %}
+    rendered
+    data-product-id="{{ current_product.id }}"
+  {% endif %}
+  class="{{ product_card_classes }}"
+  image-container-ratio="{{ container_ratio }}"
+  {% if fit_image_to_container %}
+    image-fit
+  {% endif %}
+  {% if section_id %}
+    section-id="{{ section_id }}"
+  {% endif %}
+  {% if quick_shop_trigger %}
+    quick-shop-trigger="{{ quick_shop_trigger }}"
+  {% endif %}
+  {% if move_quick_shop %}
+    move-quick-shop
+  {% endif %}
+>
+  <a product-card-link href="{{ link }}" class="product-card__link"
+    ><span class="visually-hidden">Navigate to {{ current_product.title }}</span></a
+  >
+  <div class="product-card__top">
+    <div
+      class="
+        o-ratio
+        o-ratio--{{ container_ratio }}
+      "
+      {% if image_container_bottom_padding %}
+        style="padding-bottom:{{ image_container_bottom_padding }}"
+      {% endif %}
+    >
+      <div class="o-ratio__content">
+        <a product-card-link href="{{ link }}" tabindex="-1">
+          <div
+            class="
+              product-card__media
+              {% if current_product %}
+                {% if secondary_image %} product-card__media--hover-image{% elsif settings.product_grid_hover == 'zoom' %} product-card__media--hover-zoom{% endif %}
+              {% endif %}
+            "
+          >
+            {%- if enable_secondary_image -%}
+              <product-card-secondary-image-placeholder
+                class="product-card__img-hover hover-enabled"
+                {% unless current_product %}
+                  hidden
+                {% endunless %}
+              >
+                {%- if secondary_image -%}
+                  {% render 'image',
+                    image: secondary_image,
+                    additional_classes: 'product-card__img-hover hover-enabled',
+                    image_ratio: container_ratio,
+                    image_fit: fit_image_to_container,
+                    image_srcset_widths: '120, 240, 360, 480, 620, 740',
+                    image_sizes: image_sizes
+                  %}
+                {%- endif -%}
+              </product-card-secondary-image-placeholder>
+            {%- endif -%}
+
+            {%- liquid
+              assign image_classes = 'product-card__img js-product-card-image'
+              if settings.product_grid_hover == 'image'
+                assign image_classes = image_classes | append: ' hover-enabled'
+              endif
+            -%}
+            {% render 'image',
+              image: image,
+              additional_classes: image_classes,
+              image_ratio: container_ratio,
+              image_fit: fit_image_to_container,
+              image_srcset_widths: '120, 240, 360, 480, 620, 740',
+              image_sizes: image_sizes,
+              render_skeleton: true
+            %}
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+  {%- if show_details -%}
+    <div class="product-card__details">
+      {% comment %} <a product-card-link href="{{ link }}" class="product-card__link"{% if current_product %} title="{{ current_product.title }}"{% endif %}> {% endcomment %}
+      <h3 class="product-card__title f-family--{{ settings.type_grid_style }} f-caps--{{ settings.type_grid_capitalize }} f-space--{{ settings.type_grid_letterspace }}">
+        <product-card-title>{{- current_product.title -}}</product-card-title>
+      </h3>
+
+      {%- if show_price -%}
+        <product-card-price class="product-card__price">
+          {%- if current_product -%}
+            {% render 'product-price', product: current_product, from_price: true, show_price_notes: false %}
+          {%- endif -%}
+        </product-card-price>
+      {%- endif -%}
+      {% comment %} </a> {% endcomment %}
+
+      {%- if enable_quick_shop -%}
+        <product-card-button class="product-card-btn">
+          {%- if current_product -%}
+            {%- if current_product.available == false -%}
+              <button type="button" class="link" disabled="disabled">{{ 'products.product.sold_out' | t }}</button>
+            {%- elsif current_product.variants_count > 1 %}
+              <button
+                type="button"
+                class="link link--underline"
+                aria-hidden="true"
+                tabindex="-1"
+                data-trigger-quick-shop
+              >
+                {{ 'products.product.select_options' | t }}
+              </button>
+            {%- else -%}
+              <product-form
+                {% if settings.cart_type == 'page' %}
+                  redirect-on-add="{{ routes.cart_url }}"
+                {% elsif settings.quick_shop_show_cart %}
+                  notify-on-add
+                {% endif %}
+              >
+                {% form 'product', current_product %}
+                  <input type="hidden" name="id" value="{{ current_product.variants.first.id }}">
+                  <button
+                    type="submit"
+                    class="link link--underline"
+                    name="add"
+                    aria-hidden="true"
+                    tabindex="-1"
+                  >
+                    <staged-action class="staged-action">
+                      <staged-action-text class="staged-action__text">
+                        +&nbsp;{{ 'products.product.add_to_cart' | t }}
+                      </staged-action-text>
+                      <staged-action-tick class="staged-action__tick">
+                        {% render 'icons-theme', icon: 'check' %}
+                      </staged-action-tick>
+                      <staged-action-spinner class="staged-action__spinner">
+                        {% render 'theme-spinner' %}
+                      </staged-action-spinner>
+                    </staged-action>
+                  </button>
+                {% endform %}
+              </product-form>
+            {%- endif -%}
+          {%- endif -%}
+        </product-card-button>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+  {%- liquid
+    if render_quickshop
+      if current_product
+        render 'quick-shop-placeholder', id: quick_shop_id, card_id: id, product_url: current_product.url, image_ratio: container_ratio, image_sizes: quick_shop_image_sizes, fit_image_to_container: fit_image_to_container
+      else
+        echo '<product-card-quick-shop></product-card-quick-shop>'
+      endif
+    endif
+  -%}
+</product-card-mini>

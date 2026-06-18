@@ -1,0 +1,394 @@
+<div class="how-it-works">
+  <div class="container">
+    <div class="how-it-works-box" style="background-color:{{ section.settings.box_background }}cf;color:{{section.settings.box_text_color}}">
+      <div class="how-it-works-inner">
+              
+        <div class="how-it-works-top">
+        
+         <div> <h2 style="font-size:{{section.settings.font_size}}px!important;"> {{section.settings.title}}     </h2>
+           <p>{{section.settings.desc}}</p></div>
+        </div>
+           <div class="how-it-works-middle">
+        
+             <div class="step">
+             
+               <h3>{{section.settings.step_1}}</h3>
+               <p>{{section.settings.step_1_desc}}</p>
+             </div>
+            
+             
+        </div>
+        
+               
+      </div>
+    </div>
+  </div>
+</div>
+ 
+{% if section.settings.show_subs %}
+<div id="previous-subs-wrap">
+  <div class="container">
+    <h3>Previous Subscriptions</h3>
+  
+    <div class="all-cards">
+     {% for block in section.blocks %}
+      <div class="cards-container">
+      	
+        <div class="subs">
+        
+          <div class="front">
+          
+            <div class="subs_img_wrap">
+       {% if block.settings.sub_image %}
+              <img class="product-single__photo__img js-pswp-img lazyload js"
+                  src="{{ block.settings.sub_image | img_url: '300x' }}" >
+                        {% endif %}
+                    </div>
+            <div class="card-content">
+            <div class="subs_title">{{block.settings.sub_title}}</div>
+                  <div class="subs_subtitle">{{block.settings.sub_subtitle}}</div>
+            </div>
+          </div>
+          <div class="back">
+          
+            <div class="card-header">
+              <div class="subs_title">{{block.settings.sub_title}}</div>
+            </div>
+            <div class="card-content">
+            
+              <small>{{block.settings.sub_desc}}</small>
+            
+            </div>
+            
+             <div class="card-footer">
+               <a href="" class="c-btn c-btn--primary">Know More</a>
+            </div>
+            
+            
+          </div>
+        </div>
+        
+      </div>
+      {% endfor %}
+    </div>
+    
+  </div>
+
+</div>
+    {% endif %}
+
+
+<style>
+
+/*   .home-carousel--image_img{height:90vh} */
+</style>
+{% schema %}
+{
+   "name":"Content",
+   "settings":[
+      {
+         "type":"header",
+         "content":"Previous Subscription"
+      },
+      {
+         "type":"checkbox",
+         "id":"show_subs",
+         "label":"Show Subscription Section",
+         "default":false
+      },
+     {
+         "type":"header",
+         "content":"Main Content"
+      },
+      {
+         "type":"text",
+         "id":"title",
+         "label":"Heading",
+         "default":"How it works"
+      },
+      {
+         "type":"richtext",
+         "id":"confirmation_message",
+         "label":"Confirmation Message"
+      },
+      {
+         "type":"range",
+         "id":"font_size",
+         "label":"Heading font size",
+         "min":30,
+         "max":120,
+         "step":5,
+         "unit":"px",
+         "default":100
+      },
+      {
+         "type":"richtext",
+         "id":"desc",
+         "label":"Text"
+      },
+      {
+         "type":"color",
+         "id":"box_background",
+         "label":"Content Background",
+         "default":"#507b7d"
+      },
+      {
+         "type":"color",
+         "id":"box_text_color",
+         "label":"Content Text",
+         "default":"#fff"
+      },
+      {
+         "type":"header",
+         "content":"Step 1"
+      },
+      {
+         "type":"text",
+         "id":"step_1",
+         "label":"Heading",
+         "default":"Heading"
+      },
+      {
+         "type":"richtext",
+         "id":"step_1_desc",
+         "label":"Description for this block"
+      },
+      {
+         "type":"header",
+         "content":"Step 2"
+      },
+      {
+         "type":"text",
+         "id":"step_2",
+         "label":"Heading",
+         "default":"Heading"
+      },
+      {
+         "type":"richtext",
+         "id":"step_2_desc",
+         "label":"Description for this block"
+      },
+      {
+         "type":"header",
+         "content":"Step 3"
+      },
+      {
+         "type":"text",
+         "id":"step_3",
+         "label":"Heading",
+         "default":"Heading"
+      },
+      {
+         "type":"richtext",
+         "id":"step_3_desc",
+         "label":"Description for this block"
+      }
+   ],
+   "blocks":[
+      {
+
+        "name":"Previous Subscription",
+		"type": "text",
+         "settings":[
+            {
+         "type":"text",
+         "id":"sub_title",
+         "label":"Heading",
+         "default":"Title"
+          },
+	    {
+         "type":"text",
+         "id":"sub_subtitle",
+         "label":"Subtitle",
+         "default":"Subtitle goes here"
+       },
+       {
+         "type":"richtext",
+         "id":"sub_desc",
+         "label":"Description"
+       },
+        {
+            "type": "image_picker",
+            "id": "sub_image",
+            "label": "Image"
+        },
+ {
+            "type": "url",
+            "id": "sub_link",
+            "label": "URL"
+        }
+         ]
+      }
+   ]
+}
+{% endschema %}
+
+<style>
+  .mfp-wrap{z-index: 100000}
+  h1.huge{font-size:max(60px, min(17vw, 260px))!important;}
+  .huge h6{color:#fff!important;font-size: 0.4em!important;}
+  .how-it-works{
+  padding-bottom:20vh}
+  
+
+  .how-it-works-box{padding: 30px;position:relative;}
+  .how-it-works-box h3,  .how-it-works-box h2,  .how-it-works-box p{color:inherit !important}
+  .how-it-works-box h3{font-size:3.5rem}
+    .how-it-works-inner{padding: 60px 6vw;}
+  
+  
+      .how-it-works-top{border-bottom: 1px solid black;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    padding-bottom: 40px;}
+      .how-it-works-middle{display: flex;flex-wrap:wrap;
+    justify-content: center;
+    margin-top: 8px;
+    margin-bottom: 8px;}
+      .how-it-works-bottom{border-top: 1px solid black;
+    padding-top: 30px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;}
+  .product-single__variant{display:none}
+  .product-single__form{background:transparent}
+  
+  .how-it-works-middle .step {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    text-align: center;
+  border-left: 1px solid black;}
+    .how-it-works-middle .step:first-child {border-left-color:transparent}
+  .bsub-widget__wrapper{background-color:transparent;text-align:center;border:none}
+  .bsub-widget__wrapper legend{    font-family: "cast_ironbold_rounded";font-size:2em}
+  
+  input:checked + .bsub-widget__plan-header{color:#fff;padding: 1rem 0.5rem;display:block!important;   
+    background: rgba(255,255,255, 0.1);}
+  
+  
+  #previous-subs-wrap{position:relative}
+  
+  #previous-subs-wrap h3{font-size:75px!important}
+  
+  .all-cards{display:flex;flex-wrap:wrap;gap:30px;justify-content: center;}
+  
+  .all-cards .cards-container{flex : 1 360px;max-width:400px}
+  
+  .all-cards .subs{
+      background: #ffffffcf;
+    border-radius: 4px;
+    color: #444444;
+    transition: transform 0.4s;
+    -webkit-transform-style: preserve-3d;
+    -moz-transform-style: preserve-3d;
+    -o-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+    position: relative;
+    
+  }
+  .newsletter__form-message__text{color:#fff}
+
+  .newsletter__form-wrapper{    max-width: 510px;    display: block;
+    width: 100%;}
+  .cards-container{width: 100%;
+    border-radius: 4px;text-align:center;
+    height: 420px;opacity:0.7}
+ .front, .back{width: 100%;
+    border-radius: 4px;
+    height: 420px;
+ -webkit-backface-visibility: hidden;
+    -moz-backface-visibility: hidden;
+    -o-backface-visibility: hidden;
+    backface-visibility: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background-color: #fff;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 14%);
+   color:#888
+ }
+  
+.front{z-index:2;
+}
+
+    .cards-container .back{-ms-transform: rotateY(180deg);
+    -webkit-transform: rotateY(180deg);
+    -moz-transform: rotateY(180deg);
+    -o-transform: rotateY(180deg);
+    transform: rotateY(180deg);
+    z-index: 3;
+      width: 100%;
+    border-radius: 4px;
+    height: 420px;
+    
+    }
+  
+  .cards-container:hover .subs, .cards-container.hover .subs {
+    transform: rotateY(180deg);
+}
+  .subs_img_wrap{
+  
+  margin: 2.5em auto 1em;
+    overflow: hidden;
+    width: 220px;
+  }
+  .subs_img_wrap img{
+  background: none;
+    border: 4px solid #ffffff;
+    border-radius: 50%;
+    max-width: 170px;
+    height: 170px;
+    object-fit: cover;
+    padding: 8px;}
+    .subs_title{    
+
+    text-transform: capitalize;
+    font-size: 3em;
+    font-weight: 300;
+    font-family: "cast_ironbold_rounded";
+    
+    }
+  #to_hide{display:none}
+  .subs .back .card-header{
+  padding: 1em 0.5em 0em;
+  }
+  .subs .back .card-footer{padding:10px}
+  .subs .back .card-header .subs_title{
+  border-bottom: 1px solid #eeeeee;
+    font-size: 1.7em;
+    padding-bottom: 10px;
+   }
+  
+  .subs .back .card-content{    height: 260px;
+    text-align: left;
+    overflow: auto;
+    line-height: 17px;
+    font-size: 1.1em;padding:10px
+}
+  .page-container header.header.js-header-sticky--fixed{background-color: #507b7d !important;}
+  @media screen and (max-width: 800px){
+    .how-it-works-inner{border:none;text-align:center}
+    .how-it-works .container, .how-it-works-box{padding:0}
+    .how-it-works-middle .step {
+    width:100%;border:none}
+    .huge h6{font-size: 2.5rem!important;}
+    .huge h6 p{text-align:center}
+    
+  
+}
+</style>
+<script
+  src="https://code.jquery.com/jquery-3.6.0.min.js"
+  integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+  crossorigin="anonymous"></script>
+<script>
+$( document ).ready(function() {
+
+  $('.hero > .container h1').html($("#to_hide").html());
+  
+});
+
+</script>

@@ -1,0 +1,424 @@
+{% doc %}
+  Renders variant swatches
+
+  @param {object} product - Product
+  @param {string} id - Unique id
+  @param {string} section_id - Section id
+  @param {string} display_style - Buttons / dropdowns / swatches with buttons / swatches with dropdowns
+  @param {string} product_form_id - Product form id (optional)
+  @param {string} [card_id] - Id to use if the form is used inside a card, not section (optional)
+  @param {boolean} [update_url] - Allow variant picker to update url. Default: false
+  @param {boolean} [local_render] - Update product information without hitting the servers. Default: false
+  @param {boolean} [popup_enable] - Enable popup
+  @param {string} [popup_trigger] - Popup trigger phrase
+  @param {string} [popup_label] - Popup label
+  @param {object} [popup_content] - Popup content
+  @param {object} [variant_image_width] - Variant image width
+  @param {string} [view_id] - View id
+  @param {boolean} [update_gallery_on_variant_change] - Update gallery HTML on variant change
+
+  @example
+  {% render 'product-options',
+      product: product,
+      section_id: 'template--12345689-main',
+      display_style: block.settings.product_variant_style,
+      product_form_id: 'product-form-template--123456789-main'
+  %}
+{% enddoc %}
+
+{% comment %} Process global swatches settings {% endcomment %}
+{%- liquid
+  if settings.swatches_enabled
+    assign swatches_enabled = true
+    assign display_swatches_as_variant_image = false
+    assign swatch_occurrence = 0
+    if settings.swatches_trigger != blank
+      assign triggers_raw = settings.swatches_trigger | newline_to_br | strip_newlines | split: '<br />'
+      assign triggers = '' | split: ','
+      for trigger in triggers_raw
+        assign t = trigger | strip | downcase | split: ','
+        assign triggers = triggers | concat: t
+      endfor
+    endif
+  endif
+
+  if card_id
+    assign unique_id = card_id
+  else
+    assign unique_id = section_id
+  endif
+
+  if product.template_suffix contains 'pre-order'
+    assign add_to_cart_text = 'products.product.pre_order' | t
+  else
+    assign add_to_cart_text = 'products.product.add_to_cart' | t
+  endif
+
+  if variant_image_width == blank
+    assign variant_image_width = 60
+  endif
+-%}
+
+{%- if display_style == 'swatches-buttons' or display_style == 'buttons' -%}
+  <variant-radios
+    class="js"
+    id="variant-selectors-{{ id }}"
+    data-section="{{ section_id }}"
+    {% if card_id %}
+      data-card="{{ card_id }}"
+    {% endif %}
+    data-url="{{ product.url }}"
+    {% unless update_url %}
+      data-update-url="false"
+    {% endunless %}
+    {% if local_render %}
+      data-local-render="true"
+    {% endif %}
+    data-add-to-cart-text="{{ add_to_cart_text }}"
+    {% if view_id %}
+      data-view-id="{{ view_id }}"
+    {% endif %}
+    {% if update_gallery_on_variant_change %}
+      data-update-gallery-on-variant-change
+    {% endif %}
+  >
+    {%- for option in product.options_with_values -%}
+      {%- liquid
+        assign swatch_count = option.values | map: 'swatch' | compact | size
+        assign option_name = option.name | strip | downcase
+        assign popup = null
+
+        assign display_swatches_as_variant_image = false
+        if swatches_enabled and swatch_occurrence == 0 and settings.swatches_as_variant_image
+          assign display_swatches_as_variant_image = true
+        endif
+      -%}
+
+      {%- if popup_enable -%}
+        {%- liquid
+          assign popup_triggers_raw = popup_trigger | newline_to_br | strip_newlines | split: '<br />'
+          assign popup_triggers = '' | split: ','
+          for popup_trigger in popup_triggers_raw
+            assign t = popup_trigger | strip | downcase | split: ','
+            assign popup_triggers = popup_triggers | concat: t
+          endfor
+        -%}
+        {% if popup_triggers contains option_name %}
+          {% capture popup %}
+            <popup-dialog
+              id="product-popup-draw-{{ section_id }}-{{ option_name | handleize }}"
+              class="
+                popup
+                popup--full
+              "
+              data-move-to-modals-element
+              data-disable-body-scroll
+              aria-labelledby="product-popup-draw-{{ section_id }}-{{ option_name | handleize }}-title"
+              aria-hidden="true"
+            >
+              <div class="popup__overlay" data-a11y-dialog-hide></div>
+
+                <div class="popup__wrapper">
+                  <div
+                    class="popup__content"
+                    role="document"
+                  >
+                    <div class="product-popup-draw__wrapper">
+                      <button
+                        title="{{ 'layout.drawers.close' | t }}"
+                        type="button"
+                        class="popup__close"
+                        aria-label="{{ 'layout.drawers.close' | t }}"
+                        data-a11y-dialog-hide
+                      >
+                        {% render 'icons-theme', icon: 'close' %}
+                      </button>
+                      <div class="product-popup">
+                        <h3 id="product-popup-draw-{{ section_id }}-{{ option_name | handleize }}-title" class="visually-hidden">
+                          {{ popup_label }}
+                        </h3>
+                        <div class="product-popup__inner rte">
+                          {{ pages[popup_content].content }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </popup-dialog>
+              <div class="product-form__popup">
+                <a
+                  href="{{ popup_content.url }}"
+                  class="
+                    product-form__popup-link
+                    f-family--{{ settings.type_product_form_headings_style }}
+                    f-caps--{{ settings.type_product_form_headings_capitalize }}
+                    f-space--{{ settings.type_product_form_headings_letterspace }}
+                    js-product-popup-trigger
+                  "
+                  aria-label="View {{ popup_label }}"
+                  data-a11y-dialog-show="product-popup-draw-{{ section_id }}-{{ option_name | handleize }}"
+                >
+                  {{ popup_label }}
+                </a>
+              </div>
+          {% endcapture %}
+        {%- endif -%}
+      {% endif %}
+
+      {%- if display_style == 'swatches-buttons' and swatches_enabled and swatch_count > 0 -%}
+        {%- render 'variant-swatches',
+          form_id: product_form_id,
+          option: option,
+          native: true,
+          unique_id: unique_id,
+          popup: popup,
+          display_swatches_as_variant_image: display_swatches_as_variant_image
+        -%}
+        {%- assign swatch_occurrence = swatch_occurrence | plus: 1 -%}
+      {%- elsif display_style == 'swatches-buttons' and swatches_enabled and triggers contains option_name -%}
+        {%- render 'variant-swatches',
+          form_id: product_form_id,
+          option: option,
+          unique_id: unique_id,
+          popup: popup,
+          display_swatches_as_variant_image: display_swatches_as_variant_image
+        -%}
+        {%- assign swatch_occurrence = swatch_occurrence | plus: 1 -%}
+      {%- else -%}
+        <fieldset
+          class="product-form__swatch{% if settings.design_variant_button_uniform %} product-form__swatch--uniform{% endif %}"
+          style="--columns: {{ settings.design_variant_button_uniform_columns }}"
+        >
+          <div class="product-form__swatch__title">
+            <legend class="f-family--{{ settings.type_product_form_headings_style }} f-caps--{{ settings.type_product_form_headings_capitalize }} f-space--{{ settings.type_product_form_headings_letterspace }}">
+              {{ option.name }}
+            </legend>
+            {%- if popup -%}
+              {{ popup }}
+            {%- endif -%}
+          </div>
+          {%- for value in option.values -%}
+            <div
+              class="product-form__swatch__item product-form__swatch__item--button"
+              data-value="{{ value | replace: "'", "-" | replace: '"', '-' }}"
+              title="{{ value | escape }}"
+            >
+              <input
+                type="radio"
+                id="option-{{ option.position }}-{{ forloop.index0 }}-{{ unique_id }}"
+                name="{{ option.name }}"
+                value="{{ value | escape }}"
+                form="{{ product_form_id }}"
+                class="product-form__swatch__input u-hidden-visually"
+                {% if option.selected_value == value %}
+                  checked
+                {% endif %}
+                data-option-value-id="{{ value.id }}"
+                {% if value.product_url %}
+                  data-product-url="{{ value.product_url }}"
+                {% endif %}
+              >
+              <label
+                for="option-{{ option.position }}-{{ forloop.index0 }}-{{ unique_id }}"
+                class="
+                  product-form__swatch__label
+                  product-form__swatch__label--{{ settings.design_variant_button_size }}
+                  {% unless value.available %}
+                    is-disabled
+                  {% endunless %}
+                "
+              >
+                {{ value }}
+              </label>
+            </div>
+          {%- endfor -%}
+        </fieldset>
+      {%- endif -%}
+    {%- endfor -%}
+    <script id="variant-data-{{ unique_id }}" type="application/json">
+      {{ product.selected_or_first_available_variant | json }}
+    </script>
+    <script id="all-variant-data-{{ unique_id }}" type="application/json">
+      {{ product.variants | json }}
+    </script>
+  </variant-radios>
+{%- else -%}
+  {%- liquid
+    if swatches_enabled
+      assign element = 'variant-mixed-inputs'
+    else
+      assign element = 'variant-selects'
+    endif
+  -%}
+  <{{ element }}
+    class="js"
+    id="variant-selectors-{{ id }}"
+    data-section="{{ section_id }}"
+    {% if card_id %}
+      data-card="{{ card_id }}"
+    {% endif %}
+    data-url="{{ product.url }}"
+    {% unless update_url %}
+      data-update-url="false"
+    {% endunless %}
+    {% if local_render %}
+      data-local-render="true"
+    {% endif %}
+    data-add-to-cart-text="{{ add_to_cart_text }}"
+    {% if view_id %}
+      data-view-id="{{ view_id }}"
+    {% endif %}
+    {% if update_gallery_on_variant_change %}
+      data-update-gallery-on-variant-change
+    {% endif %}
+  >
+    {%- for option in product.options_with_values -%}
+      {%- liquid
+        assign swatch_count = option.values | map: 'swatch' | compact | size
+        assign option_name = option.name | strip | downcase
+        assign popup = null
+
+        assign display_swatches_as_variant_image = false
+        if swatches_enabled and swatch_occurrence == 0 and settings.swatches_as_variant_image
+          assign display_swatches_as_variant_image = true
+        endif
+      -%}
+
+      {%- if popup_enable -%}
+        {%- liquid
+          assign popup_triggers_raw = popup_trigger | newline_to_br | strip_newlines | split: '<br />'
+          assign popup_triggers = '' | split: ','
+          for popup_trigger in popup_triggers_raw
+            assign t = popup_trigger | strip | downcase | split: ','
+            assign popup_triggers = popup_triggers | concat: t
+          endfor
+        -%}
+        {% if popup_triggers contains option_name %}
+          {% capture popup %}
+            <popup-dialog
+              id="product-popup-draw-{{ section_id }}-{{ option_name | handleize }}"
+              class="
+                popup
+                popup--full
+              "
+              data-move-to-modals-element
+              data-disable-body-scroll
+              aria-labelledby="product-popup-draw-{{ section_id }}-{{ option_name | handleize }}-title"
+              aria-hidden="true"
+            >
+              <div class="popup__overlay" data-a11y-dialog-hide></div>
+
+                <div class="popup__wrapper">
+                  <div
+                    class="popup__content"
+                    role="document"
+                  >
+                    <div class="product-popup-draw__wrapper">
+                      <button
+                        title="{{ 'layout.drawers.close' | t }}"
+                        type="button"
+                        class="popup__close"
+                        aria-label="{{ 'layout.drawers.close' | t }}"
+                        data-a11y-dialog-hide
+                      >
+                        {% render 'icons-theme', icon: 'close' %}
+                      </button>
+                      <div class="product-popup">
+                        <h3 id="product-popup-draw-{{ section_id }}-{{ option_name | handleize }}-title" class="visually-hidden">
+                          {{ popup_label }}
+                        </h3>
+                        <div class="product-popup__inner rte">
+                          {{ pages[popup_content].content }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </popup-dialog>
+              <div class="product-form__popup">
+                <a
+                  href="{{ popup_content.url }}"
+                  class="
+                    product-form__popup-link
+                    f-family--{{ settings.type_product_form_headings_style }}
+                    f-caps--{{ settings.type_product_form_headings_capitalize }}
+                    f-space--{{ settings.type_product_form_headings_letterspace }}
+                    js-product-popup-trigger
+                  "
+                  aria-label="View {{ popup_label }}"
+                  data-a11y-dialog-show="product-popup-draw-{{ section_id }}-{{ option_name | handleize }}"
+                >
+                  {{ popup_label }}
+                </a>
+              </div>
+          {% endcapture %}
+        {%- endif -%}
+      {% endif %}
+
+      {%- if display_style == 'swatches-dropdowns' and swatches_enabled and swatch_count > 0 -%}
+        {%- render 'variant-swatches',
+          form_id: product_form_id,
+          option: option,
+          native: true,
+          unique_id: unique_id,
+          popup: popup,
+          display_swatches_as_variant_image: display_swatches_as_variant_image
+        -%}
+        {%- assign swatch_occurrence = swatch_occurrence | plus: 1 -%}
+      {%- elsif display_style == 'swatches-dropdowns' and swatches_enabled and triggers contains option_name -%}
+        {%- render 'variant-swatches',
+          form_id: product_form_id,
+          option: option,
+          unique_id: unique_id,
+          popup: popup,
+          display_swatches_as_variant_image: display_swatches_as_variant_image
+        -%}
+        {%- assign swatch_occurrence = swatch_occurrence | plus: 1 -%}
+      {%- else -%}
+        <div class="selector-wrapper selector-wrapper--standalone-labels">
+          <div class="selector-wrapper__label">
+            <label
+              for="option-{{ forloop.index0 }}-{{ unique_id }}"
+              class="f-family--{{ settings.type_product_form_headings_style }} f-caps--{{ settings.type_product_form_headings_capitalize }} f-space--{{ settings.type_product_form_headings_letterspace }}"
+            >
+              {{ option.name }}
+            </label>
+            {%- if popup -%}
+              {{ popup }}
+            {%- endif -%}
+          </div>
+          <select
+            id="option-{{ forloop.index0 }}-{{ unique_id }}"
+            class="single-option-selector"
+            name="options[{{ option.name | escape }}]"
+            form="{{ product_form_id }}"
+          >
+            {%- for value in option.values -%}
+              <option
+                value="{{ value | escape }}"
+                data-option-value-id="{{ value.id }}"
+                data-base-text="{{ value | escape }}"
+                {% if value.product_url %}
+                  data-product-url="{{ value.product_url }}"
+                {% endif %}
+                {% if option.selected_value == value %}
+                  selected="selected"
+                {% endif %}
+              >
+                {{ value }}
+                {%- if value.available == false -%}- {{ 'products.product.sold_out' | t }}{%- endif -%}
+              </option>
+            {%- endfor -%}
+          </select>
+          {%- render 'icons-theme', icon: 'chevron', additional_classes: 'icon--down' -%}
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+    <script id="variant-data-{{ unique_id }}" type="application/json">
+      {{ product.selected_or_first_available_variant | json }}
+    </script>
+    <script id="all-variant-data-{{ unique_id }}" type="application/json">
+      {{ product.variants | json }}
+    </script>
+  </{{ element }}>
+{%- endif -%}

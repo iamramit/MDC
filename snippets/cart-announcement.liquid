@@ -1,0 +1,24 @@
+<div class="cart__announcement js-animate-single" data-animation-displacement="0" data-animation-delay="0.1">
+  {%- unless settings.cart_announcement_link == blank -%}
+    <a href="{{ settings.cart_announcement_link }}">
+  {%- endunless -%}
+
+  {%- unless settings.cart_announcement_icon == 'none' -%}
+    <div class="cart__announcement-icon{% if settings.cart_announcement_icon_svg-code != blank %} cart__announcement-icon--custom{% endif %}">
+      {%- liquid
+        assign custom_svg = null
+        if settings['cart_announcement_icon_svg-code'] != blank
+          assign custom_svg = settings['cart_announcement_icon_svg-code']
+        endif
+      -%}
+
+      {% render 'icons-selection', icon: settings.cart_announcement_icon, custom_svg: custom_svg %}
+    </div>
+  {%- endunless -%}
+
+  <p class="cart__announcement-text">{{ settings.cart_announcement_text | escape }}</p>
+
+  {%- unless settings.cart_announcement_link == blank -%}
+    </a>
+  {%- endunless -%}
+</div>

@@ -1,0 +1,61 @@
+/* ==========================================================================
+   #HOME DELIVERY SECTION
+   ========================================================================== */
+.home-delivery {
+  width: 100%;
+  position: relative;
+  padding: 54px 18px;
+  overflow: hidden;
+  min-height: var(--height-desktop);
+}
+@media (max-width: 47.9275em) {
+  .home-delivery {
+    min-height: var(--height-mobile);
+  }
+}
+
+.home-delivery__bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.home-delivery__media-img {
+  width: 100%;
+  max-width: 280px;
+}
+
+.home-delivery__content {
+  width: 100%;
+  max-width: 600px;
+  padding: 36px 42px 30px;
+  background: rgb(255, 255, 255);
+  text-align: center;
+  position: relative;
+}
+
+.home-delivery__content__block {
+  margin: 30px 0;
+}
+
+.home-delivery__text {
+  margin: 0;
+}
+
+.home-delivery__title .section__title-text,
+.home-delivery__title .section__title-desc {
+  color: rgb(33, 33, 33);
+}
+
+@media (max-width: 47.9275em) {
+  .home-delivery__content__block {
+    margin: 18px 0;
+  }
+  .home-delivery {
+    padding: 30px 18px;
+  }
+}
+/*# sourceMappingURL=section-delivery.css.map */

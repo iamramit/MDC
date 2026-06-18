@@ -1,0 +1,117 @@
+<section
+  class="
+    section
+    section--padded
+    section--rich-text
+    section--{{ section.id }}
+    {% if section.settings.section_bottom_margin or request.visual_preview_mode %}section--mb-0{% endif %}
+  "
+  data-section-id="{{ section.id }}"
+  data-section-type="rich-text"
+  style="
+    --space-top: {{ section.settings.padding_top }}px;
+    --space-bottom: {{ section.settings.padding_bottom }}px
+  "
+>
+  <div class="home-rich-text">
+    <div class="container container--{{ section.settings.section_width }}">
+      {% if section.settings.section_title != blank %}
+        <div
+          class="section__title section__title--mb-s section__title--center home-rich-text__title {% unless request.visual_preview_mode %}js-animate-single{% endunless %}"
+          data-animation-displacement="5"
+        >
+          <h2 class="section__title-text">{{ section.settings.section_title | escape }}</h2>
+        </div>
+      {% endif %}
+      {% if section.settings.text != blank %}
+        <div
+          class="home-rich-text__content u-text-center rte {% unless request.visual_preview_mode %}js-animate-single{% endunless %}"
+          data-animation-displacement="0"
+          data-animation-delay="0.1"
+        >
+          {{ section.settings.text }}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Rich text",
+  "class": "js-section__rich-text",
+  "settings": [
+    {
+      "type": "text",
+      "id": "section_title",
+      "label": "Heading",
+      "default": "Talk about your brand"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Width"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Section width",
+      "default": "tiny",
+      "options": [
+        {
+          "label": "Default",
+          "value": "tiny"
+        },
+        {
+          "label": "Wide",
+          "value": "large"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Padding and margin"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "unit": "px",
+      "min": 0,
+      "max": 120,
+      "step": 3,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "unit": "px",
+      "min": 0,
+      "max": 120,
+      "step": 3,
+      "default": 0
+    },
+    {
+      "type": "checkbox",
+      "id": "section_bottom_margin",
+      "label": "Reduce bottom margin",
+      "default": false
+    }
+  ],
+  "presets": [
+    {
+      "name": "Rich text"
+    }
+  ],
+  "enabled_on": {
+    "templates": ["*"],
+    "groups": ["header", "footer"]
+  }
+}
+{% endschema %}

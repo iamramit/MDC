@@ -1,0 +1,45 @@
+{% comment %}
+  Render social icons with their links
+{% endcomment %}
+{%- liquid
+  assign social_names = 'facebook,instagram,linkedin,pinterest,snapchat,threads,tiktok,tumblr,twitch,twitter,untappd,vimeo,whatsapp,x,youtube,custom_1,custom_2,custom_3,custom_4,custom_5' | split: ','
+-%}
+<ul class="social-links">
+  {%- for social_name in social_names -%}
+    {%- liquid
+      assign setting_link_name = 'social_' | append: social_name | append: '_link'
+      assign social_link = settings[setting_link_name]
+
+      if social_link == blank
+        continue
+      endif
+
+      assign svg_icon = null
+      if social_name contains 'custom'
+        assign setting_svg_name = 'social_' | append: social_name | append: '_svg-code'
+        assign svg_icon = settings[setting_svg_name]
+
+        if svg_icon == blank
+          continue
+        endif
+      endif
+    -%}
+    <li class="social-links__item">
+      <a
+        href="{{ social_link }}"
+        class="social-links__link"
+        target="_blank"
+        rel="noopener"
+        aria-label="Visit our {{ social_name }} page"
+      >
+        {%- unless social_name contains 'custom' -%}
+          {%- render 'icons-social', icon: social_name, title: social_name -%}
+        {%- else -%}
+          <span class="icon icon--custom">
+            {{- svg_icon -}}
+          </span>
+        {%- endunless -%}
+      </a>
+    </li>
+  {%- endfor -%}
+</ul>

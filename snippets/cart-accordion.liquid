@@ -1,0 +1,22 @@
+{%- comment -%}
+  Cart accordion
+
+  Accepts:
+  - id: {String} Unique id
+  - summary: {Srting} Accordion summary
+  - content: {String} Accordion content
+{%- endcomment -%}
+<accordion-group>
+  <details id="{{ id }}">
+    <summary>
+      <summary-content>{{- summary -}}</summary-content>
+      <summary-icon>
+        {% render 'icons-theme', icon: 'plus' %}
+      </summary-icon>
+    </summary>
+    <details-content>
+      {{- content -}}
+    </details-content>
+  </details>
+</accordion-group>
+<script src="{{ 'accordion-group.js' | asset_url }}" type="module"></script>

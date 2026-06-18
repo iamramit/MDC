@@ -1,0 +1,29 @@
+<cart-empty>
+  <div class="cart-empty">
+    {%- liquid
+      assign cart_empty_image_width = settings.cart_empty_image_size | times: 2
+      assign cart_empty_image_max_width = 'max-width: ' | append: settings.cart_empty_image_size | append: 'px'
+    -%}
+    {%- if settings.cart_empty_image != blank -%}
+      {%- if settings.cart_empty_image_link -%}
+        <a href="{{ settings.cart_empty_image_link }}" class="cart-empty__image-link">
+      {%- endif -%}
+      {{
+        settings.cart_empty_image
+        | image_url: width: cart_empty_image_width
+        | image_tag: preload: true, class: 'cart-empty__image u-1/1', loading: 'lazy', style: cart_empty_image_max_width
+      }}
+      {%- if settings.cart_empty_image_link %}
+        </a>
+      {% endif %}
+    {% endif %}
+
+    <p class="cart-empty__title">{{ 'cart.general.empty' | t }}</p>
+    <a
+      href="{% if settings.cart_empty_link %}{{ settings.cart_empty_link }}{% else %}{{ routes.root_url }}{% endif %}"
+      class="c-btn c-btn--primary c-btn--wide"
+    >
+      {{- 'cart.general.empty_link' | t -}}
+    </a>
+  </div>
+</cart-empty>

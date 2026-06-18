@@ -1,0 +1,70 @@
+/* ==========================================================================
+   #CONTACT FORM
+   ========================================================================== */
+.contact-form {
+  color: var(--color-text);
+  background-color: var(--background-color);
+}
+.contact-form .selector-wrapper label {
+  color: var(--color-text);
+  background-color: var(--background-color);
+}
+.contact-form .selector-wrapper .icon {
+  --color: var(--color-text);
+}
+.contact-form [type=checkbox] {
+  border: 1px solid var(--color-text-light);
+  background-color: transparent;
+}
+.contact-form [type=checkbox]:hover {
+  background-color: var(--color-text-lightest);
+}
+.contact-form [type=text],
+.contact-form [type=password],
+.contact-form [type=datetime],
+.contact-form [type=datetime-local],
+.contact-form [type=date],
+.contact-form [type=month],
+.contact-form [type=time],
+.contact-form [type=week],
+.contact-form [type=number],
+.contact-form [type=email],
+.contact-form [type=url],
+.contact-form [type=search],
+.contact-form [type=tel],
+.contact-form [type=color],
+.contact-form select,
+.contact-form textarea {
+  background-color: transparent;
+  border-color: var(--color-text-light);
+  color: var(--color-text);
+}
+.contact-form .container {
+  padding-top: 36px;
+  padding-bottom: 36px;
+}
+@media (max-width: 61.24em) {
+  .contact-form {
+    padding: 0 24px;
+  }
+  .contact-form .container {
+    padding-top: 24px;
+    padding-bottom: 24px;
+  }
+}
+
+.contact-form__note {
+  color: var(--color-text);
+  text-align: center;
+  margin-bottom: 18px;
+  font-size: 1.3em;
+  line-height: 2;
+}
+
+.contact-form .errors > ul {
+  color: var(--color-text);
+  list-style: none;
+  text-align: left;
+  margin-left: 0;
+}
+/*# sourceMappingURL=section-contact-form.css.map */

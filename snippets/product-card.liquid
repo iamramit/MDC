@@ -1,0 +1,721 @@
+{% comment %}theme-check-disable RemoteAsset, TemplateLength{% endcomment %}
+{%- doc -%}
+  Render product card
+
+  Accepts:
+
+  @param {string} [id] - Unique id of the item. By default section_id--current_product.id is used (optional)
+  @param {object} [current_product] - Product object
+  @param {string} [section_id] - Section id
+  @param {object} [collection] - Collection if product is within one
+  @param {string} [image_ratio] - Image ratio string. Values are "1:1", "3:4", "4:3", "16:9", "2:3", "natural"
+  @param {string} image_sizes - Image sizes attribute string
+  @param {boolean} [prioritize_image] - Prioritize image
+  @param {boolean} [fit_image_to_container] - Fit image into container, or resize
+  @param {boolean} small_buttons_on_mobile - Small buttons on the image grid @ mobile size
+  @param {boolean} [hide_labels] - Hide card labels
+  @param {boolean} [enable_quick_shop] - Enable quick shop
+  @param {string} [quick_shop_trigger] - button, button-hover, icon, icon-hover
+  @param {string} [quick_shop_type] - rendered (default) / remote
+  @param {boolean} [show_swatches] - Show swatches
+  @param {boolean} [move_quick_shop] - Move quick shop modal to outside container
+
+  Ideas for dynamically generated product cards: - have some inside web-components responsible for fetching unaccessible
+  information, ie labels, reviews, etc - create custom layout-less templates just for them, and fetch via product
+  endpoint - alternatively (for labels) cycle through store collections, and create a json object with collection ids
+  and all product ids in each - for now, no labels and reviews
+{%- enddoc -%}
+{%- liquid
+  unless image_ratio
+    assign image_ratio = settings.product_grid_image_size
+  endunless
+
+  if fit_image_to_container == null
+    assign fit_image_to_container = settings.product_grid_image_fit
+  endif
+
+  if hide_labels == null
+    assign hide_labels = false
+  endif
+
+  if enable_quick_shop == null
+    assign enable_quick_shop = settings.quick_shop_enabled
+  endif
+
+  if quick_shop_trigger == null
+    assign quick_shop_trigger = settings.quick_shop_trigger
+  endif
+
+  if quick_shop_type == null
+    assign quick_shop_type = 'rendered'
+  endif
+
+  if show_swatches == null
+    assign show_swatches = settings.product_grid_show_swatches
+  endif
+
+  assign container_ratio = image_ratio
+
+  unless image_sizes
+    assign image_sizes = '100vw'
+  endunless
+
+  assign swatches_enabled = false
+  if settings.swatches_enabled and show_swatches
+    assign swatches_enabled = true
+  endif
+
+  assign loading = 'lazy'
+  if prioritize_image
+    assign loading = 'eager'
+  endif
+
+  comment
+    Quickshop settings
+  endcomment
+  if enable_quick_shop
+    assign quick_shop_id = id | append: '--quickshop'
+
+    assign quick_shop_trigger_split = quick_shop_trigger | split: '-'
+    assign quick_shop_trigger = quick_shop_trigger_split | first
+
+    assign quick_shop_hover_enabled = false
+    if quick_shop_trigger_split.size > 1
+      assign quick_shop_hover_enabled = true
+    endif
+
+    if current_product
+      if quick_shop_trigger == 'icon'
+        assign render_quickshop = true
+      elsif current_product.variants_count > 1 and current_product.available and quick_shop_trigger == 'button'
+        assign render_quickshop = true
+      else
+        assign render_quickshop = false
+      endif
+    else
+      assign render_quickshop = true
+    endif
+
+    assign quick_shop_icon_hover = false
+    if quick_shop_trigger == 'icon' and quick_shop_hover_enabled
+      assign quick_shop_icon_hover = true
+    endif
+
+    assign quick_shop_image_sizes = '(min-width: 444px) 360px, calc(100vw - 24px - 18px * 2)'
+    if quick_shop_icon_hover
+      comment
+        TODO: Pass product card image sizes to quick-shop if hover state enabled
+      endcomment
+    endif
+  else
+    assign quick_shop_trigger = null
+    assign quick_shop_icon_hover = false
+  endif
+
+  assign product_card_classes = 'product-card js-product js-product-card'
+  if fit_image_to_container
+    assign product_card_classes = product_card_classes | append: ' product-card--fit'
+  else
+    assign product_card_classes = product_card_classes | append: ' product-card--crop'
+  endif
+  if settings.product_grid_align
+    assign product_card_classes = product_card_classes | append: ' product-card--center'
+  else
+    assign product_card_classes = product_card_classes | append: ' product-card--left'
+  endif
+  if quick_shop_trigger
+    assign product_card_classes = product_card_classes | append: ' product-card--trigger-' | append: quick_shop_trigger
+  endif
+  if quick_shop_hover_enabled
+    assign product_card_classes = product_card_classes | append: ' product-card--hover'
+  endif
+
+  assign image = null
+  assign enable_secondary_image = false
+  if settings.product_grid_hover == 'image'
+    assign enable_secondary_image = true
+  endif
+
+  if current_product
+    assign current_variant = current_product.selected_or_first_available_variant
+
+    comment
+      Process all images (main and hover)
+    endcomment
+    if current_product.featured_media.preview_image != null
+      assign image = current_product.featured_media.preview_image
+
+      assign secondary_image = null
+      if settings.product_grid_hover == 'image' and quick_shop_icon_hover == false and current_product.media[1] != blank
+        assign secondary_image = current_product.media[1].preview_image
+      elsif enable_quick_shop == false and settings.product_grid_hover == 'image' and current_product.media[1] != blank
+        assign secondary_image = current_product.media[1].preview_image
+      endif
+    endif
+
+    if container_ratio == 'natural'
+      assign image_container_bottom_padding = '100%'
+      if current_product and current_product.featured_media.preview_image != null
+        assign image_container_bottom_padding = 1 | divided_by: current_product.featured_media.preview_image.aspect_ratio | times: 100 | append: '%'
+      endif
+    endif
+
+    if container_ratio == 'natural'
+      assign image_container_bottom_padding = '100%'
+      if current_product and current_product.featured_media.preview_image != null
+        assign image_container_bottom_padding = 1 | divided_by: current_product.featured_media.preview_image.aspect_ratio | times: 100 | append: '%'
+      endif
+    endif
+
+    unless current_product.available
+      assign product_card_classes = product_card_classes | append: ' product-card--sold-out'
+    endunless
+    if current_product.compare_at_price > current_product.price and current_product.available
+      assign product_card_classes = product_card_classes | append: ' product-card--sale'
+    endif
+    if settings.product_grid_align
+      assign product_card_classes = product_card_classes | append: ' product-card--center'
+    else
+      assign product_card_classes = product_card_classes | append: ' product-card--left'
+    endif
+    comment
+      if page == 'home'
+        assign product_card_classes = product_card_classes | append: ' home-products__item'
+      endif
+    endcomment
+
+    assign link = current_product.url | within: collection
+
+    if secondary_image
+      assign product_card_classes = product_card_classes | append: ' product-card--hover-image'
+    elsif settings.product_grid_hover == 'zoom'
+      assign product_card_classes = product_card_classes | append: ' product-card--hover-zoom'
+    endif
+  else
+    assign link = '#'
+
+    if settings.product_grid_hover == 'zoom'
+      assign product_card_classes = product_card_classes | append: ' product-card--hover-zoom'
+    endif
+  endif
+-%}
+{%- if current_product and hide_labels == false -%}
+  {%- capture labels -%}
+    {% render 'product-grid-label', product: current_product %}
+  {%- endcapture -%}
+{%- endif -%}
+<product-card
+  {% if current_product %}
+    rendered
+    data-product-id="{{ current_product.id }}"
+  {% endif %}
+  class="{{ product_card_classes }}"
+  image-container-ratio="{{ container_ratio }}"
+  image-hover="{{ settings.product_grid_hover }}"
+  {% if fit_image_to_container %}
+    image-fit
+  {% endif %}
+  {% if section_id %}
+    section-id="{{ section_id }}"
+  {% endif %}
+  {% if quick_shop_trigger %}
+    quick-shop-trigger="{{ quick_shop_trigger }}"
+  {% endif %}
+  {% if quick_shop_icon_hover %}
+    quick-shop-trigger-hover
+  {% endif %}
+  {% if move_quick_shop %}
+    move-quick-shop
+  {% endif %}
+>
+  {{ labels }}
+  <div class="product-card-top">
+    <div
+      class="
+        o-ratio
+        o-ratio--{{ container_ratio }}
+      "
+      {% if image_container_bottom_padding %}
+        style="padding-bottom:{{ image_container_bottom_padding }}"
+      {% endif %}
+    >
+      <div class="o-ratio__content">
+        <a
+          product-card-link
+          href="{{ link }}"
+          class="product-card__link product-card__link--full-opacity"
+          tabindex="-1"
+          aria-label="{{- current_product.title -}}"
+        >
+          <div
+            class="
+              product-card__media
+              {% if current_product %}
+                {% if secondary_image %} product-card__media--hover-image{% elsif settings.product_grid_hover == 'zoom' %} product-card__media--hover-zoom{% endif %}
+              {% endif %}
+            "
+          >
+            {%- if enable_secondary_image -%}
+              <product-card-secondary-image-placeholder
+                class="product-card__img-hover hover-enabled"
+                {% unless current_product %}
+                  hidden
+                {% endunless %}
+              >
+                {%- if secondary_image -%}
+                  {% render 'image',
+                    image: secondary_image,
+                    additional_classes: 'product-card__img-hover hover-enabled',
+                    image_ratio: container_ratio,
+                    image_fit: fit_image_to_container,
+                    image_srcset_widths: '120, 240, 360, 480, 620, 740',
+                    image_sizes: image_sizes
+                  %}
+                {%- endif -%}
+              </product-card-secondary-image-placeholder>
+            {%- endif -%}
+
+            {% render 'theme-spinner', tag: 'product-card-spinner', additional_classes: 'product-card__spinner' %}
+
+            {%- liquid
+              assign image_classes = 'product-card__img js-product-card-image'
+              if settings.product_grid_hover == 'image'
+                assign image_classes = image_classes | append: ' hover-enabled'
+              endif
+            -%}
+            {% render 'image',
+              image: image,
+              additional_classes: image_classes,
+              image_ratio: container_ratio,
+              image_fit: fit_image_to_container,
+              image_srcset_widths: '180, 360, 540, 720, 900, 1080, 1296, 1512',
+              image_sizes: image_sizes,
+              render_skeleton: true,
+              loading: loading
+            %}
+          </div>
+        </a>
+      </div>
+    </div>
+
+    {%- if quick_shop_trigger == 'button' -%}
+      {% comment %} TODO: Rename class properly {% endcomment %}
+      <product-card-button class="product-card-btn">
+        {%- if current_product -%}
+          {%- if current_product.available == false -%}
+            <button
+              type="submit"
+              class="c-btn c-btn--full{% if settings.quick_shop_product_grid_button == 'outline' %} c-btn--hollow{% else %} c-btn--primary{% endif %} product-card-btn__btn {% if small_buttons_on_mobile %}c-btn--small@mobile{% endif %}"
+              disabled="disabled"
+            >
+              {{ 'products.product.sold_out' | t }}
+            </button>
+          {%- elsif current_product.variants_count > 1 %}
+            <a
+              href="{{ current_product.url | within: collection }}"
+              class="c-btn c-btn--full{% if settings.quick_shop_product_grid_button == 'outline' %} c-btn--hollow{% else %} c-btn--primary{% endif %} {% if small_buttons_on_mobile %}c-btn--small@mobile{% endif %} product-card-btn__btn"
+              aria-hidden="true"
+              tabindex="-1"
+              data-trigger-quick-shop
+            >
+              {{- 'products.product.select_options' | t -}}
+            </a>
+          {%- else -%}
+            <product-form
+              {% if settings.cart_type == 'page' %}
+                redirect-on-add="{{ routes.cart_url }}"
+              {% elsif settings.quick_shop_show_cart %}
+                notify-on-add
+              {% endif %}
+            >
+              {% form 'product', current_product %}
+                <input type="hidden" name="id" value="{{ current_product.variants.first.id }}">
+                <button
+                  type="submit"
+                  name="add"
+                  class="c-btn c-btn--full{% if settings.quick_shop_product_grid_button == 'outline' %} c-btn--hollow{% else %} c-btn--primary{% endif %} {% if small_buttons_on_mobile %}c-btn--small@mobile{% endif %} product-card-btn__btn"
+                  aria-hidden="true"
+                  tabindex="-1"
+                >
+                  <staged-action class="staged-action">
+                    <staged-action-text class="staged-action__text">
+                      {%- if current_product.template_suffix contains 'pre-order' -%}
+                        {{ 'products.product.pre_order' | t }}
+                      {%- else -%}
+                        {{ 'products.product.add_to_cart' | t }}
+                      {%- endif -%}
+                    </staged-action-text>
+                    <staged-action-tick class="staged-action__tick">
+                      {% render 'icons-theme', icon: 'check' %}
+                    </staged-action-tick>
+                    <staged-action-spinner class="staged-action__spinner">
+                      {% render 'theme-spinner' %}
+                    </staged-action-spinner>
+                  </staged-action>
+                </button>
+              {% endform %}
+            </product-form>
+          {%- endif -%}
+        {%- endif -%}
+      </product-card-button>
+    {%- endif -%}
+
+    {%- if quick_shop_trigger == 'icon' -%}
+      <button
+        quickshop-trigger
+        class="quick-shop__trigger"
+        aria-hidden="true"
+        tabindex="-1"
+        data-trigger-quick-shop
+      >
+        {% render 'icons-theme', icon: 'quickbuy' %}
+      </button>
+    {%- endif -%}
+  </div>
+  <div class="product-card__details">
+    <a
+      product-card-link
+      href="{{ link }}"
+      class="product-card__link"
+      {% if current_product %}
+        title="{{ current_product.title }}"
+      {% endif %}
+    >
+      {%- if settings.product_grid_vendor -%}
+        <product-card-vendor class="product-card__vendor u-medium-small h3">
+          {{- current_product.vendor -}}
+        </product-card-vendor>
+      {%- endif -%}
+      <h3 class="product-card__title f-family--{{ settings.type_grid_style }} f-caps--{{ settings.type_grid_capitalize }} f-space--{{ settings.type_grid_letterspace }}">
+        <product-card-title>{{- current_product.title -}}</product-card-title>
+      </h3>
+    </a>
+    <div class="product-card__details__hover u-medium">
+      <a
+        product-card-link
+        href="{{ link }}"
+        class="product-card__link"
+        tabindex="-1"
+        {% if current_product %}
+          title="{{ current_product.title }}"
+        {% endif %}
+      >
+        {%- if settings.product_grid_price -%}
+          <product-card-price class="price">
+            {%- if current_product -%}
+              {% render 'product-price', product: current_product, from_price: true, show_price_notes: false %}
+            {%- endif -%}
+          </product-card-price>
+          {%- if current_product.available and current_variant.unit_price_measurement or current_product == blank -%}
+            <product-card-price-notes class="price__notes">
+              {%- if current_product -%}
+                <span class="price__note price__note--unit">
+                  {% render 'product-unit-price', product: current_product, variant: current_variant %}
+                </span>
+              {%- endif -%}
+            </product-card-price-notes>
+          {%- endif -%}
+        {%- endif -%}
+
+        {%- if settings.product_grid_reviews and current_product.metafields.reviews.rating.value != blank -%}
+          <product-card-reviews
+            class="review-wrapper"
+            {% unless current_product %}
+              hidden
+            {% endunless %}
+          >
+            {%- liquid
+              assign rating_decimal = 0
+              assign decimal = current_product.metafields.reviews.rating.value.rating | modulo: 1
+              if decimal >= 0.3 and decimal <= 0.7
+                assign rating_decimal = 0.5
+              elsif decimal > 0.7
+                assign rating_decimal = 1
+              endif
+            -%}
+            <div
+              class="rating"
+              role="img"
+              aria-label="{{ 'accessibility.star_reviews_info' | t: rating_value: current_product.metafields.reviews.rating.value, rating_max: current_product.metafields.reviews.rating.value.scale_max }}"
+            >
+              <span
+                aria-hidden="true"
+                class="rating-star color-icon-{{ settings.accent_icons }}"
+                style="--rating: {{ current_product.metafields.reviews.rating.value.rating | floor }}; --rating-max: {{ current_product.metafields.reviews.rating.value.scale_max }}; --rating-decimal: {{ rating_decimal }};"
+              ></span>
+            </div>
+            <div class="review-text-wrapper">
+              <p class="rating-text caption">
+                <span aria-hidden="true">
+                  {{- current_product.metafields.reviews.rating.value }} /
+                  {{ current_product.metafields.reviews.rating.value.scale_max -}}
+                </span>
+              </p>
+              <p class="rating-count u-small caption">
+                <span aria-hidden="true">({{ current_product.metafields.reviews.rating_count }})</span>
+                <span class="visually-hidden">{{ current_product.metafields.reviews.rating_count }}</span>
+              </p>
+            </div>
+          </product-card-reviews>
+        {%- endif -%}
+      </a>
+
+      {%- if swatches_enabled -%}
+        <product-card-variant-swatches>
+          {%- if current_product -%}
+            {%- liquid
+              assign triggers_raw = settings.swatches_trigger | newline_to_br | strip_newlines | split: '<br />'
+              assign triggers = '' | split: ','
+              for trigger in triggers_raw
+                assign t = trigger | strip | downcase | split: ','
+                assign triggers = triggers | concat: t
+              endfor
+
+              assign swatch_counter = 0
+              assign swatch_option_position = 0
+
+              assign swatch_variant_ids = ''
+            -%}
+
+            {%- for option in current_product.options_with_values -%}
+              {%- liquid
+                assign swatch_count = option.values | map: 'swatch' | compact | size
+                assign option_name = option.name | strip | downcase
+              -%}
+
+              {%- if swatch_option_position == 0 and triggers contains option_name or swatch_count > 0 -%}
+                {%- assign swatch_option_position = option.position -%}
+
+                <div class="swatch-wrapper">
+                  {%- liquid
+                    assign swatch_size = settings.product_grid_swatch_size | times: 10
+                    if settings.swatches_as_variant_image
+                      assign swatch_size = settings.product_grid_swatches_as_variant_image_width
+                    endif
+
+                    assign number_of_swatches_to_display = 5
+                    assign values = ''
+                  -%}
+                  <div
+                    class="product-card__swatch"
+                    style="
+                      --size: {{ swatch_size }}px;
+                      {% if settings.swatches_as_variant_image %}
+                        --maximum-swatches: {{ number_of_swatches_to_display }};
+                      {% endif %}
+                    "
+                  >
+                    <ul
+                      class="
+                        product-card__swatch__items
+                        o-list-inline
+                        {% if settings.swatches_as_variant_image %}
+                          product-card__swatch__items--image
+                        {% endif %}
+                      "
+                    >
+                      {%- liquid
+                        assign number_of_swatches_to_display = 5
+                        assign values = ''
+                      -%}
+                      {%- for value in option.values -%}
+                        {%- capture wrapped_value -%},{{ value }},{%- endcapture -%}
+
+                        {%- unless values contains wrapped_value -%}
+                          {%- liquid
+                            assign swatch_id = value | strip | downcase | handle
+                            assign swatch_counter = swatch_counter | plus: 1
+
+                            assign variant = value.variant
+                            assign swatch_variant_ids = swatch_variant_ids | append: variant.id | append: ','
+
+                            assign is_native = false
+                            if swatch_count > 0
+                              assign is_native = true
+                              assign swatch = value.swatch
+                              if swatch.image
+                                assign swatch_image_url = swatch.image | image_url: width: 100
+                                assign swatch_value = 'url(' | append: swatch_image_url | append: ')'
+                              elsif swatch.color
+                                assign swatch_value = 'rgb(' | append: swatch.color.rgb | append: ')'
+                              endif
+                            else
+                              assign swatch_value = swatch_id | replace: '-', ''
+                            endif
+                          -%}
+
+                          {%- if swatch_counter <= number_of_swatches_to_display -%}
+                            <li
+                              class="
+                                product-card__swatch__item-wrapper
+                                {% if settings.swatches_as_variant_image %}
+                                  product-card__swatch__item-wrapper--image
+                                {% endif %}
+                                o-list-inline__item
+                              "
+                            >
+                              <product-card-variant-swatch
+                                class="
+                                  product-card__swatch__item
+                                  product-card__swatch__item-space-{{ settings.product_grid_swatch_size }}
+                                  {% if settings.swatches_as_variant_image %}
+                                    product-card__swatch__item--image
+                                    {% if settings.swatches_as_variant_image_ratio == 'circle' %}
+                                      product-card__swatch__item--circle
+                                    {% else %}
+                                      product-card__swatch__item--square
+                                    {% endif %}
+                                  {% else %}
+                                    product-card__swatch__item--{% if settings.use_square_swatch %}square{% else %}circle{% endif %}
+                                  {% endif %}
+                                "
+                                value-id="{{ value.id }}"
+                                variant-id="{{ variant.id }}"
+                                {% if value.product_url %}
+                                  product-url="{{ value.product_url }}"
+                                {% endif %}
+                              >
+                                {%- if settings.swatches_as_variant_image -%}
+                                  {%- liquid
+                                    assign variant_image = variant.featured_media
+                                    if value.product_url
+                                      assign variant_image = value.variant.product.featured_media
+                                    endif
+
+                                    assign image_sizes = swatch_size | append: 'px'
+
+                                    assign image_ratio = settings.swatches_as_variant_image_ratio
+                                    if image_ratio == 'circle'
+                                      assign image_ratio = '1:1'
+                                    endif
+                                  -%}
+                                  <div
+                                    class="o-ratio o-ratio--{{ settings.swatches_as_variant_image_ratio }}"
+                                    {% if settings.swatches_as_variant_image_ratio == 'natural' %}
+                                      style="padding-bottom:{{ 1 | divided_by: variant_image.aspect_ratio | times: 100 }}%;"
+                                    {% endif %}
+                                  >
+                                    <div class="o-ratio__content">
+                                      {%- if variant_image -%}
+                                        {% render 'image',
+                                          image: variant_image,
+                                          additional_classes: 'product-form__swatch__image',
+                                          alt_string: variant_image.alt,
+                                          image_ratio: image_ratio,
+                                          image_srcset_widths: '30, 60, 90, 120, 150, 180, 240, 300, 360',
+                                          image_sizes: image_sizes,
+                                          render_skeleton: false
+                                        %}
+                                      {%- endif -%}
+                                    </div>
+                                  </div>
+                                {%- else -%}
+                                  <variant-swatch
+                                    {% unless is_native %}
+                                      swatch-id="{{ swatch_id }}"
+                                    {% endunless %}
+                                    class="
+                                      product-card__swatch__graphic
+                                      {% if settings.use_emphasized_borders %} product-card__swatch__graphic--emphasize{% endif %}
+                                      product-card__swatch__graphic--{{ settings.product_grid_swatch_size }}
+                                    "
+                                    style="--background-graphic: {{ swatch_value }}"
+                                  />
+                                {%- endif -%}
+                              </product-card-variant-swatch>
+                            </li>
+                          {%- endif -%}
+
+                          {%- capture values -%}{{ values }}{{ wrapped_value }}{%- endcapture -%}
+                        {%- endunless -%}
+                      {%- endfor -%}
+                      <li class="product-card__overflow">
+                        {%- if swatch_counter > number_of_swatches_to_display -%}
+                          <a
+                            product-card-link
+                            href="{{ current_product.url | within: collection }}"
+                            class="product-card__overflow__item"
+                            title="{{ current_product.title }}"
+                          >
+                            <span class="">+{{ swatch_counter | minus: number_of_swatches_to_display }}</span>
+                          </a>
+                        {%- endif -%}
+                      </li>
+                      {%- if swatch_counter < number_of_swatches_to_display and settings.swatches_as_variant_image -%}
+                        {%- liquid
+                          assign number = number_of_swatches_to_display | minus: swatch_counter | times: 2
+                          if settings.product_grid_align
+                            assign empty_swatch_cutoff_number = number | divided_by: 2
+                          endif
+                        -%}
+                        {% for dummy_swatch in (1..number) %}
+                          <li
+                            class="product-card__swatch__item-wrapper product-card__swatch__item-wrapper--empty o-list-inline__item"
+                            {% if settings.product_grid_align and dummy_swatch <= empty_swatch_cutoff_number %}
+                              style="order: calc({{ forloop.index }} * -1)"
+                            {% endif %}
+                          ></li>
+                        {% endfor %}
+                      {%- endif -%}
+                    </ul>
+                  </div>
+                </div>
+              {%- endif -%}
+            {%- endfor -%}
+          {%- endif -%}
+        </product-card-variant-swatches>
+      {%- endif -%}
+    </div>
+  </div>
+  {%- if render_quickshop -%}
+    {%- if current_product -%}
+      {%- liquid
+        if quick_shop_type == 'rendered'
+          render 'quick-shop', id: quick_shop_id, card_id: id, product: current_product, image_ratio: container_ratio, image_sizes: quick_shop_image_sizes
+        else
+          assign load_on = 'click'
+          if quick_shop_icon_hover
+            assign load_on = 'proximity'
+          endif
+
+          assign current_product_url = current_product.url | within: collection
+          render 'quick-shop-placeholder', id: quick_shop_id, card_id: id, product_url: current_product_url, product_image_bottom_padding: image_container_bottom_padding, product_title: current_product.title, product_labels: labels, image_ratio: container_ratio, image_sizes: quick_shop_image_sizes, load_on: load_on
+        endif
+      -%}
+    {%- else -%}
+      <product-card-quick-shop></product-card-quick-shop>
+    {%- endif -%}
+  {%- endif -%}
+  {%- if swatch_option_position > 0 and current_product -%}
+    {%- liquid
+      assign option = current_product.options_with_values | find: 'position', swatch_option_position
+      assign values_with_variants = option.values | where: 'variant'
+    -%}
+    <script type="application/json" id="ProductJson-{{ id }}">
+      {
+        "url": "{{ current_product.url }}",
+        "media": [{{ current_product.media[0] | json }}],
+        "variants": [
+          {%- for value in values_with_variants -%}
+            {%- liquid
+              assign variant = value.variant
+
+              unless forloop.first
+                echo ','
+              endunless
+
+              assign featured_media = variant.featured_media
+              if value.product_url
+                assign featured_media = value.variant.product.featured_media
+              endif
+            -%}
+            {
+              "id": {{ variant.id }},
+              "featured_media": {{ featured_media | json }}
+            }
+          {%- endfor %}
+        ]
+      }
+    </script>
+  {%- endif -%}
+</product-card>

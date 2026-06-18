@@ -1,0 +1,215 @@
+{%- comment -%}
+  Renders mega menu collections
+
+  Accepts:
+  - block: {Object} Menu block
+  - animation_delay: {Number} Animation delay in seconds
+  - item_start_position: {Number} Item position in menu context
+  - dummy_amount: {Number} Number of dummy items
+  - in_drawer: {Boolean} Block is in navigation drawer [optional]
+{%- endcomment -%}
+{%- liquid
+  if in_drawer == null
+    assign in_drawer = false
+  endif
+
+  assign collections = block.settings.collections
+  assign item_position = item_start_position
+
+  unless in_drawer
+    assign heading_typography_classes = 'f-family--' | append: settings.type_mega_menu_style | append: ' f-caps--' | append: settings.type_mega_menu_capitalize | append: ' f-space--' | append: settings.type_mega_menu_letterspace
+  else
+    assign heading_typography_classes = 'f-family--' | append: settings.type_mobile_nav_style | append: ' f-caps--' | append: settings.type_mobile_nav_capitalize | append: ' f-space--' | append: settings.type_mobile_nav_letterspace
+
+    assign show_as_scroll = false
+    assign sidebar_items_per_row = block.settings.sidebar_additional_content_per_row | plus: 0
+    if collections.count > sidebar_items_per_row and block.settings.sidebar_additional_content_enable_carousel
+      assign show_as_scroll = true
+    elsif dummy_amount > sidebar_items_per_row and collections.count == 0 and block.settings.sidebar_additional_content_enable_carousel
+      assign show_as_scroll = true
+    endif
+  endunless
+-%}
+
+{%- if collections.count > 0 -%}
+  <div
+    {% unless in_drawer %}
+      class="
+        mega-panel__block
+        {% if block.settings.additional_content_per_row > collections.count %}
+        mega-panel__block--incomplete
+        {% endif %}
+        mega-panel__additional-content
+      "
+      style="
+        --width: {{ block.settings.additional_content_width }};
+        --per-row: {{ block.settings.additional_content_per_row }};
+        --spacing: {{ block.settings.additional_content_spacing }};
+      "
+    {% else %}
+      class="
+        mega-panel__block
+        {% if show_as_scroll %}mega-panel__block--scroll{% endif %}
+      "
+      style="--per-row: {{ block.settings.sidebar_additional_content_per_row }};"
+    {% endunless %}
+  >
+    <div class="mega-panel__items">
+      {%- for collection in collections -%}
+        {%- liquid
+          assign dummy_image_number = forloop.index0 | modulo: 6 | plus: 1
+          assign image = collection.image
+          assign image_exists = false
+
+          if image == blank
+            for product in collection.products
+              assign image = product.featured_image
+              if image
+                assign image_exists = true
+                break
+              endif
+            endfor
+
+            unless image_exists
+              assign dummy_image_id = 'product-' | append: dummy_image_number
+              assign image = dummy_image_id | placeholder_svg_tag: 'placeholder-svg placeholder-svg--light'
+            endunless
+          else
+            assign image_exists = true
+          endif
+
+          assign item_position = item_position | plus: 1
+        -%}
+        <div
+          class="
+            mega-panel__item
+            cta
+            cta--text-align-{{ block.settings.additional_content_alignment }}
+            {% unless in_drawer %}has-animation{% endunless %}
+          "
+          {% unless in_drawer %}
+            style="animation-delay: {{ animation_delay | times: item_position }}ms;"
+          {% endunless %}
+        >
+          {%- unless collection.empty? -%}
+            <a href="{{ collection.url }}" class="cta__link">
+          {%- endunless -%}
+
+          {% if image %}
+            <div
+              class="o-ratio o-ratio--{{ block.settings.image_ratio }}"
+              {% if block.settings.image_ratio == 'natural' %}
+                style="padding-bottom:{{ 1 | divided_by: image.aspect_ratio | times: 100 }}%;"
+              {% endif %}
+            >
+              <div class="o-ratio__content">
+                {%- liquid
+                  if block.settings.image_ratio != 'natural' and block.settings.image_ratio != 'circle'
+                    assign values = block.settings.image_ratio | split: ':'
+                    assign i_w = values[0] | plus: 0.0
+                    assign i_h = values[1] | plus: 0.0
+                    assign image_ratio = i_h | divided_by: i_w
+                  elsif block.settings.image_ratio == 'circle'
+                    assign image_ratio = 1
+                  else
+                    assign image_ratio = 1 | divided_by: image.aspect_ratio
+                  endif
+                  assign width = image.width
+                  assign height = width | times: image_ratio | round
+                  assign alt = 'general.media.loading_image' | t: alt: image.alt
+                  render 'image-skeleton', alt: alt, width: width, height: height
+                -%}
+                {%- if image_exists -%}
+                  {%- unless in_drawer -%}
+                    {%- capture sizes -%}
+                      {%- render 'mega-menu-image-sizes',
+                        image: image,
+                        container_ratio: block.settings.image_ratio,
+                        content_width: block.settings.content_width,
+                        area_width: block.settings.additional_content_width,
+                        items_per_row: block.settings.additional_content_per_row,
+                        content_spacing: block.settings.additional_content_spacing
+                      -%}
+                    {%- endcapture -%}
+                  {%- else -%}
+                    {%- liquid
+                      assign sizes = '(min-width: 460px) 440px, 90vw'
+                      if block.settings.sidebar_additional_content_per_row == '2'
+                        assign sizes = '(min-width: 460px) 220px, 90vw'
+                      endif
+                    -%}
+                  {%- endunless -%}
+
+                  {{ image | image_url: width: 1480 | image_tag: sizes: sizes, class: 'cta__image', loading: 'lazy' }}
+                {%- else -%}
+                  {{ image }}
+                {%- endif -%}
+              </div>
+            </div>
+          {% endif %}
+
+          <div class="cta__content">
+            <p class="cta__title {{ heading_typography_classes }}">{{ collection.title | escape }}</p>
+          </div>
+          {%- unless collection.empty? -%}
+            </a>
+          {% endunless %}
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+{%- else -%}
+  <div
+    {% unless in_drawer %}
+      class="
+        mega-panel__block
+        {% if block.settings.additional_content_per_row > dummy_amount %}
+        mega-panel__block--incomplete
+        {% endif %}
+        mega-panel__additional-content
+      "
+      style="
+        --width: {{ block.settings.additional_content_width }};
+        --per-row: {{ block.settings.additional_content_per_row }};
+        --spacing: {{ block.settings.additional_content_spacing }};
+      "
+    {% else %}
+      class="
+        mega-panel__block
+        {% if show_as_scroll %}mega-panel__block--scroll{% endif %}
+      "
+      style="        --per-row: {{ block.settings.sidebar_additional_content_per_row }};"
+    {% endunless %}
+  >
+    <div class="mega-panel__items">
+      {%- for i in (1..dummy_amount) -%}
+        {%- liquid
+          assign dummy_image_number = forloop.index0 | modulo: 6 | plus: 1
+          assign dummy_image_id = 'product-' | append: dummy_image_number
+
+          assign item_position = item_position | plus: 1
+        -%}
+        <div
+          class="
+            mega-panel__item
+            cta
+            cta--text-align-{{ block.settings.additional_content_alignment }}
+            {% unless in_drawer %}has-animation{% endunless %}
+          "
+          {% unless in_drawer %}
+            style="animation-delay: {{ animation_delay | times: item_position }}ms;"
+          {% endunless %}
+        >
+          <div class="o-ratio o-ratio--{{ block.settings.image_ratio }}">
+            <div class="o-ratio__content">
+              {{ dummy_image_id | placeholder_svg_tag: 'placeholder-svg placeholder-svg--light' }}
+            </div>
+          </div>
+          <div class="cta__content">
+            <p class="cta__title {{ heading_typography_classes }}">Collection {{ forloop.index }}</p>
+          </div>
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+{%- endif -%}

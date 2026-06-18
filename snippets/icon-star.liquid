@@ -1,0 +1,19 @@
+{%- comment -%}
+  Render star icon
+
+  Accepts:
+    - additional_classes: {String} Additional classes
+    - title: {String} Title (optional)
+{%- endcomment -%}
+<span class="icon icon--star {{ additional_classes }}">
+  <svg
+    aria-hidden="true"
+    focusable="false"
+    role="presentation"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 100 100"
+  >
+    {%- if title -%}<title>{{- title -}}</title>{%- endif -%}
+    <path d="M100 38.8L100 38.8L65.4 33.8L50 2.4L34.6 33.8L0 38.8L25 63.2L19.1 97.6L50 81.3L80.9 97.6L75 63.2L100 38.8Z" />
+  </svg>
+</span>

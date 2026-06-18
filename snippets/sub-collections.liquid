@@ -1,0 +1,39 @@
+{%- comment -%}
+  Render subcollection items
+{%- endcomment -%}
+
+{% if show_parent and parent_link.child_active %}
+  <div class="sub-collections__item sub-collections__item--parent">
+    {% render 'sub-collection-card',
+      is_parent: true,
+      collection: parent_link.object,
+      image: parent_link.image,
+      title: parent_link.title,
+      url: parent_link.url,
+      active: false,
+      image_source: image_source,
+      image_ratio: image_ratio,
+      image_fit: image_fit,
+      image_size_desktop: image_size_desktop,
+      image_size_mobile: image_size_mobile
+    %}
+  </div>
+{% endif %}
+{% for collection in sub_collections %}
+  {% if collection.type == 'collection_link' %}
+    <div class="sub-collections__item">
+      {% render 'sub-collection-card',
+        collection: collection.object,
+        image: collection.image,
+        title: collection.title,
+        url: collection.url,
+        active: collection.active,
+        image_source: image_source,
+        image_ratio: image_ratio,
+        image_fit: image_fit,
+        image_size_desktop: image_size_desktop,
+        image_size_mobile: image_size_mobile
+      %}
+    </div>
+  {% endif %}
+{% endfor %}

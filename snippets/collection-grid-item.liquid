@@ -1,0 +1,216 @@
+{%- comment -%}
+  Render collection grid item
+
+  Accepts:
+  - collection: {Object} Collection
+  - sizes: {String} Image sizes
+  - ratio: {String} Image ratio string. Values are "1:1", "3:4", "4:3", "16:9", "2:3", "natural"
+  - title_size: {String} Title size (optional)
+  - alignment: {String} Alignment (optional)
+  - text_alignment: {String} Text alignment (optional)
+  - button_style: {String} Button style (optional)
+  - visibility_heading: {Boolean} Visibility of heading (optional)
+  - visibility_border: {Boolean} Visibility of border (optional)
+  - visibility_count: {Boolean} Visibility of count (optional)
+  - visibility_description: {Boolean} Visibility of description (optional)
+  - visibility_button: {Boolean} Visibility of button (optional)
+  - hover_options: {String} Hover options (optional)
+  - button_label: {String} Button label (when block is used)
+  - heading: {String} Heading (when block is used)
+  - description: {String} Description (when block is used)
+  - link: {String} Link (when block is used)
+  - replacement_image: {Object} Replacement image (when block is used)
+  - current_block: {Number} Current block index
+  - prioritize_image: {Boolean} Prioritize image loading
+{%- endcomment -%}
+{% liquid
+  if replacement_image
+    assign collection_image = replacement_image
+  elsif collection.empty?
+    assign collection_image = null
+  else
+    if collection.image
+      assign collection_image = collection.image
+    else
+      for product in collection.products
+        assign image = product.featured_image
+        if image
+          assign collection_image = product.featured_image
+          break
+        else
+          assign collection_image = null
+        endif
+      endfor
+    endif
+  endif
+
+  assign vertical_alignment = 'u-flex--middle'
+  if alignment contains 'top'
+    assign vertical_alignment = 'u-flex--top'
+  elsif alignment contains 'middle'
+    assign vertical_alignment = 'u-flex--middle'
+  elsif alignment contains 'bottom'
+    assign vertical_alignment = 'u-flex--bottom'
+  endif
+
+  assign horizontal_alignment = 'u-flex--center'
+  if alignment contains 'left'
+    assign horizontal_alignment = 'u-flex--left'
+  elsif alignment contains 'center'
+    assign horizontal_alignment = 'u-flex--center'
+  elsif alignment contains 'right'
+    assign horizontal_alignment = 'u-flex--end'
+  endif
+
+  unless ratio
+    assign ratio = '1:1'
+  endunless
+
+  unless text_alignment
+    assign text_alignment = 'center'
+  endunless
+
+  unless title_size
+    assign title_size = '3'
+  endunless
+
+  unless button_style
+    assign button_style = 'c-btn c-btn--primary'
+  endunless
+
+  unless hover_options
+    assign hover_options = 'off'
+  endunless
+
+  if visibility_button == false and hover_options == 'hover-button'
+    assign hover_options = 'off'
+  endif
+
+  unless link
+    assign link = collection.url
+  endunless
+
+  assign loading = 'lazy'
+  if prioritize_image
+    assign loading = 'eager'
+    assign fetch_priority = 'high'
+  endif
+%}
+
+{% unless collection.empty? and link == blank %}
+  <a href="{{ link }}" class="collection-list__link">
+{% endunless %}
+<div class="collection-list__item_wrap">
+  <div class="collection-list__item">
+    <div
+      class="o-ratio o-ratio--{{ ratio }}"
+      {% if video and ratio == 'natural' %}
+        style="padding-bottom:{{ 1 | divided_by: video.aspect_ratio | times: 100 }}%;"
+      {% elsif collection_image != null and ratio == 'natural' %}
+        style="padding-bottom:{{ 1 | divided_by: collection_image.aspect_ratio | times: 100 }}%;"
+      {% elsif collection_image == null and ratio == 'natural' %}
+        style="padding-bottom:100%;"
+      {% endif %}
+    >
+      <div class="o-ratio__content">
+        <div class="collection-list__media">
+          {% if video %}
+            {% render 'lazy-video', video: video, class: 'collection-list__video' %}
+
+          {% elsif collection_image %}
+            {% render 'image',
+              image: collection_image,
+              additional_classes: 'collection-list__bg',
+              alt_string: collection_image.alt,
+              image_ratio: 'natural',
+              image_srcset_widths: '180, 360, 540, 720, 900, 1080, 1296, 1512, 1728, 2048',
+              image_sizes: sizes,
+              loading: loading,
+              fetch_priority: fetch_priority,
+              render_skeleton: true
+            %}
+          {% else %}
+            {{ 'collection-' | append: current_block | placeholder_svg_tag: 'collection-list__bg placeholder-svg' }}
+          {% endif %}
+        </div>
+
+        <div class="collection-list__overlay u-bg-overlay"></div>
+
+        <div
+          class="
+            collection-list__content
+            collection-list__content--{{ text_alignment }}
+            collection-list__content--{{ title_size }}
+            collection-list__content--{{ hover_options }}
+            u-flex
+            {{ horizontal_alignment }}
+            {{ vertical_alignment }}
+            {% if button_style contains 'c-btn' %}collection-list__content--text-button{% endif %}
+          "
+        >
+          <div class="collection-list__content-wrapper">
+            {%- if visibility_count -%}
+              <p class="collection-list__content-count">
+                {%- if collection.empty? -%}
+                  {{ 'collections.products_count.other' | t: count: '10' }}
+                {%- else -%}
+                  {%- if collection.products_count == 0 -%}
+                    {{ 'collections.products_count.other' | t: count: '0' }}
+                  {%- elsif collection.products_count == 1 -%}
+                    {{ 'collections.products_count.one' | t: count: collection.products_count }}
+                  {%- else -%}
+                    {{ 'collections.products_count.other' | t: count: collection.products_count }}
+                  {%- endif -%}
+                {%- endif -%}
+              </p>
+            {%- endif -%}
+            {%- if visibility_heading -%}
+              <h3
+                class="
+                  collection-list__content-heading
+                  {% if settings.type_header_border == false or visibility_border == false %}collection-list__content-heading--no-border{% endif %}
+                "
+              >
+                {%- if heading != blank -%}
+                  {{ heading | escape }}
+                {%- elsif collection.empty? -%}
+                  {{ 'homepage.onboarding.collection_title' | t }}
+                {%- else -%}
+                  {{ collection.title }}
+                {%- endif -%}
+              </h3>
+            {%- endif -%}
+            {%- if visibility_description -%}
+              {%- if collection.empty? or collection.description != blank or description != blank -%}
+                <p class="collection-list__content-text rte">
+                  {%- if description != blank -%}
+                    {{ description | escape }}
+                  {%- elsif collection.empty? -%}
+                    This is collection description text
+                  {%- else -%}
+                    {{ collection.description | strip_html | truncatewords: 25 }}
+                  {%- endif -%}
+                </p>
+              {%- endif -%}
+            {%- endif -%}
+            {%- if visibility_button -%}
+              <button href="{{ link }}" class="collection-list__content-link {{ button_style }}">
+                {% unless button_label == blank %}
+                  {{ button_label | escape }}
+                {% else %}
+                  {{ 'collections.general.view_collection' | t }}
+                {% endunless %}
+                {%- if button_style contains 'link--arrow' -%}
+                  {%- render 'icons-theme', icon: 'chevron' -%}
+                {%- endif -%}
+              </button>
+            {%- endif -%}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% unless collection.empty? and link == blank %}
+  </a>
+{% endunless %}

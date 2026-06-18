@@ -1,0 +1,397 @@
+{% if section.index > 2 or section.location == 'footer' %}
+  <link
+    rel="stylesheet"
+    href="{{ 'section-delivery.css' | asset_url }}"
+    media="print"
+    onload="this.media='all'"
+  >
+  <noscript>
+    {{ 'section-delivery.css' | asset_url | stylesheet_tag }}
+  </noscript>
+{% else %}
+  {{ 'section-delivery.css' | asset_url | stylesheet_tag }}
+{% endif %}
+<section
+  class="
+    section
+    section--{{ section.id }}
+    {% if section.settings.section_bottom_margin or request.visual_preview_mode %}section--mb-0{% endif %}
+  "
+  data-section-id="{{ section.id }}"
+  data-section-type="home-delivery"
+  style="
+    --overlay-opacity: {{ section.settings.overlay_strength | times: 1.0 | divided_by: 100 }};
+    --height-desktop: {{ section.settings.section_height }}px;
+    --height-mobile: {{ section.settings.section_height_mobile }}px;
+  "
+>
+  <div class="container{% if section.settings.section_width == 'full' %} container--p-0{% endif %}">
+    <div class="u-flex-parent">
+      <div
+        class="home-delivery u-flex u-flex--middle u-flex--center {% unless request.visual_preview_mode %}js-animate-single{% endunless %}"
+        data-animation-displacement="0"
+      >
+        {% if section.settings.bg_image != blank %}
+          <div
+            class="home-delivery__bg--cover u-bg-contain u-bg-overlay"
+            style="background-image: url('{{ section.settings.bg_image | image_url: width: 1, height: 1 }}')"
+          ></div>
+          <img
+            class="home-delivery__bg home-delivery__bg--{{ section.id }}"
+            src="{{ section.settings.bg_image | image_url: width: 600 }}"
+            srcset="{% render 'bgset', image: section.settings.bg_image %}"
+            width="600"
+            height="{{ 600 | divided_by: section.settings.bg_image.aspect_ratio | round }}"
+            alt="{{ section.settings.bg_image.alt }}"
+            loading="lazy"
+            style="object-position:{{ section.settings.bg_image.presentation.focal_point }}"
+          >
+        {% else %}
+          <div class="home-delivery__bg--placeholder placeholder-svg__wrapper u-bg-overlay u-bg-overlay--light">
+            {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+          </div>
+        {% endif %}
+        <div class="home-delivery__bg--overlay u-bg-overlay"></div>
+        <div class="home-delivery__content js-animate-single">
+          {%- for block in section.blocks -%}
+            {%- case block.type -%}
+              {%- when 'logo' -%}
+                <div
+                  class="home-delivery__content__block home-delivery__content__block--{{ block.type }}"
+                  {{ block.shopify_attributes }}
+                >
+                  {% capture delivery_service_img %}delivery-logo-{{ block.settings.delivery_service }}.png{% endcapture %}
+                  {% if block.settings.logo_override == blank %}
+                    {% unless block.settings.delivery_service == 'none' %}
+                      <div class="home-delivery__media">
+                        {% comment %} theme-check-disable ImgWidthAndHeight {% endcomment %}
+                        <img
+                          src="{{ delivery_service_img | asset_url }}"
+                          class="home-delivery__media-img"
+                          alt="{{ block.settings.delivery_service }} logo"
+                          loading="lazy"
+                        >
+                        {% comment %} theme-check-enable ImgWidthAndHeight {% endcomment %}
+                      </div>
+                    {% endunless %}
+                  {% else %}
+                    <div class="home-delivery__media">
+                      <img
+                        class="home-delivery__media-img"
+                        src="{{ block.settings.logo_override | image_url: width: 240 }}"
+                        srcset="
+                          {{ block.settings.logo_override | image_url: width: 180 }} 180w {{ 180 | divided_by: block.settings.logo_override.aspect_ratio | round }}h,
+                          {{ block.settings.logo_override | image_url: width: 360 }} 360w {{ 360 | divided_by: block.settings.logo_override.aspect_ratio | round }}h,
+                          {{ block.settings.logo_override | image_url: width: 540 }} 540w {{ 540 | divided_by: block.settings.logo_override.aspect_ratio | round }}h,
+                          {{ block.settings.logo_override | image_url: width: 720 }} 720w {{ 720 | divided_by: block.settings.logo_override.aspect_ratio | round }}h,
+                          {{ block.settings.logo_override | image_url: width: 900 }} 900w {{ 900 | divided_by: block.settings.logo_override.aspect_ratio | round }}h
+                        "
+                        width="240"
+                        height="{{ 240 | divided_by: block.settings.logo_override.aspect_ratio | round }}"
+                        alt="{{ block.settings.logo_override.alt }}"
+                        loading="lazy"
+                      >
+                    </div>
+                  {% endif %}
+                </div>
+
+              {%- when 'text' -%}
+                {% if block.settings.title != blank or block.settings.desc != blank %}
+                  <div
+                    class="home-delivery__content__block home-delivery__content__block--{{ block.type }}"
+                    {{ block.shopify_attributes }}
+                  >
+                    <div
+                      class="section__title section__title--center home-delivery__title{% if block.settings.title != blank %} section__title--desc{% endif %} js-animate-single"
+                      data-animation-displacement="5"
+                    >
+                      {% if block.settings.title != blank %}
+                        <h2 class="section__title-text">{{ block.settings.title | escape }}</h2>
+                      {% endif %}
+                      {% if block.settings.desc != blank %}
+                        <div
+                          class="section__title-desc rte js-animate-single"
+                          data-animation-displacement="0"
+                          data-animation-delay="0.1"
+                        >
+                          {{ block.settings.desc }}
+                        </div>
+                      {% endif %}
+                    </div>
+                  </div>
+                {% endif %}
+
+              {%- when 'button' -%}
+                {% if block.settings.link_title != blank %}
+                  <div
+                    class="home-delivery__content__block home-delivery__content__block--{{ block.type }}"
+                    style="
+                      {% if block.settings.link_style == 'hollow' %}
+                        --button-color: #0d0d0d;
+                        --button-background-color: #ffffff;
+                        --button-hover-color: #ffffff;
+                        --button-hover-background-color: #0d0d0d;
+                      {% elsif block.settings.link_style == 'mono' %}
+                        --button-color: #ffffff;
+                        --button-background-color: #0d0d0d;
+                        --button-hover-color: #ffffff;
+                        --button-hover-background-color: {{ '#0d0d0d' | color_lighten: 10 }};
+                      {% else %}
+                        --color--text: #0d0d0d;
+                      {% endif %}
+                    "
+                    {{ block.shopify_attributes }}
+                  >
+                    <a
+                      href="{{ block.settings.link }}"
+                      target="_blank"
+                      class="
+                        home-delivery__btn
+                        {% if block.settings.link_style == "hollow" or block.settings.link_style == "primary" or block.settings.link_style == "mono" %}
+                          c-btn c-btn--{{ block.settings.link_style }}
+                        {% elsif block.settings.link_style == "chevron" %}
+                          link link--arrow
+                        {% else %}
+                          link--underline
+                        {% endif %}
+                      "
+                    >
+                      {{- block.settings.link_title | escape -}}
+                      {%- if block.settings.link_style == 'chevron' -%}
+                        {% render 'icons-theme', icon: 'chevron' %}
+                      {%- endif -%}
+                    </a>
+                  </div>
+                {% endif %}
+            {%- endcase -%}
+          {%- endfor -%}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% schema %}
+{
+  "name": "Delivery",
+  "class": "js-section__home-delivery",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Link to your delivery partner such as UberEATS or Favor. This section is not intended for use with products ordered through your Shopify store. For more information [click here](https://support.safeasmilk.co/article/40-delivery-create-a-link-to-your-delivery-partner)."
+    },
+    {
+      "type": "header",
+      "content": "Images"
+    },
+    {
+      "type": "image_picker",
+      "id": "bg_image",
+      "label": "Background image"
+    },
+    {
+      "type": "header",
+      "content": "Height and width"
+    },
+    {
+      "type": "range",
+      "id": "section_height",
+      "label": "Section height (desktop)",
+      "unit": "px",
+      "min": 200,
+      "max": 1000,
+      "step": 10,
+      "default": 600
+    },
+    {
+      "type": "range",
+      "id": "section_height_mobile",
+      "label": "Section height (mobile)",
+      "unit": "px",
+      "min": 150,
+      "max": 800,
+      "step": 10,
+      "default": 400
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Section width",
+      "default": "contained",
+      "options": [
+        {
+          "label": "Contained",
+          "value": "contained"
+        },
+        {
+          "label": "Full",
+          "value": "full"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "range",
+      "id": "overlay_strength",
+      "label": "Overlay strength",
+      "unit": "%",
+      "min": 0,
+      "max": 100,
+      "step": 10,
+      "default": 30
+    },
+    {
+      "type": "header",
+      "content": "Margin"
+    },
+    {
+      "type": "checkbox",
+      "id": "section_bottom_margin",
+      "label": "Reduce bottom margin",
+      "default": false
+    }
+  ],
+  "blocks": [
+    {
+      "type": "logo",
+      "name": "Logo",
+      "settings": [
+        {
+          "type": "select",
+          "id": "delivery_service",
+          "label": "Delivery logo",
+          "default": "deliveroo",
+          "options": [
+            {
+              "label": "None",
+              "value": "none"
+            },
+            {
+              "label": "Amazon",
+              "value": "amazon"
+            },
+            {
+              "label": "Deliveroo",
+              "value": "deliveroo"
+            },
+            {
+              "label": "Doordash",
+              "value": "doordash"
+            },
+            {
+              "label": "Favor",
+              "value": "favor"
+            },
+            {
+              "label": "GrubHub",
+              "value": "grubhub"
+            },
+            {
+              "label": "Instacart",
+              "value": "instacart"
+            },
+            {
+              "label": "Just Eat",
+              "value": "just-eat"
+            },
+            {
+              "label": "Postmates",
+              "value": "postmates"
+            },
+            {
+              "label": "UberEATS",
+              "value": "uber-eats"
+            }
+          ]
+        },
+        {
+          "type": "image_picker",
+          "id": "logo_override",
+          "label": "Custom logo"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading"
+        },
+        {
+          "type": "richtext",
+          "id": "desc",
+          "label": "Text",
+          "default": "<p>Use a logo and text to link to a delivery partner such as UberEATS or Favor. This section is not intended for products ordered through your Shopify store.</p>"
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Button",
+      "settings": [
+        {
+          "type": "text",
+          "id": "link_title",
+          "label": "Label",
+          "default": "Learn more"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "link_style",
+          "label": "Style",
+          "default": "primary",
+          "options": [
+            {
+              "value": "primary",
+              "label": "Brand button"
+            },
+            {
+              "value": "mono",
+              "label": "Mono button"
+            },
+            {
+              "value": "hollow",
+              "label": "Outline button"
+            },
+            {
+              "value": "chevron",
+              "label": "Chevron"
+            },
+            {
+              "value": "body",
+              "label": "Body text"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Delivery",
+      "blocks": [
+        {
+          "type": "logo"
+        },
+        {
+          "type": "text"
+        }
+      ]
+    }
+  ],
+  "enabled_on": {
+    "templates": ["*"],
+    "groups": ["footer"]
+  }
+}
+{% endschema %}

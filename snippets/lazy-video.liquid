@@ -1,0 +1,34 @@
+{% comment %}
+  Render lazy video
+
+  Accepts:
+  - video: {Object} Video object
+  - class: {String} Custom video class
+  - sizes: {String} Poster media sizes string
+  - screen_size: {String} Video source screen size
+{% endcomment %}
+
+<script src="{{ 'lazy-video.js' | asset_url }}" type="module"></script>
+<lazy-video
+  {% if screen_size %}
+    data-screen-size="{{ screen_size }}"
+  {% endif %}
+>
+  {%- render 'theme-spinner' -%}
+  <media-poster>
+    {{
+      video.preview_image
+      | image_url: width: 1946
+      | image_tag:
+        loading: lazy,
+        sizes: sizes,
+        widths: '246, 493, 600, 713, 823, 990, 1100, 1206, 1346, 1426, 1646, 1946'
+    }}
+  </media-poster>
+  <template>
+    {{
+      video
+      | video_tag: autoplay: true, muted: true, loop: true, controls: false, class: class, image_size: '990x990'
+    }}
+  </template>
+</lazy-video>

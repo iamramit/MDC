@@ -1,0 +1,481 @@
+{
+  "general": {
+    "meta": {
+      "tags": "แท็กด้วย “{{ tags }}”",
+      "page": "หน้า {{ page }}"
+    },
+    "pagination": {
+      "label": "การแบ่งหน้า",
+      "page": "หน้า {{ number }}",
+      "next": "หน้าถัดไป",
+      "previous": "หน้าก่อนหน้า",
+      "show_more": "แสดงเพิ่มเติม",
+      "products_showing": "แสดง",
+      "products_showing_of": "จาก"
+    },
+    "404": {
+      "title": "404 ไม่พบหน้า",
+      "subtext": "หน้าที่คุณกำลังค้นหาไม่มีอยู่",
+      "link": "เลือกซื้อสินค้าต่อ"
+    },
+    "newsletter_form": {
+      "newsletter_email": "email@example.com",
+      "submit": "สมัครรับข่าวสาร",
+      "confirmation": "สมัครเรียบร้อยแล้ว ขอบคุณ!"
+    },
+    "quickshop": {
+      "view_details": "ดูรายละเอียด"
+    },
+    "search": {
+      "heading": {
+        "one": "ผลการค้นหา",
+        "other": "ผลการค้นหา"
+      },
+      "results_with_count": {
+        "one": "พบ {{ count }} รายการสำหรับ “{{ terms }}”",
+        "other": "พบ {{ count }} รายการสำหรับ “{{ terms }}”"
+      },
+      "no_results_html": "ไม่พบผลลัพธ์สำหรับ “{{ terms }}”",
+      "results_for_html": "ผลการค้นหาสำหรับ “{{ terms }}”:",
+      "title": "ค้นหาในร้านค้า",
+      "title_results": "ผลการค้นหา",
+      "result_count": "{{ count }} รายการ",
+      "results_count": "{{ count }} รายการ",
+      "label": "ค้นหา",
+      "placeholder": "ค้นหาในร้านค้า...",
+      "submit": "ค้นหา",
+      "more_label": "ดูเพิ่มเติม",
+      "blog_label": "บล็อก",
+      "page_label": "หน้า",
+      "predictive": {
+        "products_title": "สินค้า",
+        "suggestions_title": "คำแนะนำ",
+        "pages_title": "หน้า",
+        "all_results": "ดูผลลัพธ์ทั้งหมด",
+        "search_for": "ค้นหา “{{ terms }}”",
+        "no_results": "ไม่พบผลลัพธ์"
+      },
+      "view_results": "ดู ({{ count }})",
+      "recent_searches": {
+        "title": "การค้นหาล่าสุด"
+      }
+    },
+    "password_page": {
+      "opening_soon": "เปิดเร็ว ๆ นี้",
+      "login_form_heading": "กรอกรหัสผ่านเพื่อเข้าสู่ร้านค้า",
+      "login_form_password_label": "รหัสผ่าน",
+      "login_form_password_placeholder": "รหัสผ่านของคุณ",
+      "login_form_submit": "เข้าสู่ร้าน",
+      "signup_form_email_label": "อีเมล",
+      "signup_form_email_placeholder": "email@example.com",
+      "signup_form_success": "เราจะแจ้งคุณทางอีเมลก่อนเปิดร้าน!",
+      "admin_link_html": "คุณเป็นเจ้าของร้านใช่ไหม? <a href=\"/admin\">เข้าสู่ระบบที่นี่</a>",
+      "password_link": "เข้าสู่ระบบด้วยรหัสผ่าน",
+      "powered_by_shopify_html": "ร้านค้านี้ขับเคลื่อนโดย {{ shopify }}"
+    },
+    "country": {
+      "dropdown_label": "ประเทศ"
+    },
+    "language": {
+      "dropdown_label": "ภาษา"
+    },
+    "media": {
+      "loading_image": "กำลังโหลดรูปภาพ: {{ alt }}",
+      "loading_thumbnail": "กำลังโหลดภาพขนาดย่อ: {{ alt }}"
+    }
+  },
+
+  "sections": {
+    "events": {
+      "name": "ชื่อกิจกรรม",
+      "location": "ข้อมูลกิจกรรม",
+      "more_label": "ดูรายละเอียด"
+    },
+    "video": {
+      "play_label": "เล่นวิดีโอ"
+    },
+    "map": {
+      "open": "เปิดแผนที่",
+      "directions": "ขอเส้นทาง"
+    },
+    "countdown_timer": {
+      "days": "วัน",
+      "hours": "ชั่วโมง",
+      "minutes": "นาที",
+      "seconds": "วินาที"
+    }
+  },
+
+  "blogs": {
+    "blog": {
+      "all": "ทั้งหมด",
+      "tags": "หมวดหมู่",
+      "read_more": "อ่านเพิ่มเติม"
+    },
+    "article": {
+      "older_post": "บทความก่อนหน้า",
+      "newer_post": "บทความถัดไป",
+      "by_author": "โดย {{ author }}"
+    },
+    "comments": {
+      "title": "แสดงความคิดเห็น",
+      "name": "ชื่อ",
+      "email": "อีเมล",
+      "message": "ข้อความ",
+      "post": "ส่งความคิดเห็น",
+      "moderated": "หมายเหตุ: ความคิดเห็นจะต้องได้รับการอนุมัติก่อนเผยแพร่",
+      "success_moderated": "ความคิดเห็นของคุณถูกส่งแล้ว และจะเผยแพร่ในไม่ช้า",
+      "success": "ความคิดเห็นของคุณถูกเผยแพร่แล้ว ขอบคุณ!",
+      "with_count": {
+        "one": "{{ count }} ความคิดเห็น",
+        "other": "{{ count }} ความคิดเห็น"
+      }
+    }
+  },
+
+  "cart": {
+    "general": {
+      "title": "ตะกร้าสินค้า",
+      "added_to_cart": "เพิ่มลงตะกร้าแล้ว",
+      "remove": "ลบ",
+      "note": "หมายเหตุคำสั่งซื้อ",
+      "subtotal": "ยอดรวมย่อย",
+      "view_cart": "ดูตะกร้า",
+      "update": "อัปเดตตะกร้า",
+      "checkout": "ชำระเงิน",
+      "order_summary": "สรุปคำสั่งซื้อ",
+      "continue_shopping": "เลือกซื้อสินค้าต่อ",
+      "empty": "ตะกร้าของคุณว่างเปล่า",
+      "empty_link": "เริ่มช้อปปิ้ง",
+      "savings_html": "ประหยัด {{ price }}",
+      "reduce_quantity": "ลดจำนวนลง 1",
+      "increase_quantity": "เพิ่มจำนวนขึ้น 1",
+      "cart_error": "ช่องนี้จำเป็นต้องกรอก",
+      "items": {
+        "singular": "รายการ",
+        "plural": "รายการ"
+      },
+      "taxes_and_shipping_policy_at_checkout_html": "ภาษีและ<a href=\"{{ link }}\">ค่าจัดส่ง</a>จะคำนวณเมื่อชำระเงิน",
+      "taxes_included_but_shipping_at_checkout": "รวมภาษีแล้ว ค่าจัดส่งคำนวณเมื่อชำระเงิน",
+      "taxes_included_and_shipping_policy_html": "รวมภาษีแล้ว <a href=\"{{ link }}\">ค่าจัดส่ง</a>จะคำนวณเมื่อชำระเงิน",
+      "taxes_and_shipping_at_checkout": "ภาษีและค่าจัดส่งจะคำนวณเมื่อชำระเงิน",
+      "gift_wrapping": {
+        "individual_html": "ต้องการห่อของขวัญแต่ละชิ้นในราคา <money-amount>{{ amount }}</money-amount> หรือไม่?",
+        "whole_html": "ต้องการห่อของขวัญทั้งหมดในราคา <money-amount>{{ amount }}</money-amount> หรือไม่?",
+        "message": "ข้อความของขวัญ"
+      }
+    },
+    "label": {
+      "product": "สินค้า",
+      "price": "ราคา",
+      "quantity": "จำนวน",
+      "total": "รวม"
+    },
+    "free_shipping": {
+      "spend_amount_html": "ใช้จ่าย <b><money-value class=\"money\">{{ amount }}</money-value></b> เพื่อรับการจัดส่งฟรี",
+      "encouragement_html": "อีก <b><money-value class=\"money\">{{ amount }}</money-value></b> จะได้รับการจัดส่งฟรี",
+      "goal_reached_html": "ยินดีด้วย! คุณได้รับ<b>การจัดส่งฟรี</b>"
+    }
+  },
+
+  "collections": {
+    "general": {
+      "all_collections": "คอลเลกชัน",
+      "view_collection": "ดู",
+      "products_label": "สินค้า",
+      "product_label": "สินค้า",
+      "no_matches": "ไม่พบสินค้า",
+      "tags_clear": "(ล้าง)",
+      "tags_clear_filters": "ล้างแท็ก",
+      "tags_clear_all": "ล้างทั้งหมด",
+      "filter_label": "ตัวกรอง",
+      "filter_sort_label": "กรองและจัดเรียง",
+      "filter_by": "กรองตาม",
+      "filter_reset": "รีเซ็ตตัวกรอง",
+      "from": "จาก",
+      "to": "ถึง",
+      "apply": "นำไปใช้",
+      "more": "เพิ่มเติม",
+      "less": "น้อยลง"
+    },
+    "sorting": {
+      "sort_button": "จัดเรียง",
+      "title": "จัดเรียงตาม",
+      "featured": "แนะนำ",
+      "best_selling": "ขายดีที่สุด",
+      "az": "ตัวอักษร A–Z",
+      "za": "ตัวอักษร Z–A",
+      "price_ascending": "ราคาต่ำไปสูง",
+      "price_descending": "ราคาสูงไปต่ำ",
+      "date_descending": "ใหม่ล่าสุด",
+      "date_ascending": "เก่าที่สุด",
+      "relevance": "ความเกี่ยวข้อง"
+    },
+    "products_count": {
+      "one": "{{ count }} รายการ",
+      "other": "{{ count }} รายการ"
+    }
+  },
+
+  "contact": {
+    "form": {
+      "name": "ชื่อ",
+      "email": "อีเมล",
+      "phone": "เบอร์โทรศัพท์",
+      "message": "ข้อความ",
+      "send": "ส่ง",
+      "post_success": "ขอบคุณที่ติดต่อเรา เราจะตอบกลับโดยเร็วที่สุด"
+    }
+  },
+
+  "faq": {
+    "general": {
+      "categories_title": "หมวดหมู่",
+      "search_placeholder": "เริ่มพิมพ์..."
+    }
+  },
+
+  "homepage": {
+    "onboarding": {
+      "product_title": "ตัวอย่างชื่อสินค้า",
+      "product_vendor": "ผู้จำหน่าย",
+      "product_text": "พื้นที่นี้ใช้สำหรับอธิบายรายละเอียดของสินค้า",
+      "product_more_label": "ดูรายละเอียด",
+      "collection_title": "คอลเลกชัน",
+      "blog_title": "ชื่อบทความบล็อก",
+      "blog_excerpt": "ร้านค้าของคุณยังไม่มีบทความบล็อก",
+      "blog_author": "ชื่อผู้เขียน",
+      "blog_date": "07/12/17",
+      "no_content": "ขณะนี้ส่วนนี้ยังไม่มีเนื้อหา"
+    }
+  },
+
+  "layout": {
+    "navigation": {
+      "menu": "เมนู",
+      "cart": "ตะกร้า",
+      "search": "ค้นหา",
+      "home": "หน้าแรก",
+      "view_link": "ดู {{ link }}",
+      "previous_panel": "แผงก่อนหน้า"
+    },
+    "drawers": {
+      "close": "ปิด (esc)",
+      "next_slide": "เลื่อนไปทางขวา",
+      "previous_slide": "เลื่อนไปทางซ้าย",
+      "loading": "กำลังโหลด..."
+    },
+    "cart": {
+      "title": "ตะกร้า"
+    },
+    "customer": {
+      "account": "บัญชี",
+      "log_out": "ออกจากระบบ",
+      "log_in": "เข้าสู่ระบบ",
+      "create_account": "สร้างบัญชี"
+    }
+  },
+
+  "products": {
+    "general": {
+      "sale_price": "ราคาลด",
+      "regular_price": "ราคาปกติ",
+      "unit_price_label": "ราคาต่อหน่วย",
+      "from_price": "เริ่มต้นที่",
+      "unit_price_separator": "ต่อ",
+      "sku": "SKU",
+      "include_taxes": "รวมภาษี",
+      "shipping_policy_html": "<a href=\"{{ link }}\">ค่าจัดส่ง</a>จะคำนวณเมื่อชำระเงิน"
+    },
+    "product": {
+      "sold_out": "สินค้าหมด",
+      "new": "ใหม่",
+      "unavailable": "ไม่พร้อมจำหน่าย",
+      "compare_at": "ราคาปกติ",
+      "quantity": "จำนวน",
+      "add_to_cart": "เพิ่มลงตะกร้า",
+      "pre_order": "สั่งจองล่วงหน้า",
+      "select_options": "ดูแบบรวดเร็ว",
+      "view_in_space": "ดูในพื้นที่ของคุณ",
+      "view_in_space_label": "ดูสินค้าในรูปแบบ AR",
+      "gallery_thumbnail_alt": "โหลดภาพ {{ imageAlt }} ในแกลเลอรี",
+      "video_thumbnail_alt": "โหลดและเล่นวิดีโอ {{ imageAlt }}",
+      "model_thumbnail_alt": "โหลดโมเดล 3D {{ imageAlt }}",
+      "qty_notice_in_stock": "มีสินค้า",
+      "qty_notice_continue_selling": "มีสินค้า",
+      "qty_notice_low_stock": "สินค้าเหลือน้อย",
+      "qty_notice_sold_out": "สินค้าหมด",
+      "qty_notice_number_in_stock_html": "มีสินค้า <span>{{ count }}</span> ชิ้น",
+      "qty_notice_number_low_stock_html": "เหลือเพียง <span>{{ count }}</span> ชิ้น"
+    },
+    "product_labels": {
+      "sold_out_label": "สินค้าหมด",
+      "discount_text": "ลดราคา",
+      "discount_currency": "ประหยัด {{ discount_format_currency }}",
+      "discount_percentage": "ประหยัด {{ discount_format_percentage }}%",
+      "pre_order_label": "สั่งจองล่วงหน้า"
+    },
+    "layout": {
+      "tab_label": "เปิดแท็บ",
+      "reviews": "รีวิว",
+      "grid_show_more_images": "แสดงเพิ่มเติม",
+      "grid_show_less_images": "แสดงน้อยลง"
+    }
+  },
+
+  "store_availability": {
+    "general": {
+      "view_store_info": "ดูข้อมูลร้านค้า",
+      "check_other_stores": "ตรวจสอบร้านค้าอื่น",
+      "pick_up_available": "รับสินค้าที่ร้านได้",
+      "pick_up_refresh": "รีเฟรช",
+      "pick_up_currently_unavailable": "ไม่สามารถรับสินค้าที่ร้านได้ในขณะนี้",
+      "pick_up_available_at_html": "รับสินค้าได้ที่ <strong>{{ location_name }}</strong>",
+      "pick_up_unavailable_at_html": "ไม่สามารถรับสินค้าได้ที่ <strong>{{ location_name }}</strong>"
+    }
+  },
+
+  "gift_cards": {
+    "issued": {
+      "title_html": "นี่คือบัตรของขวัญมูลค่า {{ value }} จาก {{ shop }}!",
+      "subtext": "บัตรของขวัญของคุณ",
+      "disabled": "ปิดใช้งาน",
+      "expired": "หมดอายุ {{ expiry }}",
+      "active": "ใช้ได้ถึง {{ expiry }}",
+      "redeem_html": "ใช้โค้ดนี้ตอนชำระเงิน",
+      "shop_link": "เริ่มช้อปปิ้ง",
+      "print": "พิมพ์บัตรของขวัญ",
+      "remaining_html": "ยอดคงเหลือ {{ balance }}",
+      "add_to_apple_wallet": "เพิ่มไปยัง Apple Wallet"
+    }
+  },
+
+  "recipient": {
+    "form": {
+      "checkbox": "ส่งเป็นของขวัญ",
+      "email_label": "อีเมลผู้รับ",
+      "email_label_optional": "อีเมลผู้รับ (ไม่บังคับ)",
+      "email": "อีเมล",
+      "name_label": "ชื่อผู้รับ (ไม่บังคับ)",
+      "name": "ชื่อ",
+      "message_label": "ข้อความ (ไม่บังคับ)",
+      "message": "ข้อความ",
+      "max_characters": "สูงสุด {{ max_chars }} ตัวอักษร",
+      "send_on_label": "ส่งในวันที่ (ไม่บังคับ)",
+      "send_on": "ส่ง"
+    }
+  },
+
+  "customer": {
+    "account": {
+      "title": "บัญชีของฉัน",
+      "details": "รายละเอียดบัญชี",
+      "view_addresses": "ดูที่อยู่",
+      "return": "กลับไปที่บัญชี"
+    },
+    "activate_account": {
+      "title": "เปิดใช้งานบัญชี",
+      "subtext": "ตั้งรหัสผ่านเพื่อเปิดใช้งานบัญชีของคุณ",
+      "password": "รหัสผ่าน",
+      "password_confirm": "ยืนยันรหัสผ่าน",
+      "submit": "เปิดใช้งานบัญชี",
+      "cancel": "ปฏิเสธคำเชิญ"
+    },
+    "addresses": {
+      "default": "ค่าเริ่มต้น",
+      "add_new": "เพิ่มที่อยู่ใหม่",
+      "edit_address": "แก้ไขที่อยู่",
+      "first_name": "ชื่อ",
+      "last_name": "นามสกุล",
+      "company": "บริษัท",
+      "address1": "ที่อยู่ 1",
+      "address2": "ที่อยู่ 2",
+      "city": "เมือง",
+      "country": "ประเทศ",
+      "province": "จังหวัด",
+      "zip": "รหัสไปรษณีย์",
+      "phone": "โทรศัพท์",
+      "set_default": "ตั้งเป็นที่อยู่เริ่มต้น",
+      "add": "เพิ่มที่อยู่",
+      "update": "อัปเดตที่อยู่",
+      "cancel": "ยกเลิก",
+      "edit": "แก้ไข",
+      "delete": "ลบ"
+    },
+    "login": {
+      "title": "เข้าสู่ระบบ",
+      "email": "อีเมล",
+      "password": "รหัสผ่าน",
+      "forgot_password": "ลืมรหัสผ่าน?",
+      "sign_in": "เข้าสู่ระบบ",
+      "cancel": "กลับไปที่ร้านค้า",
+      "guest_title": "ดำเนินการต่อในฐานะแขก",
+      "guest_continue": "ดำเนินการต่อ",
+      "alternate_provider_separator": "หรือ"
+    },
+    "orders": {
+      "title": "ประวัติการสั่งซื้อ",
+      "order_number": "คำสั่งซื้อ",
+      "date": "วันที่",
+      "payment_status": "สถานะการชำระเงิน",
+      "fulfillment_status": "สถานะการจัดส่ง",
+      "total": "รวม",
+      "none": "คุณยังไม่มีคำสั่งซื้อ"
+    },
+    "order": {
+      "title": "คำสั่งซื้อ {{ name }}",
+      "date": "สั่งเมื่อ {{ date }}",
+      "cancelled": "ยกเลิกเมื่อ {{ date }}",
+      "cancelled_reason": "เหตุผล: {{ reason }}",
+      "billing_address": "ที่อยู่สำหรับออกใบแจ้งหนี้",
+      "payment_status": "สถานะการชำระเงิน",
+      "shipping_address": "ที่อยู่จัดส่ง",
+      "fulfillment_status": "สถานะการจัดส่ง",
+      "discount": "ส่วนลด",
+      "shipping": "ค่าจัดส่ง",
+      "tax": "ภาษี",
+      "product": "สินค้า",
+      "sku": "SKU",
+      "price": "ราคา",
+      "quantity": "จำนวน",
+      "total": "รวม",
+      "fulfilled_at": "จัดส่งเมื่อ {{ date }}",
+      "subtotal": "ยอดรวมย่อย"
+    },
+    "recover_password": {
+      "title": "รีเซ็ตรหัสผ่าน",
+      "email": "อีเมล",
+      "submit": "ส่ง",
+      "cancel": "ยกเลิก",
+      "subtext": "เราจะส่งอีเมลสำหรับตั้งรหัสผ่านใหม่ให้คุณ",
+      "success": "เราได้ส่งลิงก์รีเซ็ตรหัสผ่านไปยังอีเมลของคุณแล้ว"
+    },
+    "reset_password": {
+      "title": "ตั้งรหัสผ่านใหม่",
+      "subtext": "ตั้งรหัสผ่านใหม่สำหรับ {{ email }}",
+      "password": "รหัสผ่าน",
+      "password_confirm": "ยืนยันรหัสผ่าน",
+      "submit": "ตั้งรหัสผ่านใหม่"
+    },
+    "register": {
+      "title": "สร้างบัญชี",
+      "first_name": "ชื่อ",
+      "last_name": "นามสกุล",
+      "email": "อีเมล",
+      "password": "รหัสผ่าน",
+      "submit": "สร้าง",
+      "cancel": "กลับไปที่ร้านค้า"
+    }
+  },
+
+  "date_formats": {
+    "month_day_year": "%d/%m/%Y"
+  },
+
+  "accessibility": {
+    "skip_to_text": "ข้ามไปยังเนื้อหา",
+    "star_reviews_info": "{{ rating_value }} จาก {{ rating_max }} ดาว",
+    "total_reviews": "จำนวนรีวิวทั้งหมด",
+    "error_products": "ไม่สามารถโหลดสินค้าได้"
+  }
+}

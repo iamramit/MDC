@@ -1,0 +1,184 @@
+{% comment %}
+  This is used to create CSS custom variables with Liquid references
+{% endcomment %}
+
+{%- liquid
+  assign base_font = settings.type_base_font
+  assign header_font = settings.type_header_font
+
+  if settings.type_button_style == 'body'
+    assign button_font = settings.type_base_font
+  else
+    assign button_font = settings.type_header_font
+  endif
+
+  if settings.type_label_style == 'body'
+    assign label_font = settings.type_base_font
+  else
+    assign label_font = settings.type_header_font
+  endif
+
+  assign color_shadow_opacity = settings.color_shadow_opacity | times: 0.01
+  assign drop_shadow = settings.color_shadow | color_modify: 'alpha', color_shadow_opacity
+
+  assign scaledMax = 1.25
+  assign scaledMin = 0.75
+  assign rangeMin = 50
+
+  assign scaledDiff = scaledMax | minus: scaledMin
+
+  assign heading_scale_dif = settings.type_header_scale | minus: rangeMin
+  assign heading_size = scaledDiff | times: heading_scale_dif | divided_by: 100.0 | plus: scaledMin
+
+  assign grid_scale_dif = settings.type_grid_scale | minus: rangeMin
+  assign grid_size = scaledDiff | times: grid_scale_dif | divided_by: 100.0 | plus: scaledMin
+
+  assign nav_scale_dif = settings.type_nav_scale | minus: rangeMin
+  assign nav_size = scaledDiff | times: nav_scale_dif | divided_by: 100.0 | plus: scaledMin
+
+  assign mega_menu_scale_dif = settings.type_mega_menu_scale | minus: rangeMin
+  assign mega_menu_size = scaledDiff | times: mega_menu_scale_dif | divided_by: 100.0 | plus: scaledMin
+
+  assign mobile_nav_scale_dif = settings.type_mobile_nav_scale | minus: rangeMin
+  assign mobile_nav_size = scaledDiff | times: mobile_nav_scale_dif | divided_by: 100.0 | plus: scaledMin
+
+  assign product_form_headings_scale_dif = settings.type_product_form_headings_scale | minus: rangeMin
+  assign product_form_headings_size = scaledDiff | times: product_form_headings_scale_dif | divided_by: 100.0 | plus: scaledMin
+
+  assign button_scale_dif = settings.type_button_scale | minus: rangeMin
+  assign button_size = scaledDiff | times: button_scale_dif | divided_by: 100.0 | plus: scaledMin
+  assign button_size_mobile = scaledDiff | times: button_scale_dif | divided_by: 150.0 | plus: scaledMin
+
+  assign label_scale_dif = settings.type_label_scale | minus: rangeMin
+  assign label_size = scaledDiff | times: label_scale_dif | divided_by: 100.0 | plus: scaledMin
+
+  assign base_size = settings.type_base_scale | minus: 100 | divided_by: 10.0 | times: 0.4 | plus: 14
+
+  assign label_opacity = settings.product_grid_label_opacity | divided_by: 100.0
+  assign label_brand_brightness = settings.color_brand | color_brightness
+
+  assign brightness_breakPoint = 125
+
+  if label_brand_brightness < brightness_breakPoint
+    assign label_brand_text_color = '#FFFFFF'
+  else
+    assign label_brand_text_color = '#000000'
+  endif
+-%}
+
+{% style %}
+  :root {
+    --color--brand: {{ settings.color_brand }};
+    --color--brand-dark: {{ settings.color_brand | color_darken: 5 }};
+    --color--brand-light: {{ settings.color_brand | color_lighten: 5 }};
+
+    --color--accent: {{ settings.color_accent }};
+    --color--accent-dark: {{ settings.color_accent | color_darken: 5 }};
+
+    --color--link: {{ settings.color_brand | color_lighten: 30 }};
+    --color--link-dark: {{ settings.color_brand | color_darken: 30 }};
+
+    --color--text: {{ settings.color_text }};
+    --color--text-rgb: {{ settings.color_text | color_extract: 'red' }}, {{ settings.color_text | color_extract: 'green' }}, {{ settings.color_text | color_extract: 'blue' }};
+    --color--text-light: {{ settings.color_text | color_modify: 'alpha', 0.7 }};
+    --color--text-lighter: {{ settings.color_text | color_modify: 'alpha', 0.55 }};
+    --color--text-lightest: {{ settings.color_text | color_modify: 'alpha', 0.2 }};
+    --color--text-bg: {{ settings.color_text | color_modify: 'alpha', 0.06 }};
+
+    --color--headings: {{ settings.color_headings }};
+    --color--alt-text: {{ settings.color_alt_text }};
+    --color--btn: {{ settings.color_button }};
+
+    --color--product-bg: {{ settings.product_grid_bg }};
+    --color--product-sale: {{ settings.product_grid_sale_color }};
+
+    --color--low-stock: {{ settings.color_low_stock }};
+    --color--in-stock: {{ settings.color_in_stock }};
+
+    --color--title-border: {{ settings.color_header_border }};
+
+    --color--drawer-bg: {{ settings.color_drawer_bg }};
+
+    --color--bg: {{ settings.color_bg }};
+    --color--bg-rgb: {{ settings.color_bg | color_extract: 'red' }}, {{ settings.color_bg | color_extract: 'green' }}, {{ settings.color_bg | color_extract: 'blue' }};
+    --color--bg-alpha: {{ settings.color_bg | color_modify: 'alpha', 0.8 }};
+    --color--bg-light: {{ settings.color_bg | color_lighten: 5 }};
+    --color--bg-dark: {{ settings.color_bg | color_darken: 5 }};
+
+    --color--drop-shadow: {{ drop_shadow }};
+
+    --color--label-brand: {{ settings.color_brand | color_modify: 'alpha', label_opacity }};
+    --color--label-sold_out: {{ settings.color_label_sold_out | color_modify: 'alpha', label_opacity }};
+    --color--label-discount: {{ settings.color_label_discount | color_modify: 'alpha', label_opacity }};
+    --color--label-new: {{ settings.color_label_new | color_modify: 'alpha', label_opacity }};
+    --color--label-pre-order: {{ settings.color_label_pre_order | color_modify: 'alpha', label_opacity }};
+    --color--label-custom1: {{ settings.color_label_custom_one | color_modify: 'alpha', label_opacity }};
+    --color--label-custom2: {{ settings.color_label_custom_two | color_modify: 'alpha', label_opacity }};
+
+    --color--text-label-brand: {{ label_brand_text_color }};
+    --color--text-label-sold_out: {{ settings.color_label_text_sold_out }};
+    --color--text-label-discount: {{ settings.color_label_text_discount }};
+    --color--text-label-new: {{ settings.color_label_text_new }};
+    --color--text-label-pre-order: {{ settings.color_label_text_pre_order }};
+    --color--text-label-custom_one: {{ settings.color_label_text_custom_one }};
+    --color--text-label-custom_two: {{ settings.color_label_text_custom_two }};
+
+    --font--size-base: {{ base_size }};
+    --font--line-base: 30;
+
+    --font--size-h1: {{ base_size | plus: 16 | times: heading_size | round }};
+    --font--size-h2: {{ base_size | plus: 10 | times: heading_size | round }};
+    --font--size-h3: {{ base_size | plus: 6 | times: heading_size | round }};
+    --font--size-h4: {{ base_size | plus: 4 | times: heading_size | round }};
+    --font--size-h5: {{ base_size | plus: 2 | times: heading_size | round }};
+    --font--size-h6: {{ base_size | plus: 1 | times: heading_size | round }};
+
+    --font--size-grid: {{ base_size | times: grid_size | round }};
+    --font--size-nav: {{ base_size | times: nav_size | round }};
+    --font--size-mobile-nav: {{ base_size | times: mobile_nav_size | round }};
+    --font--size-mega-menu: {{ base_size | times: mega_menu_size | round }};
+    --font--size-product-form-headings: {{ base_size | times: product_form_headings_size | times: 1.1 | round }};
+
+    --font--body: {{ base_font.family }}, {{ base_font.fallback_families }};
+    --font--body-style: {{ base_font.style }};
+    --font--body-weight: {{ base_font.weight }};
+
+    --font--title: {{ header_font.family }}, {{ header_font.fallback_families }};
+    --font--title-weight: {{ header_font.weight }};
+    --font--title-style: {{ header_font.style }};
+    --font--title-space: {{ settings.type_header_letterspace }}px;
+    --font--title-transform: {% if settings.type_header_capitalize %}uppercase{% else %}none{% endif %};
+    --font--title-border: {% if settings.type_header_border %}1{% else %}0{% endif %};
+    --font--title-border-size: {{ settings.type_header_border_size }}px;
+
+    --font--button: {{ button_font.family }}, {{ button_font.fallback_families }};
+    --font--button-weight: {{ button_font.weight }};
+    --font--button-style: {{ button_font.style }};
+
+    --font--button-space: {{ settings.type_button_letterspace }}px;
+    --font--button-transform: {% if settings.type_button_capitalize %}uppercase{% else %}none{% endif %};
+    --font--button-size: {{ base_size | times: button_size | round }};
+    --font--button-mobile-size: {{ base_size | times: button_size_mobile | round }};
+
+    --font--label: {{ label_font.family }}, {{ label_font.fallback_families }};
+    --font--label-weight: {{ label_font.weight }};
+    --font--label-style: {{ label_font.style }};
+
+    --font--label-space: {{ settings.type_label_letterspace }}px;
+    --font--label-transform: {% if settings.type_label_capitalize %}uppercase{% else %}none{% endif %};
+    --font--label-size: {{ base_size | times: label_size | round }};
+    --font--label-mobile-size: 12px;
+
+    --font--nav-spacing: {{ settings.type_nav_spacing }}px;
+
+    --radius-button: {{ settings.design_radius_button | times: 0.1 | times: 25 | round }}px;
+    --radius-small-button: {{ settings.design_radius_small_button | times: 0.1 | times: 25 | round }}px;
+    --radius-variant-button: {{ settings.design_radius_variant_button | times: 0.1 | times: 25 | round }};
+    --radius-form: {{ settings.design_radius_form | times: 0.1 | times: 30 | round }}px;
+    --radius-label: {{ settings.design_radius_label | times: 0.1 | times: 25 | round }}px;
+    --radius-popup: {% if settings.design_radius_popup %}{{ settings.design_radius_content | times: 0.1 | times: 30 | round }}{% else %}0{% endif %}px;
+    --radius-container: {% if settings.design_radius_container %}{{ settings.design_radius_content | times: 0.1 | times: 30 | round }}{% else %}0{% endif %}px;
+    --radius-media: {% if settings.design_radius_media %}{{ settings.design_radius_content | times: 0.1 | times: 30 | round }}{% else %}0{% endif %};
+    --radius-menu: {% if settings.design_radius_menu %}{{ settings.design_radius_content | times: 0.1 | times: 25 | round }}{% else %}0{% endif %}px;
+  }
+{% endstyle %}

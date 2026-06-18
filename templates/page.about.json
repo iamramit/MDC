@@ -1,0 +1,75 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "settings": {}
+    },
+    "section_custom_4cgmpB": {
+      "type": "section-custom",
+      "blocks": {
+        "text_Fn7cKR": {
+          "type": "text",
+          "settings": {
+            "title": "",
+            "text": "<p>Our story began in 2001 in a small back room in the middle of nowhere. With only one desk and hardly any free time, our brand was born. A passion for originality and collaboration brought our vision, and our creations, to life.</p>",
+            "align": "center",
+            "width": "1/2"
+          }
+        },
+        "image_TgnAJK": {
+          "type": "image",
+          "settings": {
+            "link": "",
+            "width": "1/1"
+          }
+        },
+        "text_WhgWb3": {
+          "type": "text",
+          "settings": {
+            "title": "Products for everyone",
+            "text": "<p>We bring together thoughtful process and creative vision to craft something truly special. We believe in quality, care, and making things that feel well made. Inspired by the everyday and shaped by what we value most, each item reflects the world as we see it. </p>",
+            "align": "center",
+            "width": "1/2"
+          }
+        },
+        "image_CBP6z8": {
+          "type": "image",
+          "settings": {
+            "link": "",
+            "width": "2/3"
+          }
+        },
+        "text_YaAghq": {
+          "type": "text",
+          "settings": {
+            "title": "Less But Better",
+            "text": "<p>Choose well and buy less. We believe in thoughtful choices and creating products with care and purpose. If anything we make ever lets you down, send it back and we’ll make it right. Or drop by and say hello—we’d love to see you.</p>",
+            "align": "center",
+            "width": "1/2"
+          }
+        },
+        "image_r7CiEH": {
+          "type": "image",
+          "settings": {
+            "link": "",
+            "width": "2/3"
+          }
+        }
+      },
+      "block_order": [
+        "text_Fn7cKR",
+        "image_TgnAJK",
+        "text_WhgWb3",
+        "image_CBP6z8",
+        "text_YaAghq",
+        "image_r7CiEH"
+      ],
+      "settings": {
+        "padding_top": 0,
+        "padding_bottom": 0,
+        "section-bottom-margin": false
+      }
+    }
+  },
+  "order": ["main", "section_custom_4cgmpB"]
+}

@@ -1,0 +1,32 @@
+{% comment %}theme-check-disable NestedSnippet{% endcomment %}
+<div id="cart-templates" style="display: none">
+  {%- if request.page_type == 'cart' or settings.cart_type == 'modal' -%}
+    <template id="template-cart-item-property">
+      {% render 'cart-property' %}
+    </template>
+    <template id="template-price">
+      {% render 'cart-price' %}
+    </template>
+    <template id="template-discount-item">
+      {% render 'cart-discount' %}
+    </template>
+    <template id="template-empty-cart">
+      {% render 'cart-empty' %}
+    </template>
+    <template id="template-spinner">
+      {% render 'theme-spinner' %}
+    </template>
+    <template id="template-cart-gift-wrapping-message">
+      {% render 'cart-gift-wrapping-message' %}
+    </template>
+  {%- endif -%}
+  <template id="template-spinner">
+    {% render 'theme-spinner', tag: 'theme-spinner' %}
+  </template>
+  <template id="template-cart-item-meta">
+    {% render 'cart-meta' %}
+  </template>
+  <template id="template-unit-price">
+    {% render 'unit-price', label: true %}
+  </template>
+</div>

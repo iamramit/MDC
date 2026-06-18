@@ -1,0 +1,69 @@
+items-scroll-paged-navigation.items-scroll {
+  --page-navigation-margin: 42px;
+}
+items-scroll-paged-navigation.items-scroll .page-navigation-wrapper {
+  display: none;
+}
+items-scroll-paged-navigation.items-scroll[scroll-enabled] .page-navigation-wrapper {
+  display: none;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+items-scroll-paged-navigation.items-scroll[scroll-enabled] .page-navigation {
+  display: flex;
+  margin: 0 auto;
+  inline-size: max-content;
+  --gap: 12px;
+  gap: var(--gap, 0.5rem);
+  list-style-type: none;
+}
+items-scroll-paged-navigation.items-scroll[scroll-enabled] .page-navigation__item {
+  display: block;
+  overflow: hidden;
+  width: var(--page-navigation-button-size);
+  height: var(--page-navigation-button-size);
+}
+items-scroll-paged-navigation.items-scroll[scroll-enabled] .page-navigation__button {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  border: 0 none;
+  border-radius: 50%;
+  background-color: var(--color--text);
+  opacity: 0.3;
+  padding: 0;
+  cursor: pointer;
+  transition: opacity 0.2s ease-in-out;
+}
+items-scroll-paged-navigation.items-scroll[scroll-enabled] .page-navigation__button.is-active {
+  opacity: 1;
+}
+items-scroll-paged-navigation.items-scroll[scroll-enabled] .page-navigation-counter {
+  display: inline-flex;
+  align-items: baseline;
+  font-size: 1rem;
+  line-height: 1;
+  position: relative;
+  top: 0.5rem;
+}
+items-scroll-paged-navigation.items-scroll[scroll-enabled] .page-navigation-counter__current {
+  font-size: 1.25em;
+  color: var(--color--text);
+}
+items-scroll-paged-navigation.items-scroll[scroll-enabled] .page-navigation-counter__separator,
+items-scroll-paged-navigation.items-scroll[scroll-enabled] .page-navigation-counter__total {
+  font-size: 0.75em;
+  color: var(--color--text-light);
+}
+items-scroll-paged-navigation.items-scroll[scroll-enabled] .page-navigation-counter__separator {
+  padding: 0 0.25em;
+}
+items-scroll-paged-navigation.items-scroll[scrollable] [data-items] {
+  margin-bottom: var(--page-navigation-margin);
+}
+items-scroll-paged-navigation.items-scroll[scrollable] .page-navigation-wrapper {
+  display: block;
+}
+/*# sourceMappingURL=theme-component-items-scroll-paged-navigation.css.map */

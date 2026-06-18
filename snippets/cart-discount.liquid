@@ -1,0 +1,18 @@
+{%- comment -%}
+  Cart discount item
+
+  Accepts:
+  - title: {String} Discount title
+  - amount: {String} Discount amount
+{%- endcomment -%}
+<span class="discount__icon">
+  {%- render 'icons-theme', icon: 'label' -%}
+</span>
+<discount-title class="discount__title">{{- title -}}</discount-title>
+<span class="discount__amount"
+  ><span class="money"
+    ><discount-amount>
+      {%- if amount != blank -%}{{- amount -}}{%- endif -%}
+    </discount-amount></span
+  ></span
+>

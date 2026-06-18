@@ -1,0 +1,124 @@
+/* ==========================================================================
+   #CUSTOMER ACCOUNT PAGES
+   ========================================================================== */
+.account__reset-link {
+  text-align: right;
+}
+
+.account__form-buttons {
+  margin-top: 18px;
+}
+.account__form-buttons .account__form-submit {
+  margin-right: 24px;
+}
+.account__form-buttons .account__form-secondary-btn {
+  display: inline-block;
+}
+
+.account__guest {
+  margin-top: 60px;
+}
+
+.account .errors,
+.account .success {
+  text-align: center;
+  font-size: 0.95rem;
+  margin-bottom: 24px;
+}
+.account .errors ul,
+.account .success ul {
+  list-style: none;
+  margin: 0;
+}
+.account .errors {
+  color: #d12328;
+}
+.account .success {
+  color: #00964d;
+}
+
+.account__pagination {
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+
+.account__form--address {
+  margin-top: 24px;
+}
+
+.account__address {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--color--text-lightest);
+}
+
+.account__address--first {
+  border: none;
+  padding-top: 0;
+}
+
+.account__address-actions a {
+  font-family: var(--font--button);
+  letter-spacing: var(--font--button-space);
+  text-transform: var(--font--button-transform);
+  font-size: var(--font--button-size);
+  color: var(--color--text);
+  margin: 0 12px;
+  position: relative;
+}
+.account__address-actions a:first-child:after {
+  content: "";
+  width: 4px;
+  height: 4px;
+  background: var(--color--text-lighter);
+  position: absolute;
+  right: -16px;
+  top: 6px;
+  border-radius: 50%;
+}
+
+.account--activate .c-btn--full {
+  margin-bottom: 12px;
+}
+
+.order-table a {
+  text-decoration: underline;
+}
+.order-table tfoot {
+  border-top: 1px solid var(--color--text-lighter);
+  border-top-style: double;
+}
+
+.order-discount--title {
+  font-size: 0.9rem;
+}
+
+.order-discount__item {
+  margin-bottom: 6px;
+}
+
+.order-discount {
+  color: var(--color--product-sale);
+}
+
+@media (max-width: 47.9275em) {
+  .account__reset-link {
+    text-align: left;
+  }
+  .account__form-buttons {
+    text-align: center;
+  }
+  .account__form-buttons .account__form-submit {
+    width: 100%;
+  }
+  .account__form-buttons .account__form-secondary-btn {
+    margin-top: 12px;
+  }
+  .account__guest {
+    margin-top: 42px;
+  }
+  .account__pagination {
+    margin-top: 0;
+  }
+}
+/*# sourceMappingURL=account.css.map */

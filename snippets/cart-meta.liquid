@@ -1,0 +1,13 @@
+{%- comment -%}
+  Cart meta item
+
+  Accepts:
+  - tag: {String} Cart meta item tag
+  - value: {String} Cart meta item value
+{%- endcomment -%}
+{%- liquid
+  if tag == null
+    assign tag = 'property-value'
+  endif
+-%}
+<{{ tag }} class="cart-item__meta">{{- value -}}</{{ tag }}>

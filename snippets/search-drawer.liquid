@@ -1,0 +1,217 @@
+{% comment %}theme-check-disable RemoteAsset{% endcomment %}
+{%- liquid
+  assign search_tag = 'div'
+
+  if settings.search_predictive_enable
+    assign search_tag = 'predictive-search'
+    assign search_attributes = 'type="sidebar" search-url="' | append: routes.search_url | append: '"'
+  else
+    assign search_tag = search_tag | append: ' class="search__form-wrapper"'
+  endif
+
+  assign image_ratio = settings.product_grid_image_size
+  assign fit_image_to_container = settings.product_grid_image_fit
+
+  assign container_ratio = image_ratio
+
+  case container_ratio
+    when '4:3'
+      assign image_sizes = '5.5rem'
+    when '16:9'
+      assign image_sizes = '6rem'
+    when '2:3'
+      assign image_sizes = '4rem'
+    when '3:4'
+      assign image_sizes = '4.5rem'
+    else
+      assign image_sizes = '5rem'
+  endcase
+-%}
+
+{%- if settings.search_predictive_enable -%}
+  <link
+    rel="stylesheet"
+    href="{{ 'predictive-search.css' | asset_url }}"
+    media="print"
+    onload="this.media='all'"
+  >
+  <script src="{{ 'predictive-search.js' | asset_url }}" type="module"></script>
+{%- endif -%}
+
+<script src="{{ 'search-modal.js' | asset_url }}" type="module"></script>
+<search-modal
+  id="modal-search"
+  class="
+    modal
+    modal--search
+    modal--top
+    modal--{{ settings.color_drawer_style }}
+  "
+  aria-labelledby="modal-search-title"
+  aria-hidden="true"
+>
+  <div class="modal__overlay" data-a11y-dialog-hide></div>
+  <div class="modal__wrapper" role="document">
+    <div class="modal__content">
+      <p id="modal-search-title" class="u-hidden-visually">{{ 'general.search.title' | t }}</p>
+      <button
+        title="{{ 'layout.drawers.close' | t }}"
+        type="button"
+        class="modal__close"
+        aria-label="{{ 'layout.drawers.close' | t }}"
+        data-a11y-dialog-hide
+      >
+        {% render 'icons-theme', icon: 'close' %}
+      </button>
+      <div class="search__inner">
+        <{{ search_tag }} {{ search_attributes }}>
+          <script src="{{ 'search-form.js' | asset_url }}" type="module"></script>
+          <search-form>
+            <form action="{{ routes.search_url }}" method="get" class="search__form" role="search">
+              <div class="search__form-input-wrapper">
+                <div class="search__form-input-wrapper-limiter">
+                  <input
+                    id="modal-search-input"
+                    type="search"
+                    name="q"
+                    value=""
+                    class="search__form-input js-search-input"
+                    placeholder="{{ 'general.search.placeholder' | t }}"
+                    aria-label="{{ 'general.search.placeholder' | t }}"
+                    autofocus
+                    {% if settings.search_predictive_enable -%}
+                      role="combobox"
+                      aria-expanded="false"
+                      aria-owns="predictive-search-results-list"
+                      aria-controls="predictive-search-results-list"
+                      aria-haspopup="listbox"
+                      aria-autocomplete="list"
+                      autocorrect="off"
+                      autocomplete="off"
+                      autocapitalize="off"
+                      spellcheck="false"
+                    {%- endif -%}
+                  >
+
+                  <input name="options[prefix]" type="hidden" value="last">
+
+                  <button type="submit" class="search__form-submit" aria-label="{{ 'general.search.submit' | t }}">
+                    {% render 'icons-theme', icon: 'search' %}
+                  </button>
+                </div>
+              </div>
+
+              {%- if settings.search_predictive_enable -%}
+                <predictive-search-results tabindex="-1" hidden></predictive-search-results>
+              {%- endif -%}
+
+              {% if settings.search_recent_searches_enable
+                or settings.search_linklist != blank
+                or settings.search_products.count > 0
+              %}
+                {%- liquid
+                  assign search_content_classes = 'search__content'
+
+                  if settings.search_recent_searches_enable
+                    assign search_content_classes = search_content_classes | append: ' search__content--has-recent-searches'
+                  endif
+
+                  if settings.search_linklist != blank
+                    assign search_content_classes = search_content_classes | append: ' search__content--has-menu'
+                  endif
+
+                  if settings.search_products.count > 0
+                    assign search_content_classes = search_content_classes | append: ' search__content--has-products'
+                  endif
+                -%}
+                <div class="search__content-wrapper js-search-content">
+                  <div class="{{ search_content_classes }}">
+                    {%- if settings.search_recent_searches_enable -%}
+                      <recent-searches class="search__nav" hidden>
+                        <h4 class="search__nav-title f-family--{{ settings.type_mega_menu_style }} f-caps--{{ settings.type_mega_menu_capitalize }} f-space--{{ settings.type_mega_menu_letterspace }}">
+                          {{ 'general.search.recent_searches.title' | t }}
+                        </h4>
+                        <ul class="search__nav-items o-list-bare"></ul>
+                      </recent-searches>
+                    {%- endif -%}
+                    {% assign search_nav = settings.search_linklist %}
+                    {% if linklists[search_nav].links.size > 0 %}
+                      <div class="search__nav">
+                        <h4 class="search__nav-title f-family--{{ settings.type_mega_menu_style }} f-caps--{{ settings.type_mega_menu_capitalize }} f-space--{{ settings.type_mega_menu_letterspace }}">
+                          {{ linklists[search_nav].title }}
+                        </h4>
+                        <ul class="search__nav-items o-list-bare">
+                          {% for link in linklists[search_nav].links %}
+                            <li class="search__nav-item">
+                              <a href="{{ link.url }}" class="search__nav-link">{{ link.title }}</a>
+                            </li>
+                          {% endfor %}
+                        </ul>
+                      </div>
+                    {% endif %}
+
+                    {% if settings.search_products.count > 0 %}
+                      <div class="search__nav">
+                        <div class="search__products">
+                          <h4 class="search__products-title f-family--{{ settings.type_mega_menu_style }} f-caps--{{ settings.type_mega_menu_capitalize }} f-space--{{ settings.type_mega_menu_letterspace }}">
+                            {{ settings.search_products_heading | escape }}
+                          </h4>
+
+                          <ul class="predictive-search__results-list o-list-bare">
+                            {%- for product in settings.search_products -%}
+                              <li id="search-nav-product-{{ forloop.index }}" class="predictive-search__list-item">
+                                <a
+                                  href="{{ product.url }}"
+                                  class="
+                                    predictive-search__item
+                                    predictive-search__item--media-ratio-{{ container_ratio }}
+                                    {% if fit_image_to_container %}
+                                      predictive-search__item--media-fit
+                                    {% else %}
+                                      predictive-search__item--media-crop
+                                    {% endif %}
+                                  "
+                                >
+                                  <div class="o-ratio o-ratio--{{ container_ratio }} o-ratio--bg-product">
+                                    {%- liquid
+                                      assign image = product.featured_media.preview_image
+                                    -%}
+
+                                    {% render 'image',
+                                      image: image,
+                                      additional_classes: 'predictive-search__image o-ratio__content',
+                                      image_ratio: container_ratio,
+                                      image_fit: fit_image_to_container,
+                                      image_srcset_widths: '120, 240, 360',
+                                      image_sizes: image_sizes,
+                                      render_skeleton: true
+                                    %}
+                                  </div>
+
+                                  <div class="predictive-search__item-content">
+                                    <span class="predictive-search__item-heading">{{ product.title }}</span>
+                                    <span class="predictive-search__item-price">
+                                      {%- render 'product-price',
+                                        product: product,
+                                        component: 'predictive-search',
+                                        from_price: true
+                                      -%}
+                                    </span>
+                                  </div>
+                                </a>
+                              </li>
+                            {%- endfor -%}
+                          </ul>
+                        </div>
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>
+              {%- endif -%}
+            </form>
+          </search-form>
+        </{{ search_tag }}>
+      </div>
+    </div>
+  </div>
+</search-modal>

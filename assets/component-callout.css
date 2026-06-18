@@ -1,0 +1,54 @@
+/* ==========================================================================
+   #CALLOUT
+   ========================================================================== */
+.callout {
+  padding: 15px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-color);
+}
+.callout__content {
+  display: flex;
+  gap: 12px;
+  color: var(--color);
+}
+.callout__icon {
+  display: flex;
+}
+.callout__text-container {
+  flex: 1 0 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.callout__heading {
+  font-size: 1.1rem;
+  margin-bottom: 3px;
+  color: inherit;
+  line-height: 1.7;
+  text-transform: initial;
+}
+.callout__heading--bold {
+  font-weight: bold;
+}
+.callout__text {
+  font-size: 1rem;
+  color: inherit;
+  line-height: 1.7;
+}
+.callout__text.rte :is(p, h1, h2, h3, h4, h5, h6),
+.callout__text.rte ol,
+.callout__text.rte ul,
+.callout__text.rte li {
+  margin-bottom: 0;
+}
+.callout__text.rte a {
+  color: inherit;
+  opacity: 0.7;
+}
+.callout__text.rte a:hover {
+  opacity: 1;
+}
+.callout__text .metafield-rich_text_field {
+  margin-bottom: 0;
+}
+/*# sourceMappingURL=component-callout.css.map */

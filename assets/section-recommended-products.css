@@ -1,0 +1,28 @@
+.section--recommended-products .product-card {
+  margin-bottom: 12px;
+}
+.section--recommended-products .items-scroll[scrollable] {
+  margin-bottom: 0px;
+}
+@media (min-width: 47.9375em) {
+  .section--recommended-products .items-scroll[scrollable] {
+    margin-bottom: 0px;
+  }
+}
+.section--recommended-products .items-scroll[scrollable] .product-card {
+  margin-bottom: 0;
+}
+.section--recommended-products .items-scroll[scrollable][items-overflow] [data-items] {
+  margin-bottom: var(--page-navigation-margin);
+  overflow-y: hidden;
+}
+.section--recommended-products .items-scroll[scrollable][items-overflow] [data-items] .product-card {
+  margin-bottom: 0;
+}
+.section--recommended-products.section--has-link .product-card {
+  margin-bottom: 18px;
+}
+.section--recommended-products.section--has-link .items-scroll[scrollable] {
+  margin-bottom: 24px;
+}
+/*# sourceMappingURL=section-recommended-products.css.map */

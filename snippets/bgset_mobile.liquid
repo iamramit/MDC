@@ -1,0 +1,13 @@
+{%- if image != blank -%}
+  {% if image.height > 180 %}{{ image | image_url: width: 180, height: 180, crop: 'center' }} 180w 180h,{% endif %}
+  {% if image.height > 360 %}{{ image | image_url: width: 360, height: 360, crop: 'center' }} 360w 360h,{% endif %}
+  {% if image.height > 540 %}{{ image | image_url: width: 540, height: 540, crop: 'center' }} 540w 540h,{% endif %}
+  {% if image.height > 720 %}{{ image | image_url: width: 720, height: 720, crop: 'center' }} 720w 720h,{% endif %}
+  {% if image.height > 900 %}{{ image | image_url: width: 900, height: 900, crop: 'center' }} 900w 900h,{% endif %}
+  {% if image.height > 1080 %}{{ image | image_url: width: 1080, height: 1080, crop: 'center' }} 1080w 1080h,{% endif %}
+  {% if image.height > 1296 %}{{ image | image_url: width: 1296, height: 1296, crop: 'center' }} 1296w 1296h,{% endif %}
+  {% if image.height > 1512 %}{{ image | image_url: width: 1512, height: 1512, crop: 'center' }} 1512w 1512h,{% endif %}
+  {% if image.height > 1728 %}{{ image | image_url: width: 1728, height: 1728, crop: 'center' }} 1728w 1728h,{% endif %}
+  {% if image.height > 1950 %}{{ image | image_url: width: 1950, height: 1950, crop: 'center' }} 1950w 1950h,{% endif %}
+  {% if image.height > 2100 %}{{ image | image_url: width: 2100, height: 2100, crop: 'center' }} 2100w 2100h,{% endif %}
+{%- endif -%}

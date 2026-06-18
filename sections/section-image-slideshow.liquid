@@ -1,0 +1,405 @@
+{% if section.blocks.size > 0 %}
+  <style>
+    /* Loading states */
+    body[data-editor-mode="false"] .home-carousel--image.is-loading media-carousel-slider {
+        position: relative;
+        overflow: hidden;
+    }
+    body[data-editor-mode="false"] .home-carousel--image.is-loading media-carousel-wrapper {
+      position: absolute;
+    }
+    body[data-editor-mode="false"] .home-carousel--image.is-loading media-carousel-slider::before {
+        content: '';
+        display: block;
+        float: left;
+        position: relative;
+        width: 100%;
+        padding-bottom: {%- if section.blocks[0].settings.image.aspect_ratio -%}{{ 100 | divided_by: section.blocks[0].settings.image.aspect_ratio }}{%- else -%}100{%- endif -%}%;
+    }
+  </style>
+  {%- liquid
+    assign nav_dots_base_color = '#fff'
+
+    if section.settings.section_bottom_margin
+      if section.settings.slideshow_width == 'contained'
+        assign margin_class = 'section--mb-m'
+      else
+        assign margin_class = 'section--mb-0'
+      endif
+    endif
+
+    if request.visual_preview_mode
+      assign margin_class = 'section--mb-0'
+    endif
+  -%}
+  <noscript>
+    <style>
+      .home-carousel--image.is-loading::before {
+        display: none;
+      }
+      .home-carousel--image.is-loading div {
+        position: relative;
+      }
+      .home-carousel--image.is-loading div:not(:first-of-type) {
+        display: block;
+      }
+    </style>
+  </noscript>
+  {% if section.index > 2 or section.location == 'footer' %}
+    <link
+      rel="stylesheet"
+      href="{{ 'component-media-carousel.css' | asset_url }}"
+      media="print"
+      onload="this.media='all'"
+    >
+    <link
+      rel="stylesheet"
+      href="{{ 'section-slideshow.css' | asset_url }}"
+      media="print"
+      onload="this.media='all'"
+    >
+    <link
+      rel="stylesheet"
+      href="{{ 'section-image-carousel.css' | asset_url }}"
+      media="print"
+      onload="this.media='all'"
+    >
+    <noscript>
+      {{ 'component-media-carousel.css' | asset_url | stylesheet_tag }}
+      {{ 'section-slideshow.css' | asset_url | stylesheet_tag }}
+      {{ 'section-image-carousel.css' | asset_url | stylesheet_tag }}
+    </noscript>
+  {% else %}
+    {{ 'component-media-carousel.css' | asset_url | stylesheet_tag }}
+    {{ 'section-slideshow.css' | asset_url | stylesheet_tag }}
+    {{ 'section-image-carousel.css' | asset_url | stylesheet_tag }}
+  {% endif %}
+  <section
+    class="
+      section
+      section--{{ section.id }}
+      {{ margin_class }}
+      {% if section.settings.slideshow_width == 'full' %}section--full section--full-mobile{% endif %}
+    "
+    data-section-id="{{ section.id }}"
+    data-section-type="home-carousel"
+  >
+    {% if section.settings.slideshow_width == 'contained' %}<div class="container">{% endif %}
+
+    <div class="home-carousel-wrapper home-carousel-wrapper--{{ section.settings.slideshow_width }}">
+      {%- if section.index == 1 -%}
+        <link rel="modulepreload" href="{{ 'media-carousel.js' | asset_url }}">
+        <link rel="modulepreload" href="{{ 'swiper.lib.js' | asset_url }}">
+      {%- endif -%}
+      <script src="{{ 'media-carousel.js' | asset_url }}" type="module"></script>
+      <media-carousel
+        class="
+          home-carousel
+          home-carousel--image
+          {% if section.settings.slideshow_width == 'full' %}
+            home-carousel--full
+          {% else %}
+            home-carousel--contained
+          {% endif %}
+          is-loading
+        "
+        data-auto-height="true"
+        data-fade="true"
+        data-speed="400"
+        data-space-between="0"
+        data-loop="true"
+        {% if section.settings.autoplay %}
+          data-autoplay="{{ section.settings.autoplay_speed }}000"
+        {% endif %}
+        {% if section.blocks.size > 1 %}
+          data-navigation="true"
+          data-pagination="true"
+        {% endif %}
+        style="
+          --bullet-color: {{ nav_dots_base_color }};
+          --swiper-pagination-color: {% if section.settings.nav_style == 'solid-brand' %}{{ settings.color_brand }}{% else %}{{ nav_dots_base_color }}{% endif %};
+        "
+      >
+        <media-carousel-slider class="swiper">
+          <media-carousel-wrapper class="swiper-wrapper">
+            {% for block in section.blocks %}
+              <media-carousel-slide class="swiper-slide" {{ block.shopify_attributes }}>
+                {% unless block.settings.link == blank %}
+                  <a href="{{ block.settings.link }}" class="home-carousel--image_link">
+                {% endunless %}
+
+                <div
+                  class="home-carousel__item home-carousel__item--{{ block.id }}"
+                  data-slide-id="{{ forloop.index0 }}"
+                >
+                  {% unless block.settings.image == blank %}
+                    {%- liquid
+                      assign loading = 'lazy'
+                      assign fetchpriority = 'auto'
+                      if section.location == 'template' and section.index == 1
+                        assign loading = 'eager'
+                        assign fetchpriority = 'high'
+                      endif
+                    -%}
+
+                    <picture>
+                      <source
+                        {% if block.settings.image_mobile %}
+                          srcset="{% render 'bgset', image: block.settings.image_mobile %}"
+                        {% else %}
+                          srcset="{% render 'bgset', image: block.settings.image %}"
+                        {% endif %}
+                        media="all and (max-width: 767px)"
+                      >
+                      <source
+                        srcset="{% render 'bgset', image: block.settings.image %}"
+                        media="all and (min-width: 768px)"
+                      >
+                      {%- liquid
+                        assign class = 'home-carousel--image_img'
+
+                        assign image_width = 600
+                        assign image_height = 600 | divided_by: block.settings.image.aspect_ratio | round
+                      -%}
+                      {%- liquid
+                        assign skeleton_image_height = image_height
+                        if block.settings.image_mobile
+                          assign skeleton_image_height = 600 | divided_by: block.settings.image_mobile.aspect_ratio | round
+                        endif
+
+                        assign loading_alt = 'Loading image: ' | append: block.settings.image.alt
+                      -%}
+                      {%- render 'image-skeleton',
+                        alt: loading_alt,
+                        width: image_width,
+                        height: skeleton_image_height
+                      -%}
+                      <img
+                        class="{{ class }}"
+                        src="{{ block.settings.image | image_url: width: 600 }}"
+                        width="{{ image_width }}"
+                        height="{{ image_height }}"
+                        alt="{{ block.settings.image.alt }}"
+                        loading="{{ loading }}"
+                        fetchpriority="{{ fetchpriority }}"
+                        style="
+                          --image-position: {{ block.settings.image.presentation.focal_point }};
+                          --image-position-mobile:  {% if block.settings.image_mobile %}{{ block.settings.image_mobile.presentation.focal_point }}{% else %}{{ block.settings.image.presentation.focal_point }}{% endif %};
+                        "
+                      >
+                    </picture>
+                  {% else %}
+                    {% capture current %}{% cycle 1, 2 %}{% endcapture %}
+                    {{ 'lifestyle-' | append: current | placeholder_svg_tag: 'placeholder-svg' }}
+                  {% endunless %}
+                </div>
+                <div
+                  class="home-carousel--image-overlay u-bg-overlay"
+                  style="
+                    --overlay-color: {{ section.settings.overlay_color }};
+                    --overlay-opacity: {{ section.settings.overlay_strength | times: 1.0 | divided_by: 100 }};
+                  "
+                ></div>
+
+                {% unless block.settings.link == blank %}
+                  </a>
+                {% endunless %}
+              </media-carousel-slide>
+            {% endfor %}
+          </media-carousel-wrapper>
+        </media-carousel-slider>
+
+        {%- if section.blocks.size > 1 -%}
+          <div class="home-carousel__nav {% if section.settings.nav_style contains 'solid' %}home-carousel__nav--solid{% endif %}{% if section.settings.nav_style contains 'outline' %} home-carousel__nav--outline{% endif %}">
+            {%- unless section.settings.hide_nav_arrows -%}
+              <media-carousel-navigation class="media-carousel__navigation">
+                <button
+                  class="
+                    media-carousel__arrow
+                    media-carousel__arrow--prev
+                    js-carousel-prev
+                  "
+                >
+                  {%- render 'icons-theme', icon: 'chevron', additional_classes: 'icon--left' -%}
+                </button>
+                <button
+                  class="
+                    media-carousel__arrow
+                    media-carousel__arrow--next
+                    js-carousel-next
+                  "
+                >
+                  {%- render 'icons-theme', icon: 'chevron' -%}
+                </button>
+              </media-carousel-navigation>
+            {%- endunless -%}
+
+            <media-carousel-pagination
+              class="media-carousel__pagination swiper-pagination js-carousel-pagination"
+            ></media-carousel-pagination>
+          </div>
+        {%- endif -%}
+      </media-carousel>
+    </div>
+
+    {% if section.settings.slideshow_width == 'contained' %}</div>{% endif %}
+  </section>
+{% endif %}
+
+{% if section.blocks.size == 0 %}
+  <div class="placeholder-noblocks">
+    {{ 'homepage.onboarding.no_content' | t }}
+  </div>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Image slideshow",
+  "class": "js-section__home-slider",
+  "max_blocks": 5,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Width"
+    },
+    {
+      "type": "select",
+      "id": "slideshow_width",
+      "label": "Section width",
+      "default": "contained",
+      "options": [
+        {
+          "label": "Contained",
+          "value": "contained"
+        },
+        {
+          "label": "Full",
+          "value": "full"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Carousel"
+    },
+    {
+      "type": "select",
+      "id": "nav_style",
+      "label": "Navigation buttons",
+      "default": "solid-brand",
+      "options": [
+        {
+          "value": "solid-brand",
+          "label": "Solid dots (brand)"
+        },
+        {
+          "value": "solid-mono",
+          "label": "Solid dots (mono)"
+        },
+        {
+          "value": "outline",
+          "label": "Outline dots"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_nav_arrows",
+      "label": "Hide navigation arrows",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Auto rotate carousel",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "label": "Rotate slides every",
+      "unit": "sec",
+      "min": 5,
+      "max": 10,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Overlay color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "overlay_strength",
+      "label": "Overlay strength",
+      "unit": "%",
+      "min": 0,
+      "max": 100,
+      "step": 10,
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Margin"
+    },
+    {
+      "type": "checkbox",
+      "id": "section_bottom_margin",
+      "label": "Reduce bottom margin",
+      "default": false
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "Image slide",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "2200px width recommended."
+        },
+        {
+          "type": "image_picker",
+          "id": "image_mobile",
+          "label": "Mobile image",
+          "info": "Alternative image for mobile devices. 1200px width and portrait ratio recommended."
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Image slideshow",
+      "settings": {
+        "autoplay": true,
+        "autoplay_speed": 8
+      },
+      "blocks": [
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        }
+      ]
+    }
+  ],
+  "enabled_on": {
+    "templates": ["*"],
+    "groups": ["footer"]
+  }
+}
+{% endschema %}

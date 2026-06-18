@@ -1,0 +1,36 @@
+{%- comment -%}
+  Renders Payment Icons Block
+
+  Accepts:
+  - align: {String}
+  - icon_size_desktop: {String}
+  - icon_size_mobile: {String}
+{%- endcomment -%}
+
+{%- liquid
+  if icon_size_desktop
+    assign icon_size_desktop = icon_size_desktop | times: 6 | plus: 18 | append: 'px'
+  endif
+
+  if icon_size_mobile
+    assign icon_size_mobile = icon_size_mobile | times: 6 | plus: 18 | append: 'px'
+  endif
+-%}
+
+<link rel="stylesheet" href="{{ 'component-payment-icons.css' | asset_url }}" media="print" onload="this.media='all'">
+<noscript>
+  {{ 'component-payment-icons.css' | asset_url | stylesheet_tag }}
+</noscript>
+
+{%- if shop.enabled_payment_types.size > 0 -%}
+  <ul
+    class="payment-icons payment-icons--{{ align }} icons-list"
+    style="--icon-size_desktop: {{ icon_size_desktop }}; --icon-size_mobile: {{ icon_size_mobile }};"
+  >
+    {%- for type in shop.enabled_payment_types -%}
+      <li class="icons-list__item">
+        {{- type | payment_type_svg_tag: class: 'payment-icon' -}}
+      </li>
+    {%- endfor -%}
+  </ul>
+{%- endif -%}

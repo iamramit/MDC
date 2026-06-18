@@ -1,0 +1,279 @@
+{% comment %}theme-check-disable RemoteAsset{% endcomment %}
+{%- comment -%}
+  Cart item
+
+  Accepts:
+  - cart_item: {Object} Cart item
+  - key: {String} Cart item key (in case there are duplicates)
+  - no_quantity_input: {Boolean} Disable quantity input
+  - form_id: {String} Form id
+  - image_sizes: {String} Image sizes
+  - no_links: {Boolean} Disable links
+  - additional_classes: {String} Additional classes
+  - additional_details: {String} Additional details
+  - title_tag: {String} Title tag (optional)
+{%- endcomment -%}
+{%- liquid
+  assign cart_item_attributes = ''
+
+  assign image_ratio = settings.product_grid_image_size
+  assign fit_image_to_container = settings.product_grid_image_fit
+
+  assign container_ratio = image_ratio
+
+  assign cart_item_attributes = cart_item_attributes | append: ' image-container-ratio="' | append: container_ratio | append: '"'
+  if fit_image_to_container
+    assign cart_item_attributes = cart_item_attributes | append: ' image-fit'
+  endif
+
+  if cart_item
+    if key == blank
+      assign key = cart_item.key
+    endif
+    assign cart_item_attributes = cart_item_attributes | append: ' key="' | append: key | append: '"' | append: ' rendered'
+    assign url = cart_item.url
+    assign title = cart_item.product.title
+
+    if cart_item.image
+      assign image = cart_item.image
+    endif
+
+    if container_ratio == 'natural'
+      assign image_container_bottom_padding = '100%'
+      if image != null
+        assign image_container_bottom_padding = 1 | divided_by: image.aspect_ratio | times: 100 | append: '%'
+      endif
+    endif
+
+    assign image_alt = 'Image for ' | append: title | escape
+
+    unless cart_item.variant.title contains 'Default'
+      assign default_property = cart_item.variant.title
+    endunless
+  else
+    assign url = '#'
+    assign title = ''
+
+    if container_ratio == 'natural'
+      assign image_container_bottom_padding = '100%'
+    endif
+
+    assign image_alt = 'Loading...'
+  endif
+
+  assign cart_item_classes = 'cart-item cart-item--media-ratio-' | append: container_ratio
+  if fit_image_to_container
+    assign cart_item_classes = cart_item_classes | append: ' cart-item--media-fit'
+  else
+    assign cart_item_classes = cart_item_classes | append: ' cart-item--media-crop'
+  endif
+  assign cart_item_classes = cart_item_classes | append: ' ' | append: additional_classes
+  if cart_item.line_level_discount_allocations.size > 0 and cart_item
+    assign cart_item_classes = cart_item_classes | append: ' has-discounts'
+  endif
+
+  assign tag = 'div'
+  assign link_attributes = ''
+  unless no_links
+    assign tag = 'a'
+    assign link_attributes = link_attributes | append: ' cart-item-url' | append: ' href="' | append: url | append: '"'
+  endunless
+
+  unless title_tag
+    assign title_tag = 'h2'
+  endunless
+-%}
+<cart-item
+  class="{{ cart_item_classes }}"
+  {{ cart_item_attributes }}
+>
+  <div class="cart-item__media">
+    <{{ tag }}
+      {{ link_attributes }}
+      class="o-ratio o-ratio--{{ container_ratio }} o-ratio--bg-product"
+      {% if image_container_bottom_padding %}
+        style="padding-bottom:{{ image_container_bottom_padding }}"
+      {% endif %}
+    >
+      <cart-item-image-container class="o-ratio__content">
+        {% render 'image',
+          image: image,
+          additional_classes: 'cart-item__image',
+          image_default_width: 120,
+          image_ratio: container_ratio,
+          image_fit: fit_image_to_container,
+          image_srcset_widths: '120, 240, 360, 480',
+          image_sizes: image_sizes,
+          alt_string: image_alt,
+          render_skeleton: true
+        %}
+      </cart-item-image-container>
+    </{{ tag }}>
+  </div>
+
+  <cart-item-details class="cart-item__details {% if settings.cart_vendor_enable -%}cart-item__details--has-vendor{%- endif -%}">
+    {%- if settings.cart_vendor_enable -%}
+      <cart-item-vendor class="cart-item__vendor">
+        {%- if cart_item.vendor -%}{% render 'cart-meta', value: cart_item.vendor %}{%- endif -%}
+      </cart-item-vendor>
+    {%- endif -%}
+
+    <div class="cart-item__header">
+      <{{ tag }} {{ link_attributes }}>
+        <{{ title_tag }} class="cart-item__heading f-family--{{ settings.type_grid_style }}">
+          <cart-item-title>{{- title -}}</cart-item-title>
+        </{{ title_tag }}>
+      </{{ tag }}>
+    </div>
+
+    <div class="cart-item__price">
+      <cart-item-spinner></cart-item-spinner>
+      <cart-item-final-line-price>
+        {%- if cart_item.original_line_price != cart_item.final_line_price and cart_item -%}
+          {%- assign price = cart_item.final_line_price | money -%}
+          {% render 'cart-price', value: price, additional_classes: 'price--sale', price_tag: 'money-amount' %}
+        {%- endif -%}
+      </cart-item-final-line-price>
+      <cart-item-original-line-price>
+        {%- liquid
+          if cart_item
+            if cart_item.original_line_price != cart_item.final_line_price
+              assign price = cart_item.original_line_price | money
+              render 'cart-price', value: price, additional_classes: 'price--original'
+            else
+              assign price = cart_item.original_line_price | money
+              render 'cart-price', value: price
+            endif
+          endif
+        -%}
+      </cart-item-original-line-price>
+    </div>
+
+    <cart-item-micro-copy class="cart-item__micro-copy">
+      <cart-item-default-property>
+        {%- if default_property != null -%}
+          {% render 'cart-meta', value: default_property %}
+        {%- endif -%}
+      </cart-item-default-property>
+      <cart-item-properties>
+        {%- liquid
+          if cart_item.properties != empty and cart_item
+            for p in cart_item.properties
+              assign property_first_char = p.first | slice: 0
+              if p.last != blank and property_first_char != '_'
+                assign name = p.first
+
+                if cart_item.gift_card
+                  if name == 'Recipient email'
+                    assign name = 'recipient.form.email' | t
+                  elsif name == 'Recipient name'
+                    assign name = 'recipient.form.name' | t
+                  elsif name == 'Recipient message'
+                    assign name = 'recipient.form.message' | t
+                  elsif name == 'Recipient send on'
+                    assign name = 'recipient.form.send_on' | t
+                  endif
+                endif
+
+                if p.last contains '/uploads/'
+                  assign link_text = p.last | split: '/' | last
+                  assign value = '<a href="' | append: p.last | append: '">' | append: link_text | append: '</a>'
+                else
+                  assign value = p.last
+                endif
+
+                render 'cart-property', name: name, value: value
+              endif
+            endfor
+          endif
+        -%}
+      </cart-item-properties>
+      {%- if settings.cart_sku_enable -%}
+        <cart-item-sku>
+          {%- liquid
+            if cart_item.sku != blank
+              render 'cart-meta', value: cart_item.sku
+            endif
+          -%}
+        </cart-item-sku>
+      {%- endif -%}
+      <cart-item-unit-price>
+        {%- comment -%}theme-check-disable LiquidTag{%- endcomment -%}
+        {%- if cart_item.unit_price_measurement and cart_item -%}
+          {%- capture unit_price_base_unit -%}
+            {%- if cart_item.unit_price_measurement.reference_value != 1 -%}
+              {{- cart_item.unit_price_measurement.reference_value -}}
+            {%- endif -%}
+            {{ cart_item.unit_price_measurement.reference_unit }}
+          {%- endcapture -%}
+          {% assign unit_price = cart_item.unit_price | money %}
+          {% render 'unit-price', price: unit_price, base_unit: unit_price_base_unit, label: true %}
+        {%- endif -%}
+        {%- comment -%}theme-check-enable LiquidTag{%- endcomment -%}
+      </cart-item-unit-price>
+      <cart-item-selling-plan-allocation>
+        {%- liquid
+          unless cart_item.selling_plan_allocation == null
+            assign additional_value = ''
+            if cart_item.selling_plan_allocation.compare_at_price != cart_item.selling_plan_allocation.price and cart_item.selling_plan_allocation.compare_at_price != null
+              assign compare_at_ratio = cart_item.selling_plan_allocation.price | plus: 1.0 | divided_by: cart_item.selling_plan_allocation.compare_at_price
+              assign percentage_off_subscription = 1 | minus: compare_at_ratio | times: 100 | round | append: '%'
+              assign additional_value = ' (-' | append: percentage_off_subscription | append: ')'
+            endif
+            assign value = cart_item.selling_plan_allocation.selling_plan.name | append: additional_value
+            render 'cart-meta', value: value
+          endunless
+        -%}
+      </cart-item-selling-plan-allocation>
+      {{- additional_details -}}
+    </cart-item-micro-copy>
+  </cart-item-details>
+
+  <div class="cart-item__qty">
+    <cart-item-quantity>
+      {%- liquid
+        if no_quantity_input and cart_item
+          assign quantity_display = '<quantity-display class="cart-item__qty-display">' | append: cart_item.quantity | append: '</quantity-display>'
+          echo quantity_display
+        elsif cart_item
+          assign id = 'updates_' | append: cart_item.key
+          render 'cart-quantity-input', id: id, value: cart_item.quantity, name: 'updates[]', form_id: form_id
+        endif
+      -%}
+    </cart-item-quantity>
+    {%- liquid
+      if cart_item
+        assign remove_url = routes.cart_change_url | append: '?line=' | append: index | append: '&amp;quantity=0'
+      else
+        assign remove_url = '#'
+      endif
+    -%}
+    <a cart-item-remove href="{{- remove_url -}}" class="cart-item__remove">
+      {%- assign icon_title = 'cart.general.remove' | t -%}
+      {%- render 'icons-theme', icon: 'delete', title: icon_title -%}
+    </a>
+    <cart-item-errors class="cart-item__errors"></cart-item-errors>
+  </div>
+
+  <cart-item-discounts class="cart-item__discounts">
+    <discount-list>
+      {%- if cart_item.line_level_discount_allocations.size > 0 and cart_item -%}
+        <ul class="discounts">
+          {%- for discount_allocation in cart_item.line_level_discount_allocations -%}
+            <li class="discount">
+              {%- liquid
+                if discount_allocation.amount > 0
+                  assign discount_amount = discount_allocation.amount | money
+                endif
+              -%}
+              {% render 'cart-discount',
+                title: discount_allocation.discount_application.title,
+                amount: discount_amount
+              %}
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+    </discount-list>
+  </cart-item-discounts>
+</cart-item>

@@ -1,0 +1,80 @@
+{%- comment -%}
+  Render subcollection card
+{%- endcomment -%}
+
+{%- liquid
+  if image_source == 'first_product_image'
+    assign collection_image = null
+    for product in collection.products
+      if product.featured_image
+        assign collection_image = product.featured_image
+        assign use_product_image = true
+        break
+      endif
+    endfor
+    if collection_image == null and collection.featured_image
+      assign collection_image = collection.featured_image
+      assign use_product_image = false
+    endif
+  elsif collection.featured_image
+    assign collection_image = collection.featured_image
+    unless collection.image
+      assign use_product_image = true
+    endunless
+  else
+    assign collection_image = null
+    assign use_product_image = false
+  endif
+
+  if image_ratio == 'circle'
+    assign image_render_ratio = '1:1'
+  else
+    assign image_render_ratio = image_ratio
+  endif
+-%}
+{%- capture image_sizes -%}
+  (min-width: 981px) {{ image_size_desktop | round }}px, {{ image_size_mobile | round }}px
+{%- endcapture -%}
+
+{%- capture image_classes -%}
+  {%- if use_product_image -%}
+    sub-collections__item-image sub-collections__item-image--product
+  {%- else -%}
+    sub-collections__item-image sub-collections__item-image--collection
+  {%- endif -%}
+{%- endcapture -%}
+
+<a
+  href="{{ url }}"
+  class="sub-collections__link{% if active %} sub-collections__link--active{% endif %}"
+>
+  <div
+    class="o-ratio o-ratio--{{ image_ratio }}"
+  >
+    <div class="o-ratio__content">
+      {% if collection_image %}
+        {% render 'image',
+          image: collection_image,
+          additional_classes: image_classes,
+          alt_string: collection_image.alt,
+          image_ratio: image_render_ratio,
+          image_fit: image_fit,
+          image_srcset_widths: '90, 180, 270, 360, 540, 720, 900',
+          image_sizes: image_sizes,
+          loading: loading,
+          render_skeleton: true
+        %}
+      {% else %}
+        <div class="sub-collections__item-empty-image"></div>
+      {% endif %}
+    </div>
+  </div>
+  <h3
+    class="sub-collections__item-text"
+  >
+    {%- if is_parent -%}
+      {%- render 'icons-theme', icon: 'chevron', additional_classes: 'icon--left', title: 'Previous Page' -%}
+    {%- endif -%}
+    {{- title -}}
+  </h3>
+</a>

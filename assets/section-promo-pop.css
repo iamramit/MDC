@@ -1,0 +1,94 @@
+/* ==========================================================================
+   #PROMOTION POPUP SECTION (CRITICAL)
+   ========================================================================== */
+.popup.popup--promo {
+  --width: 540px;
+}
+.popup.popup--promo .popup__content {
+  padding: 30px;
+}
+
+.promo-pop__title {
+  display: block;
+  position: relative;
+  max-width: 660px;
+  margin: 0 0 24px;
+  padding-right: 24px;
+  margin-bottom: 12px;
+}
+
+.promo-pop__title-text {
+  position: relative;
+  margin: 0;
+}
+
+/* ==========================================================================
+   #PROMOTION POPUP SECTION (REST)
+   ========================================================================== */
+.promo-pop__close {
+  position: absolute;
+  right: 0;
+  top: 0;
+  text-align: center;
+  color: var(--color--text-lighter);
+  display: block;
+  font-size: 24px;
+  width: 42px;
+  height: 42px;
+  line-height: 44px;
+  top: 0;
+  right: 0;
+}
+.promo-pop__close:hover {
+  color: var(--color--text);
+}
+
+.promo-pop__title {
+  margin-bottom: 12px;
+  padding-right: 24px;
+}
+
+.promo-pop__form {
+  margin-top: 18px;
+}
+
+.promo-pop__input {
+  width: 70%;
+  float: left;
+  margin: 0;
+}
+
+.promo-pop__btn {
+  width: 30%;
+}
+
+.promo-pop__link {
+  margin-top: 18px;
+  display: inline-block;
+}
+
+@media (max-width: 47.9275em) {
+  .promo-pop--no-mobile {
+    display: none !important;
+  }
+  .promo-pop {
+    right: 0;
+    bottom: 0;
+    padding: 18px;
+    -ms-transform: translateX(0);
+    -webkit-transform: translateX(0);
+    transform: translateX(0);
+    -ms-transform: translateY(100%);
+    -webkit-transform: translateY(100%);
+    transform: translateY(100%);
+  }
+  .promo-pop__input {
+    width: 100%;
+  }
+  .promo-pop__btn {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 9px;
+  }
+}
+/*# sourceMappingURL=section-promo-pop.css.map */

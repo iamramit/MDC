@@ -1,0 +1,126 @@
+{% comment %}
+  Section button
+
+  Accepts:
+  - title: {String} Section button title
+  - link: {String} Section button url
+  - style: {String} Section button style
+  - color_text: {String} Section level text color (optional)
+  - additional_classes: {String} Additional classes (optional)
+  - additional_link_classes: {String} Additional link element classes (optional)
+
+  Usage:
+    {% render 'section-link',
+      title: section.settings.section_link_title,
+      link: section.settings.section_link_link,
+      style: section.settings.section_link_style,
+      color_text: section.settings.color_text,
+      additional_classes: 'u-mt0',
+      additional_link_classes: 'js-update-link'
+    %}
+
+  Settings:
+    {
+      "type": "header",
+      "content": "Section button"
+    },
+    {
+      "type": "text",
+      "id": "section_link_title",
+      "label": "Label",
+      "default": "View all"
+    },
+    {
+      "type": "url",
+      "id": "section_link_link",
+      "label": "Link"
+    },
+    {
+      "type": "select",
+      "id": "section_link_style",
+      "label": "Style",
+      "default": "link link--arrow",
+      "options": [
+        {
+          "value": "c-btn c-btn--primary",
+          "label": "Brand button"
+        },
+        {
+          "value": "c-btn c-btn--mono",
+          "label": "Mono button"
+        },
+        {
+          "value": "c-btn c-btn--hollow",
+          "label": "Outline button"
+        },
+        {
+          "value": "link link--arrow",
+          "label": "Chevron"
+        },
+        {
+          "value": "link--underline",
+          "label": "Body text"
+        }
+      ]
+    }
+{% endcomment %}
+
+{%- liquid
+  if color_text == blank
+    assign color_text = settings.color_text
+  endif
+  assign text_color_brightness = color_text | color_brightness
+  assign button_color = 'initial'
+  assign button_hover_color = 'initial'
+  assign button_background_color = 'initial'
+  assign button_hover_background_color = 'initial'
+  if style contains 'link'
+    assign button_color = color_text
+  elsif style == 'c-btn c-btn--hollow'
+    assign button_color = color_text
+    if text_color_brightness > 125
+      assign text_contrast_color = '#000'
+    else
+      assign text_contrast_color = '#fff'
+    endif
+    assign button_hover_color = text_contrast_color
+    assign button_hover_background_color = color_text
+  elsif style == 'c-btn c-btn--mono'
+    assign button_background_color = color_text
+    if text_color_brightness < 125
+      assign button_color = 'white'
+      assign button_hover_color = 'white'
+      assign button_hover_background_color = color_text | color_lighten: 10
+    else
+      assign button_color = 'black'
+      assign button_hover_color = 'black'
+      assign button_hover_background_color = color_text | color_darken: 10
+    endif
+  endif
+-%}
+
+{% if title != blank and link != blank %}
+  <div
+    class="section__link section__link--center js-animate-single {{ additional_classes }}"
+    data-animation-displacement="0"
+    style="
+      --button-color: {{ button_color }};
+      --button-hover-color: {{ button_hover_color }};
+      --button-background-color: {{ button_background_color }};
+      --button-hover-background-color: {{ button_hover_background_color }};
+      {% if color_text %}
+        --color-text: {{ color_text }};
+      {% endif %}
+    "
+  >
+    <a
+      href="{{ link }}"
+      class="section__link-link {{ style }} {{ additional_link_classes }}"
+    >
+      {{- title | escape -}}
+      {%- if style contains 'link--arrow' -%}
+        {% render 'icons-theme', icon: 'chevron' %}
+      {%- endif -%}
+    </a>
+  </div>
+{% endif %}

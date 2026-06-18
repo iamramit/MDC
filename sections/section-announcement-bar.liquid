@@ -1,0 +1,1609 @@
+{%- if section.blocks.size > 0 -%}
+  {% if section.index > 2 and section.location != 'header' %}
+    <link
+      rel="stylesheet"
+      href="{{ 'section-announcement-bar.css' | asset_url }}"
+      media="print"
+      onload="this.media='all'"
+    >
+    <noscript>
+      {{ 'section-announcement-bar.css' | asset_url | stylesheet_tag }}
+    </noscript>
+  {% else %}
+    {{ 'section-announcement-bar.css' | asset_url | stylesheet_tag }}
+  {% endif %}
+  {%- liquid
+    assign color = section.settings.message_color_text
+
+    assign letter_spacing = section.settings.text_letter_spacing | append: 'px'
+
+    assign font_size_desktop = section.settings.text_size_desktop | times: 0.05 | plus: 0.75 | append: 'rem'
+    assign font_size_mobile = section.settings.text_size_mobile | times: 0.05 | plus: 0.75 | append: 'rem'
+  -%}
+  <section
+    class="
+      section
+      section--announcement-bar
+      section--{{ section.id }}
+      {% if section.settings.section_bottom_margin %}section--mb-0{% endif %}
+    "
+    data-section-id="{{ section.id }}"
+    data-section-type="announcement-bar"
+    style="
+      --space-top: {{ section.settings.padding_top }}px;
+      --space-bottom: {{ section.settings.padding_bottom }}px
+    "
+  >
+    <announcement-bar
+      id="{{ section.id }}"
+      class="announcement"
+      aria-label="Announcement Bar"
+      aria-live="polite"
+      aria-atomic="true"
+      {% unless section.settings.carousel_desktop %}
+        static
+      {% endunless %}
+      {% if section.settings.auto_carousel %}
+        autoplay="{{ section.settings.auto_carousel }}"
+        autoplay-delay="{{ section.settings.carousel_speed }}000"
+      {% endif %}
+      {% if section.settings.close_icon %}
+        dismissible
+      {% endif %}
+      style="
+        --color: {{ color }};
+        --letter-spacing: {{ letter_spacing }};
+        --font-size__desktop: {{ font_size_desktop }};
+        --font-size__mobile: {{ font_size_mobile }};
+        {% if section.settings.text_bold %}--font-weight: 600;{% endif %}
+        {% if section.settings.text_capitalize %}--text-transform: uppercase;{% endif %}
+      "
+    >
+      <div
+        class="
+          announcement__bg
+          {% if section.settings.divider_top %}announcement--divider-top{% endif %}
+          {% if section.settings.divider_bottom %}announcement--divider-bottom{% endif %}
+          section--padded
+        "
+        style="background-color: {{ section.settings.message_color_bg }};"
+      >
+        <div class="announcement__container announcement__container--carousel" tabindex="0">
+          <ol class="announcement__wrapper announcement__wrapper--carousel" role="list" aria-label="Announcements">
+            {%- for block in section.blocks -%}
+              {%- case block.type -%}
+                {%- when 'announcement' -%}
+                  <li
+                    id="{{ block.id }}"
+                    class="{{ block.type }} announcement__slides announcement__slides--carousel"
+                    data-slide-id="{{ forloop.index }}"
+                    {{ block.shopify_attributes }}
+                    role="listitem"
+                    tabindex="0"
+                    aria-roledescription="Announcement"
+                    aria-label="{{ forloop.index }} of {{ forloop.length }}"
+                  >
+                    {%- if block.settings.text != blank -%}
+                      <div class="announcement__message {% unless section.settings.carousel_desktop %}announcement__messages--{{ forloop.length }}{% endunless %}">
+                        {%- if block.settings.link != blank -%}
+                          {%- if block.settings.text_link == blank -%}
+                            <a href="{{ block.settings.link }}" class="announcement__link">
+                          {%- endif -%}
+                        {%- endif -%}
+
+                        <div class="announcement__text announcement__text--{{ section.settings.text_style }}">
+                          {% unless block.settings.icon == 'none' %}
+                            <span class="announcement__icon block--{{ block.id }}">
+                              {%- liquid
+                                assign custom_svg = null
+                                if block.settings['svg-code'] != blank
+                                  assign custom_svg = block.settings['svg-code']
+                                endif
+                              -%}
+
+                              {% render 'icons-selection',
+                                icon: block.settings.icon,
+                                icon_color: section.settings.message_color_text,
+                                custom_svg: custom_svg
+                              %}
+                            </span>
+                          {% endunless %}
+                          <span>{{ block.settings.text | escape }}</span>
+                          {%- if block.settings.text_link != blank -%}
+                            <span
+                              ><a href="{{ block.settings.link }}" class="announcement__link__text">
+                                {{- block.settings.text_link | escape -}}
+                              </a></span
+                            >
+                          {%- endif -%}
+                        </div>
+
+                        {%- if block.settings.link != blank -%}
+                          {%- if block.settings.text_link == blank -%}
+                            </a>
+                          {%- endif -%}
+                        {%- endif -%}
+                      </div>
+                    {%- endif -%}
+                  </li>
+
+                {%- when 'announcement_pop-up' -%}
+                  <li
+                    id="{{ block.id }}"
+                    class="{{ block.type }} announcement__slides announcement__slides--carousel"
+                    data-slide-id="{{ forloop.index }}"
+                    {{ block.shopify_attributes }}
+                    role="listitem"
+                    tabindex="0"
+                    aria-roledescription="Announcement"
+                    aria-label="{{ forloop.index }} of {{ forloop.length }}"
+                  >
+                    {%- if block.settings.text != blank -%}
+                      {% unless block.settings.popup_content == blank
+                        and block.settings.popup_text_heading == blank
+                        and block.settings.image == blank
+                        and block.settings.image_link == blank
+                        and block.settings.popup_text == blank
+                      %}
+                        <popup-dialog
+                          id="announcement-popup-draw-{{ block.id }}"
+                          class="
+                            popup
+                            popup--full
+                          "
+                          data-disable-body-scroll
+                          aria-labelledby="announcement-popup-{{ block.id }}-title"
+                          aria-hidden="true"
+                        >
+                          <div class="popup__overlay" data-a11y-dialog-hide></div>
+
+                          <div class="popup__wrapper">
+                            <div
+                              class="popup__content"
+                              role="document"
+                            >
+                              <div class="announcement-popup-draw__wrapper">
+                                {% unless block.settings.popup_text_heading == blank %}
+                                  <div class="announcement-popup__head">
+                                    <div class="announcement-popup__label">
+                                      <h3
+                                        id="announcement-popup-{{ block.id }}-title"
+                                        class="announcement-popup__label-title h4"
+                                      >
+                                        {{ block.settings.popup_text_heading }}
+                                      </h3>
+                                    </div>
+                                  </div>
+                                {% endunless %}
+
+                                <button
+                                  title="{{ 'layout.drawers.close' | t }}"
+                                  type="button"
+                                  class="popup__close"
+                                  aria-label="{{ 'layout.drawers.close' | t }}"
+                                  data-a11y-dialog-hide
+                                >
+                                  {% render 'icons-theme', icon: 'close' %}
+                                </button>
+
+                                <div class="announcement-popup__inner rte">
+                                  {% if block.settings.image != blank or block.settings.popup_text != blank %}
+                                    {% if block.settings.image != blank %}
+                                      {%- if block.settings.image_link != blank -%}
+                                        <a href="{{ block.settings.image_link }}" class="announcement__link">
+                                      {%- endif -%}
+                                      <div class="announcement-popup__image">
+                                        {% render 'image',
+                                          image: block.settings.image,
+                                          additional_classes: 'product-popup__media-img',
+                                          alt_string: block.settings.image.alt,
+                                          image_ratio: 'natural',
+                                          image_srcset_widths: '180, 360, 540, 720, 900, 1080, 1296, 1512',
+                                          image_sizes: '(min-width: 700px) 640px, 100vw',
+                                          render_skeleton: true
+                                        %}
+                                      </div>
+                                      {%- if block.settings.image_link != blank -%}
+                                        </a>
+                                      {%- endif -%}
+                                    {% endif %}
+                                    {% if block.settings.popup_text != blank %}
+                                      <div class="announcement-popup__text{% if block.settings.image != blank %} announcement-popup__text--margin{% endif %} rte">
+                                        {{ block.settings.popup_text }}
+                                      </div>
+                                    {% endif %}
+
+                                  {% else %}
+                                    {{ pages[block.settings.popup_content].content }}
+                                  {% endif %}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </popup-dialog>
+                      {% endunless %}
+
+                      <div class="announcement__message {% unless section.settings.carousel_desktop %}announcement__messages--{{ forloop.length }}{% endunless %}">
+                        {%- if block.settings.text_link == blank -%}
+                          <a
+                            href="{{ block.settings.popup_content.url }}"
+                            class="announcement__link"
+                            data-popup-id="{{ block.id }}"
+                            data-a11y-dialog-show="announcement-popup-draw-{{ block.id }}"
+                          >
+                        {%- endif -%}
+
+                        <div class="announcement__text announcement__text--{{ section.settings.text_style }}">
+                          {% unless block.settings.icon == 'none' %}
+                            <span class="announcement__icon block--{{ block.id }}">
+                              {%- liquid
+                                assign custom_svg = null
+                                if block.settings['svg-code'] != blank
+                                  assign custom_svg = block.settings['svg-code']
+                                endif
+                              -%}
+
+                              {% render 'icons-selection',
+                                icon: block.settings.icon,
+                                icon_color: section.settings.message_color_text,
+                                custom_svg: custom_svg
+                              %}
+                            </span>
+                          {% endunless %}
+
+                          <span>{{ block.settings.text | escape }}</span>
+
+                          {%- if block.settings.text_link != blank -%}
+                            <span
+                              ><a
+                                href="{{ block.settings.popup_content.url }}"
+                                class="announcement__link__text"
+                                data-popup-id="{{ block.id }}"
+                                data-a11y-dialog-show="announcement-popup-draw-{{ block.id }}"
+                              >
+                                {{- block.settings.text_link | escape -}}
+                              </a></span
+                            >
+                          {%- endif -%}
+                        </div>
+
+                        {%- if block.settings.text_link == blank -%}
+                          </a>
+                        {%- endif -%}
+                      </div>
+                    {%- endif -%}
+                  </li>
+              {%- endcase -%}
+            {%- endfor -%}
+          </ol>
+        </div>
+      </div>
+    </announcement-bar>
+
+    <script src="{{ 'announcement-bar.js' | asset_url }}" type="module"></script>
+
+    {% if section.settings.close_icon and request.design_mode == false %}
+      <script>
+        var thisAnnouncementBar = document.querySelector('announcement-bar#{{ section.id }}');
+        var announcementSessionStorageValue = sessionStorage.getItem(thisAnnouncementBar.id);
+
+        if (announcementSessionStorageValue === '0') {
+          thisAnnouncementBar.setAttribute('hidden', 'hidden');
+        }
+      </script>
+    {% endif %}
+  </section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Announcement bar",
+  "class": "js-section__announcement",
+  "max_blocks": 5,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Visibility"
+    },
+    {
+      "type": "checkbox",
+      "id": "close_icon",
+      "label": "Show close icon",
+      "info": "Disabled in the theme editor but will work as expected on your live store.",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Carousel",
+      "info": "Layout defaults to carousel on desktop when announcement blocks exceed available width."
+    },
+    {
+      "type": "checkbox",
+      "id": "carousel_desktop",
+      "label": "Enable carousel on desktop",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "auto_carousel",
+      "label": "Auto rotate carousel",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "carousel_speed",
+      "label": "Rotate items every",
+      "unit": "sec",
+      "min": 5,
+      "max": 10,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Colors and borders"
+    },
+    {
+      "type": "color",
+      "id": "message_color_bg",
+      "label": "Section background",
+      "default": "#212121"
+    },
+    {
+      "type": "color",
+      "id": "message_color_text",
+      "label": "Text",
+      "default": "#F2F2F2"
+    },
+    {
+      "type": "checkbox",
+      "id": "divider_top",
+      "label": "Show top border",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "divider_bottom",
+      "label": "Show bottom border",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "text_size_desktop",
+      "label": "Text size (desktop)",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "text_size_mobile",
+      "label": "Text size (mobile)",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "type": "select",
+      "id": "text_style",
+      "label": "Font style",
+      "options": [
+        {
+          "value": "body",
+          "label": "Body"
+        },
+        {
+          "value": "heading",
+          "label": "Heading"
+        }
+      ],
+      "default": "body"
+    },
+    {
+      "type": "checkbox",
+      "id": "text_bold",
+      "label": "Bold",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "text_capitalize",
+      "label": "Capitalize",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "text_letter_spacing",
+      "label": "Letter spacing",
+      "unit": "px",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Padding and margin"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "unit": "px",
+      "min": 0,
+      "max": 120,
+      "step": 3,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "unit": "px",
+      "min": 0,
+      "max": 120,
+      "step": 3,
+      "default": 0
+    },
+    {
+      "type": "checkbox",
+      "id": "section_bottom_margin",
+      "label": "Reduce bottom margin",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "announcement",
+      "name": "Announcement",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "default": "icon-megaphone",
+          "options": [
+            {
+              "value": "none",
+              "label": "none"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-crypto-currency-bitcoin-circle",
+              "label": "bitcoin in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-accounting-coins-stack",
+              "label": "coin stack"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-credit-card",
+              "label": "credit cards"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-discount-circle",
+              "label": "discount in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-dollar-circle",
+              "label": "dollar in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-euro-circle",
+              "label": "euro in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-gift-box",
+              "label": "gift box"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-saving-piggy-bank",
+              "label": "piggy-bank"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-pound-circle",
+              "label": "pound in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shopping-bag",
+              "label": "shopping bag"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shopping-basket",
+              "label": "shopping basket"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shopping-cart-empty-1",
+              "label": "shopping cart"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-tags-1",
+              "label": "shopping label"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shop",
+              "label": "store"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-yuan-circle",
+              "label": "yuan in circle"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-conversation-chat-text",
+              "label": "chat"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-headphones-customer-support",
+              "label": "customer support"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-read-email-at",
+              "label": "email symbol"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-envelope",
+              "label": "envelope"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-media-facebook",
+              "label": "facebook"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-instagram",
+              "label": "instagram"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-light-bulb-shine",
+              "label": "lightbulb"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-like-1",
+              "label": "like"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-professional-network-linkedin",
+              "label": "linkedin"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-love-it",
+              "label": "love"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-megaphone",
+              "label": "megaphone"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-alarm-bell-1",
+              "label": "notification bell"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-question-circle",
+              "label": "question in circle"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-send-email",
+              "label": "send"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-mobile-phone",
+              "label": "telephone"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-media-tiktok",
+              "label": "tiktok"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-media-twitter",
+              "label": "twitter"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-video-player",
+              "label": "video"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-fruit-apple",
+              "label": "apple"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-flying-insect-bee-4",
+              "label": "bee"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-fast-food-double-burger",
+              "label": "burger"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-vegetables-carrot",
+              "label": "carrot"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-champagne-cheers",
+              "label": "champagne glasses"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-cocktail-martini",
+              "label": "cocktail glass"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-coffee-cup",
+              "label": "cup"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-donut",
+              "label": "doughnut"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-pasta-bowl-warm",
+              "label": "food bowl"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-ice-cream-stick",
+              "label": "ice cream"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-ecology-leaf",
+              "label": "leaf"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-organic-plant-grow-1",
+              "label": "plant"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-asian-food-rice",
+              "label": "rice bowl"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-rooster",
+              "label": "rooster"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-seafood-fish",
+              "label": "seafood"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-barbecue-steak",
+              "label": "steak"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-fruit-watermelon",
+              "label": "watermelon"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-farming-wheat",
+              "label": "wheat"
+            },
+            {
+              "group": "General",
+              "value": "icon-matches-fire",
+              "label": "fire"
+            },
+            {
+              "group": "General",
+              "value": "icon-flash",
+              "label": "lightning"
+            },
+            {
+              "group": "General",
+              "value": "icon-maps-pin-1",
+              "label": "map"
+            },
+            {
+              "group": "General",
+              "value": "icon-pin",
+              "label": "map pin"
+            },
+            {
+              "group": "General",
+              "value": "icon-navigation-menu",
+              "label": "navigation menu"
+            },
+            {
+              "group": "General",
+              "value": "icon-search-1",
+              "label": "search icon"
+            },
+            {
+              "group": "General",
+              "value": "icon-single-neutral",
+              "label": "user icon"
+            },
+            {
+              "group": "Product",
+              "value": "icon-book-close",
+              "label": "book"
+            },
+            {
+              "group": "Product",
+              "value": "icon-camera-1",
+              "label": "camera"
+            },
+            {
+              "group": "Product",
+              "value": "icon-diamond",
+              "label": "diamond"
+            },
+            {
+              "group": "Product",
+              "value": "icon-download-bottom",
+              "label": "download"
+            },
+            {
+              "group": "Product",
+              "value": "icon-tank-top-female-2",
+              "label": "female shirt"
+            },
+            {
+              "group": "Product",
+              "value": "icon-footwear-heels-1",
+              "label": "footwear heels"
+            },
+            {
+              "group": "Product",
+              "value": "icon-footwear-sneakers",
+              "label": "footwear sneakers"
+            },
+            {
+              "group": "Product",
+              "value": "icon-headphones",
+              "label": "headphones"
+            },
+            {
+              "group": "Product",
+              "value": "icon-picture-stack-landscape",
+              "label": "images"
+            },
+            {
+              "group": "Product",
+              "value": "icon-laundry-retro-iron",
+              "label": "iron"
+            },
+            {
+              "group": "Product",
+              "value": "icon-hospital-first-aid",
+              "label": "medical"
+            },
+            {
+              "group": "Product",
+              "value": "icon-notes-list",
+              "label": "notes"
+            },
+            {
+              "group": "Product",
+              "value": "icon-color-painting-palette",
+              "label": "palette"
+            },
+            {
+              "group": "Product",
+              "value": "icon-pencil-2",
+              "label": "pencil"
+            },
+            {
+              "group": "Product",
+              "value": "icon-pill",
+              "label": "pill"
+            },
+            {
+              "group": "Product",
+              "value": "icon-recycling-sign",
+              "label": "recycling"
+            },
+            {
+              "group": "Product",
+              "value": "icon-ruler",
+              "label": "ruler"
+            },
+            {
+              "group": "Product",
+              "value": "icon-clothes-design-sewing-machine",
+              "label": "sewing machine"
+            },
+            {
+              "group": "Product",
+              "value": "icon-shirt",
+              "label": "shirt"
+            },
+            {
+              "group": "Product",
+              "value": "icon-fitness-jumping-rope",
+              "label": "skipping rope"
+            },
+            {
+              "group": "Product",
+              "value": "icon-ice-snowflake",
+              "label": "snowflake"
+            },
+            {
+              "group": "Product",
+              "value": "icon-glasses-retro",
+              "label": "spectacles"
+            },
+            {
+              "group": "Product",
+              "value": "icon-clothes-design-tape-measure",
+              "label": "tape measure"
+            },
+            {
+              "group": "Product",
+              "value": "icon-task-list-to-do",
+              "label": "to do list"
+            },
+            {
+              "group": "Product",
+              "value": "icon-hammer-wrench",
+              "label": "tools"
+            },
+            {
+              "group": "Product",
+              "value": "icon-trousers-calves-2",
+              "label": "trousers"
+            },
+            {
+              "group": "Product",
+              "value": "icon-laundry-machine-2",
+              "label": "washing machine"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-calendar-date",
+              "label": "calendar"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-delivery-truck-3",
+              "label": "delivery truck"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-shipment-give",
+              "label": "hand shipment"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-shipment-package",
+              "label": "package shipment"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-keyboard-arrow-return",
+              "label": "return"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-sea-transport-boat",
+              "label": "shipping"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-stopwatch",
+              "label": "stopwatch"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-warehouse-cart-package-ribbon-1",
+              "label": "warehouse package"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-award-medal",
+              "label": "award medal"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-award-ribbon-star-1",
+              "label": "award ribbon"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-award-trophy-star-1",
+              "label": "award trophy"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-check-circle-1",
+              "label": "checkmark in circle"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-shield-check",
+              "label": "checkmark in shield"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-flag",
+              "label": "flag"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-single-neutral-id-card-3",
+              "label": "ID card"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-lock-2",
+              "label": "lock"
+            }
+          ]
+        },
+        {
+          "type": "html",
+          "id": "svg-code",
+          "label": "SVG icon code",
+          "info": "Learn more about adding your own SVG icons [here](https://support.safeasmilk.co/article/236-general-add-custom-svg-icons-to-your-theme)."
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Text",
+          "default": "Store updates and announcements"
+        },
+        {
+          "type": "text",
+          "id": "text_link",
+          "label": "Link label",
+          "info": "Leave this field blank to turn the whole announcement text into the link."
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        }
+      ]
+    },
+    {
+      "type": "announcement_pop-up",
+      "name": "Announcement with pop-up",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "default": "icon-megaphone",
+          "options": [
+            {
+              "value": "none",
+              "label": "none"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-crypto-currency-bitcoin-circle",
+              "label": "bitcoin in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-accounting-coins-stack",
+              "label": "coin stack"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-credit-card",
+              "label": "credit cards"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-discount-circle",
+              "label": "discount in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-dollar-circle",
+              "label": "dollar in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-euro-circle",
+              "label": "euro in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-gift-box",
+              "label": "gift box"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-saving-piggy-bank",
+              "label": "piggy-bank"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-pound-circle",
+              "label": "pound in circle"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shopping-bag",
+              "label": "shopping bag"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shopping-basket",
+              "label": "shopping basket"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shopping-cart-empty-1",
+              "label": "shopping cart"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-tags-1",
+              "label": "shopping label"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-shop",
+              "label": "store"
+            },
+            {
+              "group": "Commerce",
+              "value": "icon-currency-yuan-circle",
+              "label": "yuan in circle"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-conversation-chat-text",
+              "label": "chat"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-headphones-customer-support",
+              "label": "customer support"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-read-email-at",
+              "label": "email symbol"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-envelope",
+              "label": "envelope"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-media-facebook",
+              "label": "facebook"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-instagram",
+              "label": "instagram"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-light-bulb-shine",
+              "label": "lightbulb"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-like-1",
+              "label": "like"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-professional-network-linkedin",
+              "label": "linkedin"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-love-it",
+              "label": "love"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-megaphone",
+              "label": "megaphone"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-alarm-bell-1",
+              "label": "notification bell"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-question-circle",
+              "label": "question in circle"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-send-email",
+              "label": "send"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-mobile-phone",
+              "label": "telephone"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-media-tiktok",
+              "label": "tiktok"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-social-media-twitter",
+              "label": "twitter"
+            },
+            {
+              "group": "Communication",
+              "value": "icon-video-player",
+              "label": "video"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-fruit-apple",
+              "label": "apple"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-flying-insect-bee-4",
+              "label": "bee"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-fast-food-double-burger",
+              "label": "burger"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-vegetables-carrot",
+              "label": "carrot"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-champagne-cheers",
+              "label": "champagne glasses"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-cocktail-martini",
+              "label": "cocktail glass"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-coffee-cup",
+              "label": "cup"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-donut",
+              "label": "doughnut"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-pasta-bowl-warm",
+              "label": "food bowl"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-ice-cream-stick",
+              "label": "ice cream"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-ecology-leaf",
+              "label": "leaf"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-organic-plant-grow-1",
+              "label": "plant"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-asian-food-rice",
+              "label": "rice bowl"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-rooster",
+              "label": "rooster"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-seafood-fish",
+              "label": "seafood"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-barbecue-steak",
+              "label": "steak"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-fruit-watermelon",
+              "label": "watermelon"
+            },
+            {
+              "group": "Food and Drink",
+              "value": "icon-farming-wheat",
+              "label": "wheat"
+            },
+            {
+              "group": "General",
+              "value": "icon-matches-fire",
+              "label": "fire"
+            },
+            {
+              "group": "General",
+              "value": "icon-flash",
+              "label": "lightning"
+            },
+            {
+              "group": "General",
+              "value": "icon-maps-pin-1",
+              "label": "map"
+            },
+            {
+              "group": "General",
+              "value": "icon-pin",
+              "label": "map pin"
+            },
+            {
+              "group": "General",
+              "value": "icon-navigation-menu",
+              "label": "navigation menu"
+            },
+            {
+              "group": "General",
+              "value": "icon-search-1",
+              "label": "search icon"
+            },
+            {
+              "group": "General",
+              "value": "icon-single-neutral",
+              "label": "user icon"
+            },
+            {
+              "group": "Product",
+              "value": "icon-book-close",
+              "label": "book"
+            },
+            {
+              "group": "Product",
+              "value": "icon-camera-1",
+              "label": "camera"
+            },
+            {
+              "group": "Product",
+              "value": "icon-diamond",
+              "label": "diamond"
+            },
+            {
+              "group": "Product",
+              "value": "icon-download-bottom",
+              "label": "download"
+            },
+            {
+              "group": "Product",
+              "value": "icon-tank-top-female-2",
+              "label": "female shirt"
+            },
+            {
+              "group": "Product",
+              "value": "icon-footwear-heels-1",
+              "label": "footwear heels"
+            },
+            {
+              "group": "Product",
+              "value": "icon-footwear-sneakers",
+              "label": "footwear sneakers"
+            },
+            {
+              "group": "Product",
+              "value": "icon-headphones",
+              "label": "headphones"
+            },
+            {
+              "group": "Product",
+              "value": "icon-picture-stack-landscape",
+              "label": "images"
+            },
+            {
+              "group": "Product",
+              "value": "icon-laundry-retro-iron",
+              "label": "iron"
+            },
+            {
+              "group": "Product",
+              "value": "icon-hospital-first-aid",
+              "label": "medical"
+            },
+            {
+              "group": "Product",
+              "value": "icon-notes-list",
+              "label": "notes"
+            },
+            {
+              "group": "Product",
+              "value": "icon-color-painting-palette",
+              "label": "palette"
+            },
+            {
+              "group": "Product",
+              "value": "icon-pencil-2",
+              "label": "pencil"
+            },
+            {
+              "group": "Product",
+              "value": "icon-pill",
+              "label": "pill"
+            },
+            {
+              "group": "Product",
+              "value": "icon-recycling-sign",
+              "label": "recycling"
+            },
+            {
+              "group": "Product",
+              "value": "icon-ruler",
+              "label": "ruler"
+            },
+            {
+              "group": "Product",
+              "value": "icon-clothes-design-sewing-machine",
+              "label": "sewing machine"
+            },
+            {
+              "group": "Product",
+              "value": "icon-shirt",
+              "label": "shirt"
+            },
+            {
+              "group": "Product",
+              "value": "icon-fitness-jumping-rope",
+              "label": "skipping rope"
+            },
+            {
+              "group": "Product",
+              "value": "icon-ice-snowflake",
+              "label": "snowflake"
+            },
+            {
+              "group": "Product",
+              "value": "icon-glasses-retro",
+              "label": "spectacles"
+            },
+            {
+              "group": "Product",
+              "value": "icon-clothes-design-tape-measure",
+              "label": "tape measure"
+            },
+            {
+              "group": "Product",
+              "value": "icon-task-list-to-do",
+              "label": "to do list"
+            },
+            {
+              "group": "Product",
+              "value": "icon-hammer-wrench",
+              "label": "tools"
+            },
+            {
+              "group": "Product",
+              "value": "icon-trousers-calves-2",
+              "label": "trousers"
+            },
+            {
+              "group": "Product",
+              "value": "icon-laundry-machine-2",
+              "label": "washing machine"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-calendar-date",
+              "label": "calendar"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-delivery-truck-3",
+              "label": "delivery truck"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-shipment-give",
+              "label": "hand shipment"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-shipment-package",
+              "label": "package shipment"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-keyboard-arrow-return",
+              "label": "return"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-sea-transport-boat",
+              "label": "shipping"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-stopwatch",
+              "label": "stopwatch"
+            },
+            {
+              "group": "Shipping",
+              "value": "icon-warehouse-cart-package-ribbon-1",
+              "label": "warehouse package"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-award-medal",
+              "label": "award medal"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-award-ribbon-star-1",
+              "label": "award ribbon"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-award-trophy-star-1",
+              "label": "award trophy"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-check-circle-1",
+              "label": "checkmark in circle"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-shield-check",
+              "label": "checkmark in shield"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-flag",
+              "label": "flag"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-single-neutral-id-card-3",
+              "label": "ID card"
+            },
+            {
+              "group": "Trust",
+              "value": "icon-lock-2",
+              "label": "lock"
+            }
+          ]
+        },
+        {
+          "type": "html",
+          "id": "svg-code",
+          "label": "SVG icon code",
+          "info": "Learn more about adding your own SVG icons [here](https://support.safeasmilk.co/article/236-general-add-custom-svg-icons-to-your-theme)."
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Text",
+          "default": "Store updates and announcements"
+        },
+        {
+          "type": "text",
+          "id": "text_link",
+          "label": "Pop-up link label",
+          "info": "Leave this field blank to turn the whole announcement text into the link."
+        },
+        {
+          "type": "header",
+          "content": "Pop-up content"
+        },
+        {
+          "type": "page",
+          "id": "popup_content",
+          "label": "Page"
+        },
+        {
+          "type": "header",
+          "content": "Custom pop-up content",
+          "info": "Any image or text added here will replace the selected page content."
+        },
+        {
+          "type": "text",
+          "id": "popup_text_heading",
+          "label": "Pop-up heading"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "url",
+          "id": "image_link",
+          "label": "Image link"
+        },
+        {
+          "type": "richtext",
+          "id": "popup_text",
+          "label": "Text",
+          "info": "Any image or text added here will replace the selected page content"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Announcement bar",
+      "blocks": [
+        {
+          "type": "announcement",
+          "settings": {
+            "icon": "icon-megaphone"
+          }
+        },
+        {
+          "type": "announcement",
+          "settings": {
+            "icon": "icon-delivery-truck-3"
+          }
+        }
+      ]
+    }
+  ],
+  "enabled_on": {
+    "templates": ["*"],
+    "groups": ["header", "footer"]
+  }
+}
+{% endschema %}

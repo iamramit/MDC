@@ -1,0 +1,39 @@
+<style>
+  {%- liquid
+    assign base_font = settings.type_base_font
+    assign header_font = settings.type_header_font
+  -%}
+
+  {{ base_font | font_face: font_display: 'swap' }}
+  {{ header_font | font_face: font_display: 'swap' }}
+
+  {%- liquid
+    assign base_font_bold = base_font | font_modify: 'weight', 'bolder'
+    assign base_font_italic = base_font | font_modify: 'style', 'italic'
+    assign base_font_bold_italic = base_font_bold | font_modify: 'style', 'italic'
+  -%}
+
+  {%- if base_font_bold -%}
+    {{ base_font_bold | font_face: font_display: 'swap' }}
+  {%- endif -%}
+
+  {%- if base_font_italic -%}
+    {{ base_font_italic | font_face: font_display: 'swap' }}
+  {%- endif -%}
+
+  {%- if base_font_bold_italic -%}
+    {{ base_font_bold_italic | font_face: font_display: 'swap' }}
+  {%- endif -%}
+</style>
+
+{{ 'base.css' | asset_url | stylesheet_tag }}
+<link rel="stylesheet" href="{{ 'global.css' | asset_url }}" media="print" onload="this.media='all'">
+<noscript>
+  {{ 'global.css' | asset_url | stylesheet_tag }}
+</noscript>
+{% if template contains 'customers' %}
+  <link rel="stylesheet" href="{{ 'account.css' | asset_url }}" media="print" onload="this.media='all'">
+  <noscript>
+    {{ 'account.css' | asset_url | stylesheet_tag }}
+  </noscript>
+{% endif %}

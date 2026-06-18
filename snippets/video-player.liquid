@@ -1,0 +1,168 @@
+{% doc %}
+  Render video player
+
+  @param {string} id - Video player ID
+  @param {string} video_type - Video type ('html5', 'youtube' or 'vimeo')
+  @param {object} [video] - Video object
+  @param {string} [external_video_id] - External video id
+  @param {string} [additional_classes] - Additional classes
+  @param {string} [additional_attributes] - Additional attributes
+  @param {object} [poster_image] - Video poster image
+  @param {string} [poster_image_loading] - Video poster image loading type (lazy or eager)
+  @param {string} [poster_image_sizes] - Video poster image sizes
+  @param {string} [poster_image_widths] - Video poster image widths
+  @param {string} [aspect_ratio] - Video aspect ratio in the form of '16 / 9'
+  @param {string} [button_color] - Button color (light, dark, primary)
+  @param {string} [muted] - Mute video
+  @param {boolean} [loop] - Enable loop
+  @param {boolean} [disable_controls] - Disable controls
+  @param {boolean} [plays_inline] - Enable playsinline attribute
+  @param {boolean} [native] - Use native video player
+  @param {boolean} [autoplay] - Autoplay video
+{% enddoc %}
+
+{%- liquid
+  if poster_image_loading == blank
+    assign poster_image_loading = 'lazy'
+  endif
+
+  if poster_image_widths == blank
+    assign poster_image_widths = '246, 493, 600, 713, 823, 990, 1100, 1206, 1346, 1426, 1646, 1946'
+  endif
+
+  comment
+    TODO: Video preview images aren't seem to be resizing properly, ie crop is not working
+    Find a workaround
+  endcomment
+  assign poster_classes = 'video-poster'
+  assign poster_image_url = null
+  assign poster_height = 1946 | divided_by: video.aspect_ratio
+  if poster_image == null or poster_image == blank
+    if video_type == 'html5'
+      assign native_poster_image_url = video.preview_image | image_url: width: 768, height: poster_height, crop: 'center'
+      assign poster_image = video.preview_image | image_url: width: 1946, height: poster_height, crop: 'center' | image_tag: loading: poster_image_loading, sizes: poster_image_sizes, widths: poster_image_widths
+      assign aspect_ratio_difference = video.aspect_ratio | divided_by: video.preview_image.aspect_ratio
+      if aspect_ratio_difference < 0.95 or aspect_ratio_difference > 1.05
+        assign poster_classes = poster_classes | append: ' video-poster--cover'
+      endif
+    endif
+  else
+    if video_type == 'youtube' or video_type == 'vimeo'
+      assign poster_image_url = poster_image | image_url: width: 1946
+      assign poster_classes = poster_classes | append: ' video-poster--cover'
+    else
+      assign aspect_ratio_difference = video.aspect_ratio | divided_by: poster_image.aspect_ratio
+      if aspect_ratio_difference < 0.95 or aspect_ratio_difference > 1.05
+        assign poster_classes = poster_classes | append: ' video-poster--cover'
+      endif
+    endif
+    assign native_poster_image_url = poster_image | image_url: width: 1946, height: poster_height, crop: 'center'
+    assign poster_image = poster_image | image_url: width: 1946, height: poster_height, crop: 'center' | image_tag: loading: poster_image_loading, sizes: poster_image_sizes, widths: poster_image_widths
+  endif
+
+  if button_color == blank
+    assign button_color = 'primary'
+  endif
+
+  if native
+    assign additional_classes = additional_classes | append: ' video-player--native'
+  endif
+-%}
+
+{% comment %} Styles are in base.css {% endcomment %}
+<script src="{{ 'video-player.js' | asset_url }}" type="module"></script>
+<video-player
+  class="video-player video-player--button-{{ button_color }} {{ additional_classes }}"
+  data-type="{{ video_type }}"
+  {% if poster_image_url %}
+    data-poster="{{ poster_image_url }}"
+  {% endif %}
+  {% if aspect_ratio %}
+    style="--aspect-ratio: {{ aspect_ratio }}"
+  {% endif %}
+  {% if additional_attributes %}
+    {{ additional_attributes }}
+  {% endif %}
+  {% if muted %}
+    data-muted
+  {% endif %}
+  {% if loop %}
+    data-loop
+  {% endif %}
+  {% unless disable_controls %}
+    data-controls
+  {% endunless %}
+  {% if plays_inline %}
+    data-playsinline
+  {% endif %}
+>
+  <video-element></video-element>
+  {% if poster_image %}
+    <video-poster
+      class="{{ poster_classes }}"
+      {% if video_type == 'vimeo' and poster_image == null %}
+        data-video-id="{{ external_video_id }}"
+      {% endif %}
+    >
+      {%- if poster_image -%}
+        {{ poster_image }}
+      {%- elsif poster_image_url -%}
+        {% comment %} theme-check-disable ImgWidthAndHeight, RemoteAsset {% endcomment %}
+        <img src="{{ poster_image_url }}" loading="lazy">
+        {% comment %} theme-check-enable ImgWidthAndHeight, RemoteAsset {% endcomment %}
+      {%- endif -%}
+    </video-poster>
+
+    <button class="video-play-button" hidden aria-label="Play">
+      {% render 'icons-theme', icon: 'play' %}
+    </button>
+  {% endif %}
+  {% render 'theme-spinner', tag: 'video-loading-indicator', hidden: true %}
+  <template>
+    {%- unless video_type == 'html5' -%}
+      {%- liquid
+        if video_type == 'youtube'
+          assign src = 'https://www.youtube-nocookie.com/embed/' | append: external_video_id | append: '?enablejsapi=1&modestbranding=1'
+        elsif video_type == 'vimeo'
+          assign src = 'https://player.vimeo.com/video/' | append: external_video_id | append: '?'
+        endif
+
+        if autoplay
+          assign src = src | append: '&autoplay=1'
+        endif
+        if loop
+          assign src = src | append: '&loop=1'
+        endif
+        if muted
+          assign src = src | append: '&mute=1'
+        endif
+        if plays_inline
+          assign src = src | append: '&playsinline=1'
+        endif
+      -%}
+      <iframe
+        video-element
+        id="{{ id }}"
+        src="{{ src }}"
+        frameborder="0"
+        allow="autoplay;fullscreen"
+      ></iframe>
+    {%- else -%}
+      {%- liquid
+        assign style = 'aspect-ratio: ' | append: video.aspect_ratio
+      -%}
+      {{
+        video
+        | video_tag:
+          autoplay: autoplay,
+          controlslist: 'nodownload',
+          disablepictureinpicture: 'disablepictureinpicture',
+          poster: native_poster_image_url,
+          muted: muted,
+          loop: loop,
+          playsinline: plays_inline,
+          style: style
+      }}
+    {%- endunless -%}
+  </template>
+</video-player>

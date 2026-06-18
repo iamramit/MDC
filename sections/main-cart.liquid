@@ -1,0 +1,247 @@
+{% comment %}theme-check-disable NestedSnippet{% endcomment %}
+{%- liquid
+  assign notify_on_add = false
+  if settings.cart_type == 'notification'
+    assign notify_on_add = true
+  endif
+
+  case settings.product_grid_image_size
+    when '4:3'
+      assign cart_item_image_size_multiplyer = 0.225
+      assign recommendations_image_size_multiplyer = 0.35
+    when '16:9'
+      assign cart_item_image_size_multiplyer = 0.275
+      assign recommendations_image_size_multiplyer = 0.4
+    when '2:3'
+      assign cart_item_image_size_multiplyer = 0.15
+      assign recommendations_image_size_multiplyer = 0.25
+    when '3:4'
+      assign cart_item_image_size_multiplyer = 0.175
+      assign recommendations_image_size_multiplyer = 0.275
+    else
+      assign cart_item_image_size_multiplyer = 0.2
+      assign recommendations_image_size_multiplyer = 0.3
+  endcase
+
+  if settings.cart_gift_wrapping_product
+    assign gift_wrapping_product_id = settings.cart_gift_wrapping_product.variants.first.id
+  endif
+-%}
+{%- capture cart_item_image_sizes -%}
+  (min-width: 1200px) {{ 625 | times: cart_item_image_size_multiplyer | round }}px,
+  (min-width: 981px) calc((100vw - 48px - 30px * 2 - 18px * 2) * 0.6 * {{ cart_item_image_size_multiplyer }}),
+  (min-width: 636px) {{ 560 | times: cart_item_image_size_multiplyer | round }}px,
+  calc((100vw - 18px * 4) * {{ cart_item_image_size_multiplyer }})
+{%- endcapture -%}
+{%- capture recommendations_image_sizes -%}
+  (min-width: 1200px) {{ 270 | times: recommendations_image_size_multiplyer | round }}px,
+  (min-width: 981px) calc((100vw - 120px - 30px * 2 - 18px * 3) * 0.4 * {{ recommendations_image_size_multiplyer }}),
+  (min-width: 636px) {{ 415 | times: recommendations_image_size_multiplyer | round }}px,
+  calc((100vw - 120px - 18px * 5) * {{ recommendations_image_size_multiplyer }})
+{%- endcapture -%}
+{% if section.index > 2 %}
+  <link
+    rel="stylesheet"
+    href="{{ 'component-cart.css' | asset_url }}"
+    media="print"
+    onload="this.media='all'"
+  >
+  <noscript>
+    {{ 'component-cart.css' | asset_url | stylesheet_tag }}
+  </noscript>
+{% else %}
+  {{ 'component-cart.css' | asset_url | stylesheet_tag }}
+{% endif %}
+<section
+  class="section section--cart cart cart--page section--{{ section.id }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="cart-page"
+>
+  <div id="cart-main-templates" style="display: none">
+    {%- liquid
+      assign cart_id = 'main-cart'
+    -%}
+    <template id="template-cart">
+      <cart-full class="cart__wrapper">
+        <div class="cart__contents">
+          {%- if settings.cart_free_shipping_bar_enable -%}
+            {% render 'cart-free-shipping-bar', reveal_delay: 400 %}
+          {%- endif -%}
+          <cart-items
+            class="cart__items"
+            form-id="{{ cart_id }}"
+            {% if gift_wrapping_product_id %}
+              gift-wrapping-product-id="{{ gift_wrapping_product_id }}"
+            {% endif %}
+          ></cart-items>
+          {%- render 'cart-gift-wrapping-banner' -%}
+        </div>
+        <sticky-scroll class="cart__aside">
+          {% render 'cart-details',
+            form_id: cart_id,
+            note_inside_accordion: true,
+            show_continue_shopping_link: section.settings.continue_link_enabled,
+            show_heading: true,
+            show_additional_checkout_buttons: section.settings.additional_checkout_buttons_enabled
+          %}
+          {%- if settings.cart_show_recommendations -%}
+            {% render 'cart-recommendations',
+              id: 'cart-recommendations',
+              title: settings.cart_recommendations_title,
+              reduced_title: true,
+              enable_quick_shop: settings.quick_shop_enabled,
+              show_mini_cards: true,
+              grid: 1,
+              grid_mobile: 1,
+              notify_on_add: notify_on_add,
+              image_sizes: recommendations_image_sizes
+            %}
+          {%- endif -%}
+        </sticky-scroll>
+        {% if section.settings.continue_link_enabled %}
+          <a
+            href="{% if settings.cart_continue_link %}{{ settings.cart_continue_link }}{% else %}{{ routes.root_url }}{% endif %}"
+            class="link link--arrow-left cart__continue"
+          >
+            {%- render 'icons-theme', icon: 'chevron', additional_classes: 'icon--left' -%}
+            {{- 'cart.general.continue_shopping' | t -}}
+          </a>
+        {% endif %}
+      </cart-full>
+    </template>
+    <template id="template-cart-item">
+      {% render 'cart-item', form_id: cart_id, image_sizes: cart_item_image_sizes %}
+    </template>
+    <template id="template-quantity-input">
+      {% render 'cart-quantity-input', form_id: cart_id %}
+    </template>
+  </div>
+
+  <div class="container container--medium">
+    {%- if settings.cart_announcement -%}
+      {%- render 'cart-announcement' -%}
+    {%- endif -%}
+
+    <div class="section__title js-animate-single" data-animation-displacement="5">
+      <h1 class="section__title-text h2">{{ 'cart.general.title' | t }}</h1>
+      {%- liquid
+        assign cart_quantity_info_content = 'cart.general.items.plural' | t
+        if cart.item_count == 1
+          assign cart_quantity_info_content = 'cart.general.items.singular' | t
+        endif
+      -%}
+      <cart-quantity-info
+        class="cart-draw__quantity-info"
+        {% if cart.item_count == 0 %}
+          hidden
+        {% endif %}
+        >(<items-count>{{- cart.item_count -}}</items-count>&nbsp;<info-content>
+          {{- cart_quantity_info_content -}}</info-content
+        >)</cart-quantity-info
+      >
+    </div>
+
+    <div class="cart__content js-animate-single" data-animation-displacement="0" data-animation-delay="0.1">
+      <interactive-cart
+        id="main-cart"
+        class="cart{% if cart.cart_level_discount_applications != blank %} has-cart-discounts{% endif %}"
+      >
+        {%- if cart.item_count > 0 -%}
+          {%- liquid
+            assign cart_id = 'main-cart'
+          -%}
+          <cart-full class="cart__wrapper">
+            <div class="cart__contents">
+              {%- if settings.cart_free_shipping_bar_enable -%}
+                {% render 'cart-free-shipping-bar', current_cart: cart, reveal_delay: 400 %}
+              {%- endif -%}
+              <cart-items
+                class="cart__items"
+                form-id="{{ cart_id }}"
+                {% if gift_wrapping_product_id %}
+                  gift-wrapping-product-id="{{ gift_wrapping_product_id }}"
+                {% endif %}
+              >
+                {%- liquid
+                  assign contains_gift_wrapping = false
+                  for item in cart.items
+                    unless item.id == gift_wrapping_product_id
+                      assign item_key = item.key
+
+                      render 'cart-item', cart_item: item, key: item_key, index: forloop.index, form_id: cart_id, image_sizes: cart_item_image_sizes
+                    else
+                      assign contains_gift_wrapping = true
+                      assign gift_wrapping_message = ''
+                      if settings.cart_gift_wrapping_message_enable
+                        capture gift_wrapping_message
+                          render 'cart-gift-wrapping-message', form_id: cart_id, message: cart.attributes['gift-wrapping-message']
+                        endcapture
+                      endif
+                      render 'cart-item', cart_item: item, index: forloop.index, form_id: cart_id, no_links: true, no_quantity_input: true, image_sizes: cart_item_image_sizes, additional_classes: 'cart-item--full-details', additional_details: gift_wrapping_message
+                    endunless
+                  endfor
+                -%}
+              </cart-items>
+              {%- render 'cart-gift-wrapping-banner', hidden: contains_gift_wrapping -%}
+            </div>
+            <sticky-scroll class="cart__aside">
+              {% render 'cart-details',
+                form_id: cart_id,
+                current_cart: cart,
+                note_inside_accordion: true,
+                show_heading: true,
+                show_additional_checkout_buttons: section.settings.additional_checkout_buttons_enabled
+              %}
+              {%- if settings.cart_show_recommendations -%}
+                {% render 'cart-recommendations',
+                  id: 'cart-recommendations',
+                  title: settings.cart_recommendations_title,
+                  reduced_title: true,
+                  enable_quick_shop: settings.quick_shop_enabled,
+                  show_mini_cards: true,
+                  grid: 1,
+                  grid_mobile: 1,
+                  notify_on_add: notify_on_add,
+                  image_sizes: recommendations_image_sizes
+                %}
+              {%- endif -%}
+            </sticky-scroll>
+            {% if section.settings.continue_link_enabled %}
+              <a
+                href="{% if settings.cart_continue_link %}{{ settings.cart_continue_link }}{% else %}{{ routes.root_url }}{% endif %}"
+                class="link link--arrow-left cart__continue"
+              >
+                {%- render 'icons-theme', icon: 'chevron', additional_classes: 'icon--left' -%}
+                {{- 'cart.general.continue_shopping' | t -}}
+              </a>
+            {% endif %}
+          </cart-full>
+        {%- else -%}
+          {% render 'cart-empty' %}
+        {%- endif -%}
+      </interactive-cart>
+    </div>
+  </div>
+  <script src="{{ 'sticky-scroll.js' | asset_url }}" type="module"></script>
+</section>
+
+{% schema %}
+{
+  "name": "Cart page",
+  "class": "js-section__cart-page",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "additional_checkout_buttons_enabled",
+      "label": "Show additional checkout buttons",
+      "info": "Lets customers check out directly using a familiar payment method. [Learn more](https://help.shopify.com/en/manual/online-store/dynamic-checkout)"
+    },
+    {
+      "type": "checkbox",
+      "id": "continue_link_enabled",
+      "label": "Show continue shopping link",
+      "default": true
+    }
+  ]
+}
+{% endschema %}

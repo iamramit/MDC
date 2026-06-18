@@ -1,0 +1,31 @@
+{%- comment -%}
+  Cart note
+
+  Accepts:
+  - note: {Srting} Cart note
+  - inside_accordion: {Boolean} Show note inside accordion
+  - form_id: {String} Form id
+{%- endcomment -%}
+
+<cart-note class="note">
+  {%- capture label -%}
+    <label for="CartSpecialInstructions" class="note__label">{{ 'cart.general.note' | t }}</label>
+  {%- endcapture -%}
+  {%- capture textarea -%}
+    {%- render 'cart-text-input',
+      value: note,
+      form_id: form_id,
+      input_id: 'CartSpecialInstructions',
+      input_name: 'note',
+      class: 'note__content',
+      input_field_class: 'note__input',
+      is_textarea: true
+    -%}
+  {%- endcapture -%}
+  {%- if inside_accordion -%}
+    {% render 'cart-accordion', id: 'cart-note', summary: label, content: textarea %}
+  {%- else -%}
+    {{ label }}
+    {{ textarea }}
+  {%- endif -%}
+</cart-note>

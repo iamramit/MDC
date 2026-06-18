@@ -1,0 +1,933 @@
+{%- if section.blocks.size > 0 -%}
+  {{ 'section-utility-bar.css' | asset_url | stylesheet_tag }}
+  <section
+    class="
+      section
+      section--utility-bar
+      section--{{ section.id }}
+      section--mb-0
+    "
+    data-section-id="{{ section.id }}"
+    data-section-type="utility-bar"
+    style="
+      --color-text: {{ section.settings.color_text }};
+      --color-bg: {{ section.settings.color_bg }};
+      --space-top: {{ section.settings.padding_top }}px;
+      --space-bottom: {{ section.settings.padding_bottom }}px
+    "
+  >
+    {%- liquid
+      assign mobile_has_blocks = false
+      for block in section.blocks
+        if block.settings.show_on_mobile
+          assign mobile_has_blocks = true
+          break
+        endif
+      endfor
+    -%}
+
+    <utility-bar
+      id="{{ section.id }}"
+      class="
+        utility-bar
+        utility-bar--grid-{{ section.blocks.size }}
+        {% unless mobile_has_blocks %}utility-bar--mobile-no-blocks{% endunless %}
+      "
+    >
+      <div
+        class="
+          utility-bar__wrapper
+          section--padded
+          {% if section.settings.divider_top %}utility-bar--divider-top{% endif %}
+          {% if section.settings.divider_bottom %}utility-bar--divider-bottom{% endif %}
+        "
+      >
+        {%- for block in section.blocks -%}
+          <div
+            class="
+              utility-bar__item
+              utility-bar__item--{{ block.type }}
+              {% unless section.blocks.size == 1 %}
+                {% if forloop.first %}utility-bar__item--first{% endif %}
+                {% if forloop.last %}utility-bar__item--last{% endif %}
+              {% endunless %}
+              utility-bar__item--mobile-{{ block.settings.mobile_align }}
+              {% unless block.settings.show_on_mobile %}utility-bar__item--hide-mobile{% endunless %}
+            "
+            {{ block.shopify_attributes }}
+          >
+            {%- case block.type -%}
+              {%- when 'announcements' -%}
+                {%- liquid
+                  assign letter_spacing = block.settings.text_letter_spacing | append: 'px'
+                  assign font_size_desktop = block.settings.text_size_desktop | times: 0.05 | plus: 0.75 | append: 'rem'
+                  assign font_size_mobile = block.settings.text_size_mobile | times: 0.05 | plus: 0.75 | append: 'rem'
+                -%}
+                <div
+                  class="
+                    utility-announcement
+                    utility-announcement--carousel
+                    utility-announcement--{{ block.settings.text_style }}
+                  "
+                  tabindex="0"
+                  {% if block.settings.auto_carousel %}
+                    autoplay="{{ block.settings.auto_carousel }}"
+                    autoplay-delay="{{ block.settings.carousel_speed }}000"
+                  {% endif %}
+                  aria-live="polite"
+                  aria-atomic="true"
+                  style="
+                    --letter-spacing: {{ letter_spacing }};
+                    --font-size-desktop: {{ font_size_desktop }};
+                    --font-size-mobile: {{ font_size_mobile }};
+                    {% if block.settings.text_bold %}--font-weight: 600;{% endif %}
+                    {% if block.settings.text_capitalize %}--text-transform: uppercase;{% endif %}
+                  "
+                >
+                  <ol
+                    class="utility-announcement__wrapper utility-announcement__wrapper--carousel"
+                    role="list"
+                    aria-label="Announcements"
+                  >
+                    {%- if block.settings.text_1 != blank -%}
+                      {%- liquid
+                        assign text = block.settings.text_1
+                        assign text_link = block.settings.text_link_1
+                        assign link = block.settings.link_1
+                        assign slide_index = 1
+                      -%}
+                      <li
+                        class="utility-announcement__slides"
+                        data-slide-id="{{ slide_index }}"
+                        role="listitem"
+                        tabindex="0"
+                        aria-roledescription="Announcement"
+                        aria-label="Announcement {{ slide_index }} of 3"
+                      >
+                        <div class="utility-announcement__message">
+                          {%- if link != blank -%}
+                            {%- if text_link == blank -%}
+                              <a href="{{ link }}" class="utility-announcement__link">
+                            {%- endif -%}
+                          {%- endif -%}
+
+                          <div class="utility-announcement__text">
+                            {{ text | escape }}
+                            {%- if text_link != blank -%}
+                              <a href="{{ link }}" class="utility-announcement__link__text">
+                                {{- text_link | escape -}}
+                              </a>
+                            {%- endif -%}
+                          </div>
+
+                          {%- if link != blank -%}
+                            {%- if text_link == blank -%}
+                              </a>
+                            {%- endif -%}
+                          {%- endif -%}
+                        </div>
+                      </li>
+                    {% endif %}
+                    {%- if block.settings.text_2 != blank -%}
+                      {%- liquid
+                        assign text = block.settings.text_2
+                        assign text_link = block.settings.text_link_2
+                        assign link = block.settings.link_2
+                        assign slide_index = 2
+                      -%}
+                      <li
+                        class="utility-announcement__slides"
+                        data-slide-id="{{ slide_index }}"
+                        role="listitem"
+                        tabindex="0"
+                        aria-roledescription="Announcement"
+                        aria-label="Announcement {{ slide_index }} of 3"
+                      >
+                        <div class="utility-announcement__message">
+                          {%- if link != blank -%}
+                            {%- if text_link == blank -%}
+                              <a href="{{ link }}" class="utility-announcement__link">
+                            {%- endif -%}
+                          {%- endif -%}
+
+                          <div class="utility-announcement__text">
+                            {{ text | escape }}
+                            {%- if text_link != blank -%}
+                              <a href="{{ link }}" class="utility-announcement__link__text">
+                                {{- text_link | escape -}}
+                              </a>
+                            {%- endif -%}
+                          </div>
+
+                          {%- if link != blank -%}
+                            {%- if text_link == blank -%}
+                              </a>
+                            {%- endif -%}
+                          {%- endif -%}
+                        </div>
+                      </li>
+                    {% endif %}
+                    {%- if block.settings.text_3 != blank -%}
+                      {%- liquid
+                        assign text = block.settings.text_3
+                        assign text_link = block.settings.text_link_3
+                        assign link = block.settings.link_3
+                        assign slide_index = 3
+                      -%}
+                      <li
+                        class="utility-announcement__slides"
+                        data-slide-id="{{ slide_index }}"
+                        role="listitem"
+                        tabindex="0"
+                        aria-roledescription="Announcement"
+                        aria-label="Announcement {{ slide_index }} of 3"
+                      >
+                        <div class="utility-announcement__message">
+                          {%- if link != blank -%}
+                            {%- if text_link == blank -%}
+                              <a href="{{ link }}" class="utility-announcement__link">
+                            {%- endif -%}
+                          {%- endif -%}
+
+                          <div class="utility-announcement__text">
+                            {{ text | escape }}
+                            {%- if text_link != blank -%}
+                              <a href="{{ link }}" class="utility-announcement__link__text">
+                                {{- text_link | escape -}}
+                              </a>
+                            {%- endif -%}
+                          </div>
+
+                          {%- if link != blank -%}
+                            {%- if text_link == blank -%}
+                              </a>
+                            {%- endif -%}
+                          {%- endif -%}
+                        </div>
+                      </li>
+                    {% endif %}
+                  </ol>
+                </div>
+
+              {%- when 'social' -%}
+                {%- liquid
+                  assign letter_spacing = block.settings.text_letter_spacing | append: 'px'
+                  assign font_size_desktop = block.settings.text_size_desktop | times: 0.05 | plus: 0.75 | append: 'rem'
+                  assign font_size_mobile = block.settings.text_size_mobile | times: 0.05 | plus: 0.75 | append: 'rem'
+                -%}
+                <div
+                  class="
+                    utility-social
+                    utility-social--{{ block.settings.text_style }}
+                  "
+                  style="
+                    --icon-scale: {{ block.settings.social_size | times: 2 | plus: 8 }}px;
+                    --icon-space: {{ block.settings.social_size | times: 2 | plus: 24 }}px;
+                    --letter-spacing: {{ letter_spacing }};
+                    --font-size-desktop: {{ font_size_desktop }};
+                    --font-size-mobile: {{ font_size_mobile }};
+                    {% if block.settings.text_bold %}--font-weight: 600;{% endif %}
+                    {% if block.settings.text_capitalize %}--text-transform: uppercase;{% endif %}
+                  "
+                >
+                  <div class="utility-social__items utility-social__items--separator-{{ block.settings.show_separator }}">
+                    {% if block.settings.show_icons %}
+                      <div class="utility-social__item utility-social__item--icons">
+                        {%- render 'social-media-links' -%}
+                      </div>
+                    {% endif %}
+                    {% if block.settings.show_phone %}
+                      <div class="utility-social__item utility-social__item--email">
+                        {% if block.settings.phone_override != blank %}
+                          <a
+                            aria-label="Call {{ block.settings.phone_override | escape }}"
+                            href="tel:{{ block.settings.phone_override | escape }}"
+                          >
+                            {{- block.settings.phone_override | escape -}}
+                          </a>
+                        {% else %}
+                          <a aria-label="Call {{ shop.address.phone }}" href="tel:{{ shop.address.phone }}">
+                            {{- shop.address.phone -}}
+                          </a>
+                        {% endif %}
+                      </div>
+                    {% endif %}
+                    {% if block.settings.show_email %}
+                      <div class="utility-social__item utility-social__item--email">
+                        {% if block.settings.email_override != blank %}
+                          <a
+                            aria-label="Email {{ block.settings.email_override | escape }}"
+                            href="mailto:{{ block.settings.email_override | escape }}"
+                          >
+                            {{- block.settings.email_override | escape -}}
+                          </a>
+                        {% else %}
+                          <a aria-label="Email {{ shop.email }}" href="mailto:{{ shop.email }}">{{- shop.email -}}</a>
+                        {% endif %}
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>
+
+              {%- when 'menu' -%}
+                {%- liquid
+                  assign letter_spacing = block.settings.text_letter_spacing | append: 'px'
+                  assign font_size_desktop = block.settings.text_size_desktop | times: 0.05 | plus: 0.75 | append: 'rem'
+                  assign font_size_mobile = block.settings.text_size_mobile | times: 0.05 | plus: 0.75 | append: 'rem'
+                -%}
+                <div
+                  class="
+                    utility-menu
+                    utility-menu--{{ block.settings.text_style }}
+                  "
+                  style="
+                    --letter-spacing: {{ letter_spacing }};
+                    --font-size-desktop: {{ font_size_desktop }};
+                    --font-size-mobile: {{ font_size_mobile }};
+                    {% if block.settings.text_bold %}--font-weight: 600;{% endif %}
+                    {% if block.settings.text_capitalize %}--text-transform: uppercase;{% endif %}
+                  "
+                >
+                  {% if linklists[block.settings.linklist].links.size > 0 %}
+                    <ul class="utility-menu__items o-list-bare o-list-inline">
+                      {% for link in linklists[block.settings.linklist].links %}
+                        <li class="utility-menu__item o-list-inline__item{% if link.active %} utility-menu__item--active{% endif %}">
+                          <a href="{{ link.url }}" class="utility-menu__link">{{ link.title }}</a>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+                </div>
+
+              {%- when 'text' -%}
+                {%- liquid
+                  assign letter_spacing = block.settings.text_letter_spacing | append: 'px'
+                  assign font_size_desktop = block.settings.text_size_desktop | times: 0.05 | plus: 0.75 | append: 'rem'
+                  assign font_size_mobile = block.settings.text_size_mobile | times: 0.05 | plus: 0.75 | append: 'rem'
+                -%}
+                <div
+                  class="
+                    utility-text
+                    utility-text--{{ block.settings.text_style }}
+                  "
+                  style="
+                    --letter-spacing: {{ letter_spacing }};
+                    --font-size-desktop: {{ font_size_desktop }};
+                    --font-size-mobile: {{ font_size_mobile }};
+                    {% if block.settings.text_capitalize %}--text-transform: uppercase;{% endif %}
+                  "
+                >
+                  <div class="utility-text__text rte">
+                    <p>
+                      {{ block.settings.text }}
+                    </p>
+                  </div>
+                </div>
+
+              {%- when 'spacer' -%}
+            {%- endcase -%}
+          </div>
+        {%- endfor -%}
+      </div>
+    </utility-bar>
+
+    <script src="{{ 'utility-bar.js' | asset_url }}" type="module"></script>
+  </section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Utility bar",
+  "class": "js-section__utility-bar",
+  "max_blocks": 3,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Colors and borders"
+    },
+    {
+      "type": "color",
+      "id": "color_bg",
+      "label": "Section background",
+      "default": "#212121"
+    },
+    {
+      "type": "color",
+      "id": "color_text",
+      "label": "Text",
+      "default": "#F2F2F2"
+    },
+    {
+      "type": "checkbox",
+      "id": "divider_top",
+      "label": "Show top border",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "divider_bottom",
+      "label": "Show bottom border",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Padding and margin"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "unit": "px",
+      "min": 0,
+      "max": 90,
+      "step": 1,
+      "default": 6
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "unit": "px",
+      "min": 0,
+      "max": 90,
+      "step": 1,
+      "default": 6
+    }
+  ],
+  "blocks": [
+    {
+      "type": "announcements",
+      "name": "Announcements",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "header",
+          "content": "Visibility"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_on_mobile",
+          "label": "Show on mobile",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "Carousel"
+        },
+        {
+          "type": "checkbox",
+          "id": "auto_carousel",
+          "label": "Auto rotate carousel",
+          "default": true
+        },
+        {
+          "type": "range",
+          "id": "carousel_speed",
+          "label": "Rotate items every",
+          "unit": "sec",
+          "min": 5,
+          "max": 10,
+          "step": 1,
+          "default": 8
+        },
+        {
+          "type": "header",
+          "content": "Typography"
+        },
+        {
+          "type": "range",
+          "id": "text_size_desktop",
+          "label": "Text size (desktop)",
+          "min": 1,
+          "max": 10,
+          "step": 1,
+          "default": 2
+        },
+        {
+          "type": "range",
+          "id": "text_size_mobile",
+          "label": "Text size (mobile)",
+          "min": 1,
+          "max": 10,
+          "step": 1,
+          "default": 2
+        },
+        {
+          "type": "select",
+          "id": "text_style",
+          "label": "Font style",
+          "options": [
+            {
+              "value": "body",
+              "label": "Body"
+            },
+            {
+              "value": "heading",
+              "label": "Heading"
+            }
+          ],
+          "default": "body"
+        },
+        {
+          "type": "checkbox",
+          "id": "text_bold",
+          "label": "Bold",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "text_capitalize",
+          "label": "Capitalize",
+          "default": false
+        },
+        {
+          "type": "range",
+          "id": "text_letter_spacing",
+          "label": "Letter spacing",
+          "unit": "px",
+          "min": 0,
+          "max": 10,
+          "step": 1,
+          "default": 0
+        },
+        {
+          "type": "header",
+          "content": "Announcement 1"
+        },
+        {
+          "type": "textarea",
+          "id": "text_1",
+          "label": "Text",
+          "default": "Store updates and announcements"
+        },
+        {
+          "type": "text",
+          "id": "text_link_1",
+          "label": "Link label",
+          "info": "Leave this field blank to turn the whole announcement text into the link."
+        },
+        {
+          "type": "url",
+          "id": "link_1",
+          "label": "Link"
+        },
+        {
+          "type": "header",
+          "content": "Announcement 2"
+        },
+        {
+          "type": "textarea",
+          "id": "text_2",
+          "label": "Text",
+          "default": "Store updates and announcements"
+        },
+        {
+          "type": "text",
+          "id": "text_link_2",
+          "label": "Link label",
+          "info": "Leave this field blank to turn the whole announcement text into the link."
+        },
+        {
+          "type": "url",
+          "id": "link_2",
+          "label": "Link"
+        },
+        {
+          "type": "header",
+          "content": "Announcement 3"
+        },
+        {
+          "type": "textarea",
+          "id": "text_3",
+          "label": "Text",
+          "default": "Store updates and announcements"
+        },
+        {
+          "type": "text",
+          "id": "text_link_3",
+          "label": "Link label",
+          "info": "Leave this field blank to turn the whole announcement text into the link."
+        },
+        {
+          "type": "url",
+          "id": "link_3",
+          "label": "Link"
+        }
+      ]
+    },
+    {
+      "type": "social",
+      "name": "Social & contact links",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Position and visibility"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_separator",
+          "label": "Show separator between link types",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_on_mobile",
+          "label": "Show on mobile",
+          "default": false,
+          "info": "All links can also be shown in the mobile drawer. Go to 'Header > Navigation drawer'."
+        },
+        {
+          "type": "select",
+          "id": "mobile_align",
+          "label": "Mobile position",
+          "options": [
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "center",
+              "label": "Center"
+            },
+            {
+              "value": "right",
+              "label": "Right"
+            }
+          ],
+          "default": "center"
+        },
+        {
+          "type": "header",
+          "content": "Social icons",
+          "info": "Edit content in theme 'Theme settings > Social'."
+        },
+        {
+          "type": "checkbox",
+          "id": "show_icons",
+          "label": "Show social icons",
+          "default": true
+        },
+        {
+          "type": "range",
+          "id": "social_size",
+          "label": "Icon size",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "default": 3
+        },
+        {
+          "type": "header",
+          "content": "Phone number"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_phone",
+          "label": "Show phone number",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "phone_override",
+          "label": "Phone number",
+          "info": "Leave blank to use the phone number set up in the admin."
+        },
+        {
+          "type": "header",
+          "content": "Email"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_email",
+          "label": "Show email",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "email_override",
+          "label": "Email",
+          "info": "Leave blank to use the email set up in the admin."
+        },
+        {
+          "type": "header",
+          "content": "Typography"
+        },
+        {
+          "type": "range",
+          "id": "text_size_desktop",
+          "label": "Text size (desktop)",
+          "min": 1,
+          "max": 10,
+          "step": 1,
+          "default": 2
+        },
+        {
+          "type": "range",
+          "id": "text_size_mobile",
+          "label": "Text size (mobile)",
+          "min": 1,
+          "max": 10,
+          "step": 1,
+          "default": 2
+        },
+        {
+          "type": "select",
+          "id": "text_style",
+          "label": "Font style",
+          "options": [
+            {
+              "value": "body",
+              "label": "Body"
+            },
+            {
+              "value": "heading",
+              "label": "Heading"
+            }
+          ],
+          "default": "body"
+        },
+        {
+          "type": "checkbox",
+          "id": "text_bold",
+          "label": "Bold",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "text_capitalize",
+          "label": "Capitalize",
+          "default": false
+        },
+        {
+          "type": "range",
+          "id": "text_letter_spacing",
+          "label": "Letter spacing",
+          "unit": "px",
+          "min": 0,
+          "max": 10,
+          "step": 1,
+          "default": 0
+        }
+      ]
+    },
+    {
+      "type": "menu",
+      "name": "Menu",
+      "settings": [
+        {
+          "type": "link_list",
+          "id": "linklist",
+          "label": "Menu",
+          "info": "This menu won't show dropdown items."
+        },
+        {
+          "type": "header",
+          "content": "Position and visibility"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_on_mobile",
+          "label": "Show on mobile",
+          "default": false,
+          "info": "Secondary menu for mobile is also available in the 'Header > Navigation drawer'."
+        },
+        {
+          "type": "select",
+          "id": "mobile_align",
+          "label": "Mobile position",
+          "options": [
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "center",
+              "label": "Center"
+            },
+            {
+              "value": "right",
+              "label": "Right"
+            }
+          ],
+          "default": "center"
+        },
+        {
+          "type": "header",
+          "content": "Typography"
+        },
+        {
+          "type": "range",
+          "id": "text_size_desktop",
+          "label": "Text size (desktop)",
+          "min": 1,
+          "max": 10,
+          "step": 1,
+          "default": 2
+        },
+        {
+          "type": "range",
+          "id": "text_size_mobile",
+          "label": "Text size (mobile)",
+          "min": 1,
+          "max": 10,
+          "step": 1,
+          "default": 2
+        },
+        {
+          "type": "select",
+          "id": "text_style",
+          "label": "Font style",
+          "options": [
+            {
+              "value": "body",
+              "label": "Body"
+            },
+            {
+              "value": "heading",
+              "label": "Heading"
+            }
+          ],
+          "default": "body"
+        },
+        {
+          "type": "checkbox",
+          "id": "text_bold",
+          "label": "Bold",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "text_capitalize",
+          "label": "Capitalize",
+          "default": false
+        },
+        {
+          "type": "range",
+          "id": "text_letter_spacing",
+          "label": "Letter spacing",
+          "unit": "px",
+          "min": 0,
+          "max": 10,
+          "step": 1,
+          "default": 0
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "Add some text here"
+        },
+        {
+          "type": "header",
+          "content": "Position and visibility"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_on_mobile",
+          "label": "Show on mobile",
+          "default": false
+        },
+        {
+          "type": "select",
+          "id": "mobile_align",
+          "label": "Mobile position",
+          "options": [
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "center",
+              "label": "Center"
+            },
+            {
+              "value": "right",
+              "label": "Right"
+            }
+          ],
+          "default": "center"
+        },
+        {
+          "type": "header",
+          "content": "Typography"
+        },
+        {
+          "type": "range",
+          "id": "text_size_desktop",
+          "label": "Text size (desktop)",
+          "min": 1,
+          "max": 10,
+          "step": 1,
+          "default": 2
+        },
+        {
+          "type": "range",
+          "id": "text_size_mobile",
+          "label": "Text size (mobile)",
+          "min": 1,
+          "max": 10,
+          "step": 1,
+          "default": 2
+        },
+        {
+          "type": "select",
+          "id": "text_style",
+          "label": "Font style",
+          "options": [
+            {
+              "value": "body",
+              "label": "Body"
+            },
+            {
+              "value": "heading",
+              "label": "Heading"
+            }
+          ],
+          "default": "body"
+        },
+        {
+          "type": "checkbox",
+          "id": "text_capitalize",
+          "label": "Capitalize",
+          "default": false
+        },
+        {
+          "type": "range",
+          "id": "text_letter_spacing",
+          "label": "Letter spacing",
+          "unit": "px",
+          "min": 0,
+          "max": 10,
+          "step": 1,
+          "default": 0
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Utility bar",
+      "blocks": [
+        {
+          "type": "social"
+        },
+        {
+          "type": "announcements"
+        },
+        {
+          "type": "menu"
+        }
+      ]
+    }
+  ],
+  "enabled_on": {
+    "groups": ["header"]
+  }
+}
+{% endschema %}
