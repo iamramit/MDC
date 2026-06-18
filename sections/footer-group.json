@@ -11,6 +11,24 @@
   "name": "Footer group",
   "type": "footer",
   "sections": {
+    "section_newsletter_qYhjKR": {
+      "type": "section-newsletter",
+      "name": "Newsletter",
+      "settings": {
+        "section_newsletter_title": "Newsletter",
+        "section_newsletter_desc": "<p>Let your customers know what to expect if they sign up to your mailing list. A discount code or the latest news from your brand.</p>",
+        "section_width": "contained",
+        "newsletter_bg": "#F2F2F2",
+        "newsletter_text": "#212121",
+        "default_title_color": false,
+        "text_border_color": true,
+        "divider_top": false,
+        "divider_bottom": false,
+        "padding_top": 0,
+        "padding_bottom": 0,
+        "section_bottom_margin": true
+      }
+    },
     "footer-gallery": {
       "type": "section-gallery",
       "blocks": {
@@ -184,6 +202,7 @@
     }
   },
   "order": [
+    "section_newsletter_qYhjKR",
     "footer-gallery",
     "footer"
   ]
