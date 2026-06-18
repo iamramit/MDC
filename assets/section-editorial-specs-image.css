@@ -27,7 +27,7 @@
   display: grid;
   grid-template-columns: repeat(var(--spec-count), minmax(0, 1fr));
   width: 100%;
-  max-width: var(--specs-max-width);
+  max-width: var(--specs-max-width);align-items:center
 }
 
 .editorial-specs-image__spec {

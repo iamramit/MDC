@@ -148,7 +148,7 @@
         "text_size_mobile": 12,
         "text_line_height": 1.4,
         "text_letter_spacing": 0.1,
-        "section_bottom_margin": false
+        "section_bottom_margin": true
       }
     },
     "section_multi_column_icons_pBw4m3": {
