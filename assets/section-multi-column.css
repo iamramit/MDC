@@ -25,10 +25,19 @@
   color: var(--color-text);
 }
 
+.multi-column__title,
+.multi-column__sub-title,
+.multi-column__desc,
+.multi-column__desc .rte,
+.multi-column__desc .rte a {
+  font-family: var(--multi-column-font-family, var(--font--body));
+}
+
 .multi-column__title {
   color: var(--color-heading);
   font-size: var(--heading-font-size);
   line-height: max(1.15, var(--heading-line-height));
+  letter-spacing: var(--multi-column-letter-spacing, normal);
 }
 @media (max-width: 47.9275em) {
   .multi-column__title {

@@ -160,6 +160,10 @@
     --image-size: {{ section.settings.image_size }}%;
     --image-padding: {{ section.settings.image_padding | times: 2 }}%;
     --image-background-color: {{ section.settings.color_image }};
+    {% if section.settings.custom_font_family != blank %}
+      --multi-column-font-family: {{ section.settings.custom_font_family }};
+    {% endif %}
+    --multi-column-letter-spacing: {{ section.settings.custom_letter_spacing }}em;
     {% unless section.settings.text_border_color -%}
       --color--title-border: {{ color_text }};
     {%- endunless %}
@@ -458,6 +462,26 @@
   "name": "Multicolumn with images",
   "class": "js-section__multi-column-images",
   "settings": [
+    {
+      "type": "header",
+      "content": "Typography override"
+    },
+    {
+      "type": "text",
+      "id": "custom_font_family",
+      "label": "Custom font family",
+      "info": "Paste a CSS font-family value here later, for example: 'Your Font Name', serif"
+    },
+    {
+      "type": "range",
+      "id": "custom_letter_spacing",
+      "label": "Custom letter spacing",
+      "unit": "em",
+      "min": 0,
+      "max": 0.4,
+      "step": 0.1,
+      "default": 0.1
+    },
     {
       "type": "text",
       "id": "title",
