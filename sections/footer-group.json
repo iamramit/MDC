@@ -1,1 +1,190 @@
-{"name":"Footer group","type":"footer","sections":{"footer-gallery":{"type":"section-gallery","blocks":{"media_e7JM9P":{"type":"media","settings":{"heading":"","text":"","link":"","link_new_window":false,"alignment":"middle-center","text_alignment":"center","color_text":"#ffffff","color_overlay":"#000000","color_overlay_strength":0,"color_default_heading":false,"title_size":2}},"media_wQhDet":{"type":"media","settings":{"heading":"","text":"","link":"","link_new_window":false,"alignment":"middle-center","text_alignment":"center","color_text":"#ffffff","color_overlay":"#000000","color_overlay_strength":0,"color_default_heading":false,"title_size":2}},"media_fcCjBd":{"type":"media","settings":{"heading":"","text":"","link":"","link_new_window":false,"alignment":"middle-center","text_alignment":"center","color_text":"#ffffff","color_overlay":"#000000","color_overlay_strength":0,"color_default_heading":false,"title_size":2}},"media_WNnVQx":{"type":"media","settings":{"heading":"","text":"","link":"","link_new_window":false,"alignment":"middle-center","text_alignment":"center","color_text":"#ffffff","color_overlay":"#000000","color_overlay_strength":0,"color_default_heading":false,"title_size":2}},"media_xPgQKa":{"type":"media","settings":{"heading":"","text":"","link":"","link_new_window":false,"alignment":"middle-center","text_alignment":"center","color_text":"#ffffff","color_overlay":"#000000","color_overlay_strength":0,"color_default_heading":false,"title_size":2}}},"block_order":["media_e7JM9P","media_wQhDet","media_fcCjBd","media_WNnVQx","media_xPgQKa"],"disabled":true,"settings":{"title":"#YourSocialFeed","desc":"","image_ratio":"1:1","heading_alignment":"center","section_width":"wide","grid":5,"spacing":1,"enable_carousel_desktop":true,"grid_mobile":"1","enable_carousel_mobile":true,"divider_top":false,"divider_bottom":false,"section_link_title":"View all","section_link_link":"","section_link_style":"link link--arrow","padding_top":0,"padding_bottom":0,"section_bottom_margin":false}},"footer-newsletter":{"type":"section-newsletter","settings":{"section_newsletter_title":"Newsletter","section_newsletter_desc":"<p>Let your customers know what to expect if they sign up to your mailing list. A discount code or the latest news from your brand.<\/p>","section_width":"large","newsletter_bg":"#f2f2f2","newsletter_text":"#212121","default_title_color":false,"text_border_color":true,"divider_top":false,"divider_bottom":false,"padding_top":0,"padding_bottom":0,"section_bottom_margin":true}},"footer":{"type":"footer","blocks":{"1494463355206":{"type":"linklist","settings":{"title":"Menu","linklist":"footer"}},"1494343958665":{"type":"contact","disabled":true,"settings":{"title":"Contact","show_email":true,"show_number":false,"show_address":true,"show_social":true,"show_follow_on_shop":true,"show_newsletter":false,"show_newsletter_above":false,"title_newsletter":"Newsletter","text_newsletter":"<p>Offer your customers a discount code or the latest news from your brand.<\/p>"}},"1494463348419":{"type":"text","settings":{"title":"Matchbook Distilling Co.","text":"<p>Science, tradition, anthropology and agriculture make the art of alcohol exceptional. Our custom built, American-made equipment is designed for maximum versatility and scalability. And, above all, quality.<\/p>"}},"443cc1ff-2a97-44f0-90f6-5a3aa6af087f":{"type":"social","disabled":true,"settings":{"title":"Social","show_follow_on_shop":true}}},"block_order":["1494463355206","1494343958665","1494463348419","443cc1ff-2a97-44f0-90f6-5a3aa6af087f"],"settings":{"footer_bg":"#232f3d","footer_style":"light","footer_heading_color":false,"show_payment_icons":true,"divider":true,"enable_country_selector":true,"enable_language_selector":true}}},"order":["footer-gallery","footer-newsletter","footer"]}
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "name": "Footer group",
+  "type": "footer",
+  "sections": {
+    "footer-gallery": {
+      "type": "section-gallery",
+      "blocks": {
+        "media_e7JM9P": {
+          "type": "media",
+          "settings": {
+            "heading": "",
+            "text": "",
+            "link": "",
+            "link_new_window": false,
+            "alignment": "middle-center",
+            "text_alignment": "center",
+            "color_text": "#ffffff",
+            "color_overlay": "#000000",
+            "color_overlay_strength": 0,
+            "color_default_heading": false,
+            "title_size": 2
+          }
+        },
+        "media_wQhDet": {
+          "type": "media",
+          "settings": {
+            "heading": "",
+            "text": "",
+            "link": "",
+            "link_new_window": false,
+            "alignment": "middle-center",
+            "text_alignment": "center",
+            "color_text": "#ffffff",
+            "color_overlay": "#000000",
+            "color_overlay_strength": 0,
+            "color_default_heading": false,
+            "title_size": 2
+          }
+        },
+        "media_fcCjBd": {
+          "type": "media",
+          "settings": {
+            "heading": "",
+            "text": "",
+            "link": "",
+            "link_new_window": false,
+            "alignment": "middle-center",
+            "text_alignment": "center",
+            "color_text": "#ffffff",
+            "color_overlay": "#000000",
+            "color_overlay_strength": 0,
+            "color_default_heading": false,
+            "title_size": 2
+          }
+        },
+        "media_WNnVQx": {
+          "type": "media",
+          "settings": {
+            "heading": "",
+            "text": "",
+            "link": "",
+            "link_new_window": false,
+            "alignment": "middle-center",
+            "text_alignment": "center",
+            "color_text": "#ffffff",
+            "color_overlay": "#000000",
+            "color_overlay_strength": 0,
+            "color_default_heading": false,
+            "title_size": 2
+          }
+        },
+        "media_xPgQKa": {
+          "type": "media",
+          "settings": {
+            "heading": "",
+            "text": "",
+            "link": "",
+            "link_new_window": false,
+            "alignment": "middle-center",
+            "text_alignment": "center",
+            "color_text": "#ffffff",
+            "color_overlay": "#000000",
+            "color_overlay_strength": 0,
+            "color_default_heading": false,
+            "title_size": 2
+          }
+        }
+      },
+      "block_order": [
+        "media_e7JM9P",
+        "media_wQhDet",
+        "media_fcCjBd",
+        "media_WNnVQx",
+        "media_xPgQKa"
+      ],
+      "disabled": true,
+      "settings": {
+        "title": "#YourSocialFeed",
+        "desc": "",
+        "image_ratio": "1:1",
+        "heading_alignment": "center",
+        "section_width": "wide",
+        "grid": 5,
+        "spacing": 1,
+        "enable_carousel_desktop": true,
+        "grid_mobile": "1",
+        "enable_carousel_mobile": true,
+        "divider_top": false,
+        "divider_bottom": false,
+        "section_link_title": "View all",
+        "section_link_link": "",
+        "section_link_style": "link link--arrow",
+        "padding_top": 0,
+        "padding_bottom": 0,
+        "section_bottom_margin": false
+      }
+    },
+    "footer": {
+      "type": "footer",
+      "blocks": {
+        "1494463355206": {
+          "type": "linklist",
+          "settings": {
+            "title": "Menu",
+            "linklist": "footer"
+          }
+        },
+        "1494343958665": {
+          "type": "contact",
+          "disabled": true,
+          "settings": {
+            "title": "Contact",
+            "show_email": true,
+            "show_number": false,
+            "show_address": true,
+            "show_social": true,
+            "show_follow_on_shop": true,
+            "show_newsletter": false,
+            "show_newsletter_above": false,
+            "title_newsletter": "Newsletter",
+            "text_newsletter": "<p>Offer your customers a discount code or the latest news from your brand.</p>"
+          }
+        },
+        "1494463348419": {
+          "type": "text",
+          "settings": {
+            "title": "Matchbook Distilling Co.",
+            "text": "<p>Science, tradition, anthropology and agriculture make the art of alcohol exceptional. Our custom built, American-made equipment is designed for maximum versatility and scalability. And, above all, quality.</p>"
+          }
+        },
+        "443cc1ff-2a97-44f0-90f6-5a3aa6af087f": {
+          "type": "social",
+          "disabled": true,
+          "settings": {
+            "title": "Social",
+            "show_follow_on_shop": true
+          }
+        }
+      },
+      "block_order": [
+        "1494463355206",
+        "1494343958665",
+        "1494463348419",
+        "443cc1ff-2a97-44f0-90f6-5a3aa6af087f"
+      ],
+      "settings": {
+        "footer_bg": "#232f3d",
+        "footer_style": "light",
+        "footer_heading_color": false,
+        "show_payment_icons": true,
+        "divider": true,
+        "enable_country_selector": true,
+        "enable_language_selector": true
+      }
+    }
+  },
+  "order": [
+    "footer-gallery",
+    "footer"
+  ]
+}
