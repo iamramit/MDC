@@ -40,8 +40,8 @@
       ],
       "name": "Slideshow",
       "settings": {
-        "slideshow_height": "small",
-        "slideshow_height_mobile": "small",
+        "slideshow_height": "auto",
+        "slideshow_height_mobile": "auto",
         "slideshow_width": "full",
         "nav_style": "solid-brand",
         "hide_nav_arrows": true,
@@ -52,6 +52,7 @@
         "text_color": "#ffffff",
         "overlay_color": "#000000",
         "overlay_strength": 10,
+        "text_style": "body",
         "text_heading_color": false,
         "text_border_color": true,
         "title_size": 3,

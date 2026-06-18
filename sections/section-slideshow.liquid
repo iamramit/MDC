@@ -28,6 +28,10 @@
       assign slideshow_height = section.settings.slideshow_height
       assign slideshow_height_mobile = section.settings.slideshow_height_mobile
     endif
+    assign slideshow_auto_height = false
+    if slideshow_height == 'auto' or slideshow_height_mobile == 'auto'
+      assign slideshow_auto_height = true
+    endif
     assign text_color_brightness = section.settings.text_color | color_brightness
     assign nav_dots_base_color = '#fff'
   -%}
@@ -74,6 +78,11 @@
     .home-carousel.is-loading .home-carousel__nav {
       display: none;
     }
+    .home-carousel--auto-height.is-loading::before {
+      display: none;
+      padding-bottom: 0;
+      float: none;
+    }
     @media screen and (max-width: 767px) {
       .home-carousel.home-carousel--small-mobile.is-loading::before {
         height: auto;
@@ -95,9 +104,39 @@
         height: calc(var(--window-height) - var(--announcement-height) - var(--header-section-height));
         min-height: 400px;
       }
+      .home-carousel--auto-height.is-loading::before {
+        height: auto;
+        min-height: 0;
+      }
     }
     body[data-anim-zoom='true'] .home-carousel__bg {
       transform: scale(1.1);
+    }
+    .home-carousel--auto-height .home-carousel__item-wrapper {
+      display: block;
+      height: auto;
+      padding-bottom: 0;
+    }
+    .home-carousel--auto-height .home-carousel__item-wrapper::before,
+    .home-carousel--auto-height .home-carousel__item-wrapper.o-ratio::before {
+      display: none;
+    }
+    .home-carousel--auto-height .home-carousel__item {
+      position: relative;
+      display: block;
+      min-height: 0;
+    }
+    .home-carousel--auto-height .home-carousel__bg-wrapper,
+    .home-carousel--auto-height .home-carousel__bg,
+    .home-carousel--auto-height .home-carousel__video {
+      position: absolute;
+      inset: 0;
+    }
+    .home-carousel--auto-height .home-carousel__content {
+      position: relative;
+      z-index: 1;
+      margin: 0;
+      min-height: 0;
     }
   </style>
   <section
@@ -132,11 +171,13 @@
         home-carousel
         home-carousel--{{ section.settings.style }}
         home-carousel--title-{{ section.settings.title_size }}
+        home-carousel--text-{{ section.settings.text_style }}
         {% if section.settings.slideshow_width == 'full' %}
           home-carousel--full
         {% else %}
           home-carousel--contained
         {% endif %}
+        {% if slideshow_auto_height %}home-carousel--auto-height{% endif %}
         {% if section.blocks.size == 1 %}
           home-carousel--single-slide
         {% endif %}
@@ -182,11 +223,12 @@
                   home-carousel__item-wrapper--{{ block.id }}
                   home-carousel__item-wrapper--{{ slideshow_height }}
                   home-carousel__item-wrapper--{{ slideshow_height_mobile }}-mobile
+                  {% if slideshow_auto_height %}home-carousel__item-wrapper--auto{% endif %}
                   o-ratio
                 "
               >
                 <div
-                  class="o-ratio__content home-carousel__item home-carousel__item--{{ block.type }} home-carousel__item--{{ block.id }} home-carousel__item--middle home-carousel__item--{{ block.settings.alignment }}"
+                  class="{% if slideshow_auto_height %}home-carousel__item{% else %}o-ratio__content home-carousel__item{% endif %} home-carousel__item--{{ block.type }} home-carousel__item--{{ block.id }} home-carousel__item--middle home-carousel__item--{{ block.settings.alignment }}"
                 >
                   {%- if block.settings.video_desktop or block.settings.video_mobile -%}
                     <div class="home-carousel__video u-bg-overlay js-home-carousel-video{% if block.settings.video_desktop or block.settings.video_mobile %} home-carousel__video--self js-home-carousel-video--self{% endif %}">
@@ -408,11 +450,9 @@
                   and block.settings.link_title == blank
                   and block.settings.link_title_2 == blank
                 %}
-                  <div class="home-carousel__content{% if block.settings.link_title != blank or block.settings.link_title_2 != blank %} home-carousel__content--btn{% endif %}">
+                  <div class="home-carousel__content f-family--{{ section.settings.text_style }}{% if block.settings.link_title != blank or block.settings.link_title_2 != blank %} home-carousel__content--btn{% endif %}">
                     {% unless block.settings.title == blank %}
-                      <div
-                        class="home-carousel__title section__title h2"
-                      >
+                      <div class="home-carousel__title section__title h2">
                         <h2 class="section__title-text">{{ block.settings.title | escape }}</h2>
                       </div>
                     {% endunless %}
@@ -609,6 +649,10 @@
       "default": "full-screen",
       "options": [
         {
+          "label": "Auto",
+          "value": "auto"
+        },
+        {
           "label": "Small (5:2)",
           "value": "small"
         },
@@ -633,6 +677,10 @@
       "default": "full-screen",
       "info": "For information on image cropping [click here](https://support.safeasmilk.co/article/138-slideshow-image-sizes-cropping).",
       "options": [
+        {
+          "label": "Auto",
+          "value": "auto"
+        },
         {
           "label": "Small (1:1)",
           "value": "small"
@@ -784,6 +832,22 @@
     {
       "type": "header",
       "content": "Typography"
+    },
+    {
+      "type": "select",
+      "id": "text_style",
+      "label": "Text font style",
+      "default": "body",
+      "options": [
+        {
+          "label": "Body",
+          "value": "body"
+        },
+        {
+          "label": "Heading",
+          "value": "heading"
+        }
+      ]
     },
     {
       "type": "range",
