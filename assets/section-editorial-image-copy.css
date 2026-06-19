@@ -20,6 +20,7 @@
 .editorial-image-copy__media {
   display: flex;
   justify-content: var(--image-align);
+  background: var(--media-bg);
 }
 
 .editorial-image-copy__media-wrap {
@@ -37,10 +38,17 @@
   height: auto;
 }
 
+.editorial-image-copy__media-wrap--full img {
+  width: 100%;
+  height: 100%;
+  object-fit: var(--image-fit, contain);
+}
+
 .editorial-image-copy__text {
   max-width: var(--text-max-width);
   justify-self: var(--text-justify);
   text-align: var(--text-align);
+  background: var(--text-bg);
 }
 
 .editorial-image-copy__text.rte,

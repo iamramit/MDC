@@ -60,6 +60,8 @@
     --space-top: {{ section.settings.padding_top }}px;
     --space-bottom: {{ section.settings.padding_bottom }}px;
     --section-bg: {{ section.settings.background_color }};
+    --text-bg: {{ section.settings.text_background_color }};
+    --media-bg: {{ section.settings.media_background_color }};
     --image-column-width: {{ section.settings.image_width_desktop }}%;
     --image-max-width: {{ section.settings.image_max_width_desktop }}px;
     --image-max-width-mobile: {{ section.settings.image_max_width_mobile }}px;
@@ -162,6 +164,17 @@
         { "value": "natural", "label": "Natural size inside column" },
         { "value": "full_column", "label": "Fill image column" }
       ]
+    },
+    {
+      "type": "select",
+      "id": "image_fit_mode",
+      "label": "Image fit",
+      "default": "contain",
+      "options": [
+        { "value": "contain", "label": "Contained" },
+        { "value": "fill", "label": "Stretch" }
+      ],
+      "info": "Applies when the image is set to fill the image column."
     },
     {
       "type": "range",
@@ -301,6 +314,18 @@
       "id": "background_color",
       "label": "Background color",
       "default": "#f8f4ef"
+    },
+    {
+      "type": "color",
+      "id": "text_background_color",
+      "label": "Text side background",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "color",
+      "id": "media_background_color",
+      "label": "Image side background",
+      "default": "rgba(0,0,0,0)"
     },
     {
       "type": "range",

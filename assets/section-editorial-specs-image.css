@@ -21,6 +21,7 @@
   align-items: center;
   justify-content: center;
   padding: 24px clamp(20px, 0vw, 56px);
+  background: var(--specs-bg);
 }
 
 .editorial-specs-image__specs-inner {
@@ -53,6 +54,7 @@
 .editorial-specs-image__media {
   position: relative;
   min-height: var(--section-height-mobile);
+  background: var(--media-bg);
 }
 
 .editorial-specs-image__media img,
@@ -64,7 +66,7 @@
 }
 
 .editorial-specs-image__media img {
-  object-fit: cover;
+  object-fit: var(--image-fit);
 }
 
 @media screen and (min-width: 981px) {

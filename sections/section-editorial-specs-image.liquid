@@ -54,6 +54,9 @@
     --section-height-desktop: {{ section.settings.height_desktop }}px;
     --section-height-mobile: {{ section.settings.height_mobile }}px;
     --specs-max-width: {{ section.settings.specs_max_width }}px;
+    --specs-bg: {{ section.settings.specs_background_color }};
+    --media-bg: {{ section.settings.media_background_color }};
+    --image-fit: {{ section.settings.image_fit_mode }};
     --text-color: {{ section.settings.text_color }};
     --divider-color: {{ section.settings.divider_color }};
     --text-size-desktop: {{ section.settings.text_size_desktop }}px;
@@ -210,6 +213,28 @@
       "id": "background_color",
       "label": "Background color",
       "default": "#f8f4ef"
+    },
+    {
+      "type": "color",
+      "id": "specs_background_color",
+      "label": "Specs side background",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "color",
+      "id": "media_background_color",
+      "label": "Image side background",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "select",
+      "id": "image_fit_mode",
+      "label": "Image fit",
+      "default": "contain",
+      "options": [
+        { "value": "contain", "label": "Contained" },
+        { "value": "fill", "label": "Stretch" }
+      ]
     },
     {
       "type": "color",
