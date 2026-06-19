@@ -81,7 +81,12 @@
   {% if section.settings.section_width == 'contained' %}<div class="container">{% endif %}
     <div class="editorial-image-copy__inner">
       <div class="editorial-image-copy__media">
-        <div class="editorial-image-copy__media-wrap{% if section.settings.image_scale_mode == 'full_column' %} editorial-image-copy__media-wrap--full{% endif %}">
+        <div
+          class="editorial-image-copy__media-wrap{% if section.settings.image_scale_mode == 'full_column' %} editorial-image-copy__media-wrap--full{% endif %}"
+          {% if section.settings.image != blank %}
+            style="aspect-ratio: {{ section.settings.image.aspect_ratio }};"
+          {% endif %}
+        >
           {% if section.settings.image != blank %}
             {% render 'image',
               image: section.settings.image,
