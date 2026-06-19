@@ -70,7 +70,7 @@
         "image_width_desktop": 30,
         "image_scale_mode": "natural",
         "image_fit_mode": "contain",
-        "image_max_width_desktop": 300,
+        "image_max_width_desktop": 250,
         "image_max_width_mobile": 220,
         "image_alignment": "right",
         "vertical_alignment": "center",
