@@ -80,7 +80,7 @@
         "text_max_width_desktop": 1000,
         "text_color": "#4f4a45",
         "uppercase_text": true,
-        "text_size_desktop": 23,
+        "text_size_desktop": 24,
         "text_size_mobile": 15,
         "text_line_height": 1.6,
         "text_letter_spacing": 0,
