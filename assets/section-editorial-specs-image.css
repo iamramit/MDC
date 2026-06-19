@@ -2,6 +2,12 @@
   background: var(--section-bg);
 }
 
+.editorial-specs-image__container {
+  width: 100%;
+  max-width: min(100%, var(--section-max-width));
+  margin: 0 auto;
+}
+
 .editorial-specs-image__inner {
   display: grid;
   grid-template-columns: minmax(0, var(--specs-width)) minmax(0, 1fr);

@@ -50,6 +50,7 @@
   data-section-type="editorial-specs-image"
   style="
     --section-bg: {{ section.settings.background_color }};
+    --section-max-width: {{ section.settings.section_max_width }}px;
     --specs-width: {{ section.settings.specs_width_desktop }}%;
     --section-height-desktop: {{ section.settings.height_desktop }}px;
     --section-height-mobile: {{ section.settings.height_mobile }}px;
@@ -66,7 +67,7 @@
     --spec-count: {{ spec_count }};
   "
 >
-  {% if section.settings.section_width == 'contained' %}<div class="container">{% endif %}
+  {% if section.settings.section_width == 'contained' %}<div class="editorial-specs-image__container">{% endif %}
     <div class="editorial-specs-image__inner">
       <div class="editorial-specs-image__specs">
         <div class="editorial-specs-image__specs-inner">
@@ -153,6 +154,17 @@
         { "value": "contained", "label": "Contained" },
         { "value": "full", "label": "Full width" }
       ]
+    },
+    {
+      "type": "range",
+      "id": "section_max_width",
+      "label": "Contained section max width",
+      "unit": "px",
+      "min": 720,
+      "max": 1800,
+      "step": 10,
+      "default": 1200,
+      "visible_if": "{{ section.settings.section_width == 'contained' }}"
     },
     {
       "type": "select",
