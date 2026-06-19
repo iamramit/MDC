@@ -61,6 +61,9 @@
     },
     "section_editorial_image_copy_GLKVaa": {
       "type": "section-editorial-image-copy",
+      "custom_css": [
+        "section {font-family: \"TAY Big Bird\";}"
+      ],
       "name": "Editorial image + copy",
       "settings": {
         "text": "<p>Each harvest, tens of thousands of pounds of sunchokes are roasted over open coals and turned by shovel by the Matchbook team. Co-fermented with honey, the spirit carries notes of toasted nuts, earth, smoke, and fresh cut grass. Built for martinis. Alive in sours.</p>",
@@ -77,7 +80,7 @@
         "text_max_width_desktop": 1000,
         "text_color": "#4f4a45",
         "uppercase_text": true,
-        "text_size_desktop": 23,
+        "text_size_desktop": 21,
         "text_size_mobile": 15,
         "text_line_height": 1.7,
         "text_letter_spacing": 0.1,
@@ -93,6 +96,9 @@
     },
     "section_editorial_specs_image_9KrL3W": {
       "type": "section-editorial-specs-image",
+      "custom_css": [
+        "section {font-family: \"TAY Big Bird\";}"
+      ],
       "name": "Editorial specs + image",
       "settings": {
         "image": "shopify://shop_images/LE_Roasting_Image.jpg",
