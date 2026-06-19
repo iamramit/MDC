@@ -42,7 +42,7 @@
       "settings": {
         "slideshow_height": "small",
         "slideshow_height_mobile": "small",
-        "slideshow_width": "full",
+        "slideshow_width": "contained",
         "nav_style": "solid-brand",
         "hide_nav_arrows": true,
         "autoplay": true,
