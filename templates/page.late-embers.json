@@ -67,7 +67,7 @@
         "image": "shopify://shop_images/SunchokeIllustration_transparent.png",
         "section_width": "contained",
         "image_position": "left",
-        "image_width_desktop": 20,
+        "image_width_desktop": 30,
         "image_scale_mode": "natural",
         "image_max_width_desktop": 300,
         "image_max_width_mobile": 220,
