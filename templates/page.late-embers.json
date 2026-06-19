@@ -109,7 +109,7 @@
         "background_color": "#FFFFFF",
         "specs_background_color": "#F8F4EF",
         "media_background_color": "rgba(0,0,0,0)",
-        "image_fit_mode": "contain",
+        "image_fit_mode": "fill",
         "text_color": "#b48a84",
         "divider_color": "#d9c2bc",
         "text_size_desktop": 13,
