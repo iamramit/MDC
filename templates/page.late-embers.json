@@ -71,7 +71,7 @@
         "image_scale_mode": "natural",
         "image_max_width_desktop": 300,
         "image_max_width_mobile": 220,
-        "image_alignment": "left",
+        "image_alignment": "right",
         "vertical_alignment": "center",
         "text_max_width_desktop": 890,
         "text_color": "#4f4a45",
