@@ -212,7 +212,7 @@
         "text_border_color": true,
         "divider_top": false,
         "divider_bottom": false,
-        "heading_size": 3,
+        "heading_size": 4,
         "icon_size": 30,
         "icon_padding": 0,
         "block_link_style": "hollow",
