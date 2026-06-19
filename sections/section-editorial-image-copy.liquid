@@ -51,6 +51,7 @@
     section--{{ section.id }}
     editorial-image-copy
     editorial-image-copy--image-{{ section.settings.image_position }}
+    {% if section.settings.section_width == 'full' %}section--full section--full-mobile{% endif %}
     {% if section.settings.section_bottom_margin or request.visual_preview_mode %}section--mb-0{% endif %}
   "
   data-section-id="{{ section.id }}"
@@ -75,7 +76,7 @@
     --text-align-mobile: {{ section.settings.text_alignment_mobile }};
   "
 >
-  <div class="container container--{{ section.settings.container }}">
+  {% if section.settings.section_width == 'contained' %}<div class="container">{% endif %}
     <div class="editorial-image-copy__inner">
       <div class="editorial-image-copy__media">
         <div class="editorial-image-copy__media-wrap{% if section.settings.image_scale_mode == 'full_column' %} editorial-image-copy__media-wrap--full{% endif %}">
@@ -99,7 +100,7 @@
         {{ section.settings.text }}
       </div>
     </div>
-  </div>
+  {% if section.settings.section_width == 'contained' %}</div>{% endif %}
 </section>
 
 {% schema %}
@@ -124,13 +125,11 @@
     },
     {
       "type": "select",
-      "id": "container",
+      "id": "section_width",
       "label": "Section width",
-      "default": "large",
+      "default": "contained",
       "options": [
-        { "value": "small", "label": "Small" },
-        { "value": "medium", "label": "Medium" },
-        { "value": "large", "label": "Large" },
+        { "value": "contained", "label": "Contained" },
         { "value": "full", "label": "Full width" }
       ]
     },

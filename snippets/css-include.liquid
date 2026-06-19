@@ -37,3 +37,39 @@
     {{ 'account.css' | asset_url | stylesheet_tag }}
   </noscript>
 {% endif %}
+{%- if template.suffix == 'late-embers' -%}
+  <style>
+    @font-face {
+      font-family: 'TAY Big Bird';
+      src:
+        url('{{ "TAYBigBirdRegular.woff2" | asset_url }}') format('woff2'),
+        url('{{ "TAYBigBirdRegular.woff" | asset_url }}') format('woff');
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    .section__title-text,
+    .multi-column__title,
+    .editorial-image-copy h1,
+    .editorial-image-copy h2,
+    .editorial-image-copy h3,
+    .editorial-image-copy h4,
+    .editorial-image-copy h5,
+    .editorial-image-copy h6,
+    .editorial-specs-image h1,
+    .editorial-specs-image h2,
+    .editorial-specs-image h3,
+    .editorial-specs-image h4,
+    .editorial-specs-image h5,
+    .editorial-specs-image h6,
+    .home-carousel__content h1,
+    .home-carousel__content h2,
+    .home-carousel__content h3,
+    .home-carousel__content h4,
+    .home-carousel__content h5,
+    .home-carousel__content h6 {
+      font-family: 'TAY Big Bird', var(--font--heading);
+    }
+  </style>
+{%- endif -%}

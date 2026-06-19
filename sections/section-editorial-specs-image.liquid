@@ -43,6 +43,7 @@
     section--{{ section.id }}
     editorial-specs-image
     editorial-specs-image--image-{{ section.settings.image_position }}
+    {% if section.settings.section_width == 'full' %}section--full section--full-mobile{% endif %}
     {% if section.settings.section_bottom_margin or request.visual_preview_mode %}section--mb-0{% endif %}
   "
   data-section-id="{{ section.id }}"
@@ -62,39 +63,41 @@
     --spec-count: {{ spec_count }};
   "
 >
-  <div class="editorial-specs-image__inner">
-    <div class="editorial-specs-image__specs">
-      <div class="editorial-specs-image__specs-inner">
-        {% for i in (1..4) %}
-          {%- liquid
-            assign spec_key = 'spec_' | append: i
-            assign spec_value = section.settings[spec_key]
-          -%}
-          {% if spec_value != blank %}
-            <div class="editorial-specs-image__spec">
-              <div class="editorial-specs-image__spec-text">{{ spec_value | escape | newline_to_br }}</div>
-            </div>
-          {% endif %}
-        {% endfor %}
+  {% if section.settings.section_width == 'contained' %}<div class="container">{% endif %}
+    <div class="editorial-specs-image__inner">
+      <div class="editorial-specs-image__specs">
+        <div class="editorial-specs-image__specs-inner">
+          {% for i in (1..4) %}
+            {%- liquid
+              assign spec_key = 'spec_' | append: i
+              assign spec_value = section.settings[spec_key]
+            -%}
+            {% if spec_value != blank %}
+              <div class="editorial-specs-image__spec">
+                <div class="editorial-specs-image__spec-text">{{ spec_value | escape | newline_to_br }}</div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="editorial-specs-image__media">
+        {% if section.settings.image != blank %}
+          {% render 'image',
+            image: section.settings.image,
+            alt_string: section.settings.image.alt,
+            image_ratio: 'natural',
+            image_srcset_widths: '540, 720, 900, 1080, 1296, 1512, 1728, 2048, 2260',
+            image_sizes: '100vw',
+            render_skeleton: true,
+            loading: loading
+          %}
+        {% else %}
+          {{ 'image' | placeholder_svg_tag: 'placeholder-svg placeholder-svg--light' }}
+        {% endif %}
       </div>
     </div>
-
-    <div class="editorial-specs-image__media">
-      {% if section.settings.image != blank %}
-        {% render 'image',
-          image: section.settings.image,
-          alt_string: section.settings.image.alt,
-          image_ratio: 'natural',
-          image_srcset_widths: '540, 720, 900, 1080, 1296, 1512, 1728, 2048, 2260',
-          image_sizes: '100vw',
-          render_skeleton: true,
-          loading: loading
-        %}
-      {% else %}
-        {{ 'image' | placeholder_svg_tag: 'placeholder-svg placeholder-svg--light' }}
-      {% endif %}
-    </div>
-  </div>
+  {% if section.settings.section_width == 'contained' %}</div>{% endif %}
 </section>
 
 {% schema %}
@@ -137,6 +140,16 @@
     {
       "type": "header",
       "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Section width",
+      "default": "contained",
+      "options": [
+        { "value": "contained", "label": "Contained" },
+        { "value": "full", "label": "Full width" }
+      ]
     },
     {
       "type": "select",
