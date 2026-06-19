@@ -199,7 +199,7 @@
         "grid": 4,
         "spacing": 3,
         "grid_mobile": "1",
-        "mobile_carousel": true,
+        "mobile_carousel": false,
         "bg_color": "rgba(0,0,0,0)",
         "color_text": "rgba(0,0,0,0)",
         "text_heading_color": true,
