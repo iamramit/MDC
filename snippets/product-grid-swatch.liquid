@@ -57,7 +57,7 @@
                         {%- assign color_name = value | handle | downcase -%}
 
                         {%- assign custom_color_var = 'swatch_color_' | append: swatch_color -%}
-                        {%- capture custom_color -%}{{ [custom_color_var] }}{%- endcapture -%}
+                        {%- capture custom_color -%}{{ self[custom_color_var] }}{%- endcapture -%}
 
                         {%- if custom_color != blank -%}
                             {%- assign swatch_css_color = custom_color -%}
@@ -91,4 +91,13 @@
         </div>
     {% endif %}
 
-{% endfor %}
+{% endfor %}{%- comment -%}
+
+This file has been rewritten to preserve the original behavior.
+
+---
+Changes:
+- from: "{{ [custom_color_var] }}"
+  to: "{{ self[custom_color_var] }}"
+  position: 4393..4421
+{%- endcomment -%}
