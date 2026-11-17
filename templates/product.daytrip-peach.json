@@ -1,0 +1,254 @@
+{
+  "sections": {
+    "hero": {
+      "type": "daytrip-hero",
+      "settings": {
+        "video": "daytrip-peach-hero.mp4",
+        "poster": "daytrip-peach-poster.jpg",
+        "accessibility_label": "Daytrip Peach Amaro animated artwork",
+        "brand_color": "#f47778"
+      }
+    },
+    "main": {
+      "type": "main-product",
+      "blocks": {
+        "title_HEm3K8": {
+          "type": "title",
+          "settings": {
+            "title_size": 2,
+            "title_size_mobile": 2
+          }
+        },
+        "price": {
+          "type": "price",
+          "settings": {
+            "emphasize": false,
+            "price_label_discount": true,
+            "price_label_discount_type": "percentage",
+            "price_label_discount_color": "#c00000",
+            "price_label_text_discount_color": "#ffffff",
+            "show_label_border": false
+          }
+        },
+        "variant_picker": {
+          "type": "variant_picker",
+          "settings": {
+            "product_variant_style": "buttons",
+            "popup_enable": false,
+            "popup_trigger": "Size\nGröße\nTaille\nTaglia\nTalla",
+            "popup_label": "Size guide",
+            "popup_content": ""
+          }
+        },
+        "complementary_products_mYFbeK": {
+          "type": "complementary-products",
+          "settings": {
+            "heading": "Goes well with",
+            "heading_size": 3,
+            "display_collapsible_tab": false,
+            "collapsible_tab_open": false,
+            "product_list_limit": 10,
+            "image_size": "1:1",
+            "image_fit": true,
+            "hide_labels": true,
+            "enable_quick_shop": true
+          }
+        },
+        "quantity_selector": {
+          "type": "quantity_selector",
+          "settings": {}
+        },
+        "pickup_7kbHm4": {
+          "type": "pickup",
+          "settings": {}
+        },
+        "free_shipping_bar_dwRMC6": {
+          "type": "free-shipping-bar",
+          "disabled": true,
+          "settings": {
+            "align_left": true,
+            "hide_icon": false
+          }
+        },
+        "inventory_notice": {
+          "type": "inventory_notice",
+          "disabled": true,
+          "settings": {
+            "inventory_limit": 15,
+            "align": "right",
+            "show_qty": true
+          }
+        },
+        "description_pbwhCn": {
+          "type": "description",
+          "settings": {
+            "column": "secondary",
+            "title": "Description",
+            "display_collapsible_tab": false,
+            "open": false,
+            "icon": "none",
+            "icon_size": 2,
+            "color_icon": "rgba(0,0,0,0)",
+            "svg-code": ""
+          }
+        },
+        "buy_buttons": {
+          "type": "buy_buttons",
+          "settings": {
+            "show_gift_card_recipient": true,
+            "enable_payment_button": true,
+            "enable_add_to_cart_custom": false,
+            "add_to_cart_custom_style": "primary",
+            "add_to_cart_custom_color_bg": "rgba(0,0,0,0)",
+            "add_to_cart_custom_color_text": "rgba(0,0,0,0)"
+          }
+        },
+        "tags_XjttDz": {
+          "type": "tags",
+          "settings": {
+            "column": "primary",
+            "label": "Tags:"
+          }
+        },
+        "share": {
+          "type": "share",
+          "settings": {
+            "column": "secondary",
+            "align": "center"
+          }
+        }
+      },
+      "block_order": [
+        "title_HEm3K8",
+        "price",
+        "variant_picker",
+        "complementary_products_mYFbeK",
+        "quantity_selector",
+        "pickup_7kbHm4",
+        "free_shipping_bar_dwRMC6",
+        "inventory_notice",
+        "description_pbwhCn",
+        "buy_buttons",
+        "tags_XjttDz",
+        "share"
+      ],
+      "settings": {
+        "style": "classic-shadow",
+        "style_clean_mobile": true,
+        "enable_sticky_content": true,
+        "container": "large",
+        "show_breadcrumbs": true,
+        "breadcrumbs_align": "left",
+        "product_image_ratio": "2:3",
+        "product_image_fit": false,
+        "enable_product_image_rounded_corners": true,
+        "gallery_active_variant_media_only": false,
+        "enable_zoom": false,
+        "enable_video_autoplay": false,
+        "enable_video_looping": false,
+        "gallery_column_width": 60,
+        "gallery_column_position": "left",
+        "gallery_style_desktop": "grid",
+        "gallery_style_mobile": "carousel",
+        "gallery_grid_items_per_row_top": 1,
+        "gallery_grid_items_per_row": 3,
+        "gallery_grid_items_spacing": 4,
+        "gallery_grid_items_load_more": true,
+        "gallery_grid_items_load_more_rows": 2,
+        "gallery_carousel_navigation_type": "dots",
+        "enable_gallery_next_image_preview_mobile": true,
+        "enable_gallery_arrows": false,
+        "thumbnails_position": "bottom",
+        "thumbnails_ratio": "1:1",
+        "thumbnails_size_desktop": 5,
+        "thumbnails_size_mobile": 5,
+        "thumbnails_show_border": false
+      }
+    },
+    "story": {
+      "type": "daytrip-story",
+      "blocks": {
+        "recipe_1": {
+          "type": "recipe",
+          "settings": {
+            "title": "Peach Sherry Cobbler",
+            "title_image": "daytrip-peach-recipe1.png",
+            "ingredients": "<p>2 oz Peach Daytrip<br>1.5 oz Amontillado sherry<br>Muddled orange</p>",
+            "method": "<p>Add 2 slices of orange to a shaker tin and muddle. Add Daytrip and sherry with ice. Shake to combine. Pour over a glass with ice. Garnish with lots of fresh fruit.</p>"
+          }
+        },
+        "recipe_2": {
+          "type": "recipe",
+          "settings": {
+            "title": "Peach Arnold Palmer",
+            "title_image": "daytrip-peach-recipe2.png",
+            "ingredients": "<p>2 oz Peach Daytrip<br>Simply Lemonade<br>Unsweetened tea</p>",
+            "method": "<p>Build in a Collins glass with ice. Stir to combine.</p>"
+          }
+        },
+        "recipe_3": {
+          "type": "recipe",
+          "settings": {
+            "title": "Peach Julep",
+            "title_image": "daytrip-peach-recipe3.png",
+            "ingredients": "<p>1.5 oz Peach Daytrip<br>0.75 oz bourbon<br>Mint</p>",
+            "method": "<p>Add ingredients to a glass and muddle mint. Top with plenty of crushed ice. Garnish with mint and sliced peach.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "recipe_1",
+        "recipe_2",
+        "recipe_3"
+      ],
+      "settings": {
+        "brand_color": "#f47778",
+        "intro_image": "daytrip-peach-bottle.jpg",
+        "intro_alt": "Daytrip Peach Amaro bottle",
+        "description": "<p>A peach wine-based amaro that keeps the orchard close. Real Brieremere peaches meet rich marzipan notes from distilled peach leaves, delicate rose and elderflower, and a touch of pink peppercorn. Gently bitter and softly sweet, with peach at the heart of every pour.</p>",
+        "quote_image": "daytrip-peach-quote.png",
+        "quote_alt": "“The Amaro I’ll be drinking all summer” — Sam Stone, Bon Appétit",
+        "facts_image": "daytrip-peach-facts.jpg",
+        "fact_color": "#ffd0b6",
+        "abv": 16,
+        "fact_copy": "Wine-based amaro made with real fruit and botanicals",
+        "volume": "750ml",
+        "callout_background": "daytrip-peach-callout_bg.jpg",
+        "callout_text": "daytrip-peach-callout.png",
+        "callout_alt": "Add some fizz, shake it with berries, or stir up something fresh with gin and mint.",
+        "library_text": "Check out our drinks library for recipe inspo!",
+        "library_url": "/pages/the-cocktail-library",
+        "footer_background": "daytrip-peach-footer_bg.jpg",
+        "footer_text_color": "#ffffff",
+        "instagram_handle": "@DAYTRIPAMARO",
+        "instagram_url": "https://www.instagram.com/daytripamaro/"
+      }
+    },
+    "product-recommendations": {
+      "type": "section-product-recommendations",
+      "settings": {
+        "title": "You may also like",
+        "desc": "",
+        "heading_alignment": "center",
+        "section_width": "large",
+        "maximum_products": 10,
+        "grid": 3,
+        "grid_mobile": "1",
+        "divider_top": false,
+        "divider_bottom": false,
+        "section_link_title": "View all",
+        "section_link_link": "",
+        "section_link_style": "link link--arrow",
+        "padding_top": 0,
+        "padding_bottom": 0,
+        "section_bottom_margin": false
+      }
+    }
+  },
+  "order": [
+    "hero",
+    "main",
+    "story",
+    "product-recommendations"
+  ]
+}

@@ -1,0 +1,30 @@
+.daytrip-hero{position:relative;width:100%;height:clamp(240px,42vw,570px);overflow:hidden;background:var(--daytrip-color,#405db1)}
+.daytrip-hero__video{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+.daytrip-story{color:var(--daytrip-ink);font-family:var(--font--body,sans-serif)}
+.daytrip-intro{display:grid;grid-template-columns:minmax(250px,27%) 1fr;background:#fff;min-height:340px}
+.daytrip-intro__photo{min-height:340px}
+.daytrip-intro__photo img{display:block;width:100%;height:100%;min-height:340px;object-fit:cover}
+.daytrip-intro__copy{display:flex;flex-direction:column;justify-content:center;padding:clamp(28px,5vw,78px);gap:22px}
+.daytrip-intro__description{font-size:clamp(15px,1.35vw,22px);line-height:1.7;letter-spacing:.045em;text-transform:uppercase;font-weight:600}
+.daytrip-intro__description p{margin:0}
+.daytrip-intro__quote{display:block;width:min(100%,880px);height:auto;max-height:132px;object-fit:contain;object-position:left center}
+.daytrip-facts{min-height:210px;background-color:var(--daytrip-paper);background-position:center;background-size:cover;display:flex;align-items:center;padding:38px clamp(24px,7vw,120px)}
+.daytrip-facts__items{display:grid;grid-template-columns:auto minmax(170px,250px) auto;align-items:center;text-align:center;max-width:600px;font-size:clamp(13px,1vw,18px);font-weight:700;line-height:1.4;text-transform:uppercase;letter-spacing:.035em}
+.daytrip-facts__items span{padding:0 26px}
+.daytrip-facts__items span+span{border-left:1px solid currentColor}
+.daytrip-recipes{display:grid;grid-template-columns:minmax(180px,24%) 1fr;gap:clamp(28px,4vw,64px);align-items:center;padding:64px clamp(24px,6vw,100px) 38px;background:#fff}
+.daytrip-callout{aspect-ratio:1;background-position:center;background-size:contain;background-repeat:no-repeat;display:grid;place-items:center}
+.daytrip-callout img{width:100%;height:100%;object-fit:contain}
+.daytrip-recipe-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(20px,3vw,50px)}
+.daytrip-recipe__title{display:block;width:100%;height:auto;max-height:42px;object-fit:contain;object-position:left center;margin-bottom:14px}
+.daytrip-recipe__ingredients,.daytrip-recipe__method{font-size:clamp(12px,.88vw,15px);line-height:1.5;letter-spacing:.015em}
+.daytrip-recipe__ingredients p,.daytrip-recipe__method p{margin:0 0 10px}
+.daytrip-recipe__method{font-style:italic;margin-top:16px}
+.daytrip-library-cta{text-align:center;margin:0;padding:12px 24px 36px;text-transform:uppercase;letter-spacing:.045em;font-size:14px;font-weight:700}
+.daytrip-library-cta a{color:inherit;text-decoration:underline;text-underline-offset:3px}
+.daytrip-brand-footer{min-height:220px;background-color:var(--daytrip-ink);background-position:center;background-size:cover;color:var(--daytrip-footer-ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:30px 20px}
+.daytrip-brand-footer__instagram{display:inline-flex;align-items:center;gap:8px;color:inherit;text-decoration:none;font-size:13px;letter-spacing:.07em}
+.daytrip-brand-footer__instagram img{width:20px;height:20px;object-fit:contain;filter:brightness(0) invert(1)}
+.daytrip-brand-footer__logo{display:block;width:min(260px,55vw);max-height:90px;object-fit:contain}
+@media(max-width:767px){.daytrip-hero{height:clamp(190px,58vw,340px)}.daytrip-intro{grid-template-columns:1fr}.daytrip-intro__photo{min-height:0;height:82vw;max-height:440px}.daytrip-intro__photo img{min-height:0;height:100%}.daytrip-intro__copy{padding:28px 22px 38px}.daytrip-intro__quote{max-height:86px}.daytrip-facts{min-height:145px;padding:25px 12px;background-position:65% center}.daytrip-facts__items{grid-template-columns:auto minmax(120px,1fr) auto;width:100%;font-size:11px}.daytrip-facts__items span{padding:0 10px}.daytrip-recipes{grid-template-columns:1fr;padding:38px 22px 18px;gap:30px}.daytrip-callout{width:min(68vw,270px);justify-self:center}.daytrip-recipe-grid{grid-template-columns:1fr;gap:24px}.daytrip-recipe{max-width:460px;width:100%;margin:auto}.daytrip-recipe__title{max-height:38px}.daytrip-recipe__ingredients,.daytrip-recipe__method{font-size:14px}.daytrip-library-cta{font-size:12px;padding-bottom:30px}.daytrip-brand-footer{min-height:180px}}
+@media(prefers-reduced-motion:reduce){.daytrip-hero__video{display:none}}

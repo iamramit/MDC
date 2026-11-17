@@ -1,0 +1,86 @@
+{{ 'daytrip-landing.css' | asset_url | stylesheet_tag }}
+{%- assign instagram_url = section.settings.instagram_url | default: 'https://www.instagram.com/daytripamaro/' -%}
+<section class="daytrip-story" style="--daytrip-ink: {{ section.settings.brand_color }}; --daytrip-paper: {{ section.settings.fact_color }}; --daytrip-footer-ink: {{ section.settings.footer_text_color }}">
+  <div class="daytrip-intro">
+    <div class="daytrip-intro__photo">
+      <img src="{{ section.settings.intro_image | asset_url }}" alt="{{ section.settings.intro_alt | escape }}" loading="lazy" width="1200" height="1500">
+    </div>
+    <div class="daytrip-intro__copy">
+      <div class="daytrip-intro__description">{{ section.settings.description }}</div>
+      <img class="daytrip-intro__quote" src="{{ section.settings.quote_image | asset_url }}" alt="{{ section.settings.quote_alt | escape }}" loading="lazy" width="1600" height="235">
+    </div>
+  </div>
+
+  <div class="daytrip-facts" style="background-image:url('{{ section.settings.facts_image | asset_url }}')">
+    <div class="daytrip-facts__items">
+      <span>{{ section.settings.abv }}% ABV</span>
+      <span>{{ section.settings.fact_copy | escape }}</span>
+      <span>{{ section.settings.volume | escape }}</span>
+    </div>
+  </div>
+
+  <div class="daytrip-recipes">
+    <div class="daytrip-callout" style="background-image:url('{{ section.settings.callout_background | asset_url }}')">
+      <img src="{{ section.settings.callout_text | asset_url }}" alt="{{ section.settings.callout_alt | escape }}" loading="lazy" width="800" height="800">
+    </div>
+    <div class="daytrip-recipe-grid">
+      {% for block in section.blocks %}
+        {% if block.type == 'recipe' %}
+          <article class="daytrip-recipe" {{ block.shopify_attributes }}>
+            <img class="daytrip-recipe__title" src="{{ block.settings.title_image | asset_url }}" alt="{{ block.settings.title | escape }}" loading="lazy" width="1600" height="190">
+            <div class="daytrip-recipe__ingredients">{{ block.settings.ingredients }}</div>
+            <div class="daytrip-recipe__method">{{ block.settings.method }}</div>
+          </article>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+  <p class="daytrip-library-cta"><a href="{{ section.settings.library_url | default: '/pages/the-cocktail-library' }}">{{ section.settings.library_text | escape }}</a></p>
+
+  <footer class="daytrip-brand-footer" style="background-image:url('{{ section.settings.footer_background | asset_url }}')">
+    <a class="daytrip-brand-footer__instagram" href="{{ instagram_url }}" target="_blank" rel="noopener">
+      <img src="{{ 'daytrip-instagram.png' | asset_url }}" alt="" width="24" height="24" loading="lazy">
+      <span>{{ section.settings.instagram_handle | escape }}</span>
+    </a>
+    <img class="daytrip-brand-footer__logo" src="{{ 'daytrip-footer-logo.png' | asset_url }}" alt="Matchbook Distilling Co., Greenport, New York" width="500" height="180" loading="lazy">
+  </footer>
+</section>
+
+{% schema %}
+{
+  "name": "Daytrip fruit story",
+  "settings": [
+    { "type": "color", "id": "brand_color", "label": "Fruit ink color", "default": "#405db1" },
+    { "type": "text", "id": "intro_image", "label": "Bottle photograph asset filename" },
+    { "type": "text", "id": "intro_alt", "label": "Bottle photograph alt text" },
+    { "type": "richtext", "id": "description", "label": "Product story" },
+    { "type": "text", "id": "quote_image", "label": "Quote artwork asset filename" },
+    { "type": "text", "id": "quote_alt", "label": "Quote artwork alt text" },
+    { "type": "text", "id": "facts_image", "label": "Fact strip background asset filename" },
+    { "type": "color", "id": "fact_color", "label": "Fact strip fallback color", "default": "#b4cee8" },
+    { "type": "range", "id": "abv", "label": "ABV", "min": 1, "max": 99, "step": 1, "default": 16 },
+    { "type": "text", "id": "fact_copy", "label": "Product fact", "default": "Wine-based amaro made with real fruit and botanicals" },
+    { "type": "text", "id": "volume", "label": "Bottle volume", "default": "750ml" },
+    { "type": "text", "id": "callout_background", "label": "Recipe callout background asset filename" },
+    { "type": "text", "id": "callout_text", "label": "Recipe callout text asset filename" },
+    { "type": "text", "id": "callout_alt", "label": "Recipe callout alt text" },
+    { "type": "text", "id": "library_text", "label": "Cocktail library link text", "default": "Check out our drinks library for recipe inspo!" },
+    { "type": "url", "id": "library_url", "label": "Cocktail library link" },
+    { "type": "text", "id": "footer_background", "label": "Footer background asset filename" },
+    { "type": "color", "id": "footer_text_color", "label": "Footer text color", "default": "#ffffff" },
+    { "type": "text", "id": "instagram_handle", "label": "Instagram handle", "default": "@DAYTRIPAMARO" },
+    { "type": "url", "id": "instagram_url", "label": "Instagram link" }
+  ],
+  "blocks": [
+    { "type": "recipe", "name": "Cocktail recipe", "settings": [
+      { "type": "text", "id": "title", "label": "Recipe name" },
+      { "type": "text", "id": "title_image", "label": "Recipe title asset filename" },
+      { "type": "richtext", "id": "ingredients", "label": "Ingredients" },
+      { "type": "richtext", "id": "method", "label": "Method" }
+    ] }
+  ],
+  "max_blocks": 3,
+  "presets": [{ "name": "Daytrip fruit story", "blocks": [{ "type": "recipe" }, { "type": "recipe" }, { "type": "recipe" }] }]
+}
+{% endschema %}

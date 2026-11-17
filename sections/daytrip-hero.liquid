@@ -1,0 +1,18 @@
+<section class="daytrip-hero" style="--daytrip-color: {{ section.settings.brand_color }}; background-image:url('{{ section.settings.poster | asset_url }}')" aria-label="{{ section.settings.accessibility_label | escape }}">
+  <video class="daytrip-hero__video" autoplay muted loop playsinline preload="metadata" poster="{{ section.settings.poster | asset_url }}" aria-hidden="true">
+    <source src="{{ section.settings.video | asset_url }}" type="video/mp4">
+  </video>
+</section>
+
+{% schema %}
+{
+  "name": "Daytrip fruit hero",
+  "settings": [
+    { "type": "text", "id": "video", "label": "Hero video asset filename" },
+    { "type": "text", "id": "poster", "label": "Video poster asset filename" },
+    { "type": "text", "id": "accessibility_label", "label": "Accessible label" },
+    { "type": "color", "id": "brand_color", "label": "Brand color", "default": "#405db1" }
+  ],
+  "presets": [{ "name": "Daytrip fruit hero" }]
+}
+{% endschema %}
