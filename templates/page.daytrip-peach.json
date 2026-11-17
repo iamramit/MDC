@@ -1,0 +1,76 @@
+{
+  "sections": {
+    "hero": {
+      "type": "daytrip-hero",
+      "settings": {
+        "video": "daytrip-peach-hero.mp4",
+        "poster": "daytrip-peach-poster.jpg",
+        "accessibility_label": "Daytrip Peach Amaro animated artwork",
+        "brand_color": "#f47778"
+      }
+    },
+    "story": {
+      "type": "daytrip-story",
+      "blocks": {
+        "recipe_1": {
+          "type": "recipe",
+          "settings": {
+            "title": "Peach Sherry Cobbler",
+            "title_image": "daytrip-peach-recipe1.png",
+            "ingredients": "<p>2 oz Peach Daytrip<br>1.5 oz Amontillado sherry<br>Muddled orange</p>",
+            "method": "<p>Add 2 slices of orange to a shaker tin and muddle. Add Daytrip and sherry with ice. Shake to combine. Pour over a glass with ice. Garnish with lots of fresh fruit.</p>"
+          }
+        },
+        "recipe_2": {
+          "type": "recipe",
+          "settings": {
+            "title": "Peach Arnold Palmer",
+            "title_image": "daytrip-peach-recipe2.png",
+            "ingredients": "<p>2 oz Peach Daytrip<br>Simply Lemonade<br>Unsweetened tea</p>",
+            "method": "<p>Build in a Collins glass with ice. Stir to combine.</p>"
+          }
+        },
+        "recipe_3": {
+          "type": "recipe",
+          "settings": {
+            "title": "Peach Julep",
+            "title_image": "daytrip-peach-recipe3.png",
+            "ingredients": "<p>1.5 oz Peach Daytrip<br>0.75 oz bourbon<br>Mint</p>",
+            "method": "<p>Add ingredients to a glass and muddle mint. Top with plenty of crushed ice. Garnish with mint and sliced peach.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "recipe_1",
+        "recipe_2",
+        "recipe_3"
+      ],
+      "settings": {
+        "brand_color": "#f47778",
+        "intro_image": "daytrip-peach-bottle.jpg",
+        "intro_alt": "Daytrip Peach Amaro bottle",
+        "description": "<p>A peach wine-based amaro that keeps the orchard close. Real Brieremere peaches meet rich marzipan notes from distilled peach leaves, delicate rose and elderflower, and a touch of pink peppercorn. Gently bitter and softly sweet, with peach at the heart of every pour.</p>",
+        "quote_image": "daytrip-peach-quote.png",
+        "quote_alt": "“The Amaro I’ll be drinking all summer” — Sam Stone, Bon Appétit",
+        "facts_image": "daytrip-peach-facts.jpg",
+        "fact_color": "#ffd0b6",
+        "abv": 16,
+        "fact_copy": "Wine-based amaro made with real fruit and botanicals",
+        "volume": "750ml",
+        "callout_background": "daytrip-peach-callout_bg.jpg",
+        "callout_text": "daytrip-peach-callout.png",
+        "callout_alt": "Add some fizz, shake it with berries, or stir up something fresh with gin and mint.",
+        "library_text": "Check out our drinks library for recipe inspo!",
+        "library_url": "/pages/the-cocktail-library",
+        "footer_background": "daytrip-peach-footer_bg.jpg",
+        "footer_text_color": "#ffffff",
+        "instagram_handle": "@DAYTRIPAMARO",
+        "instagram_url": "https://www.instagram.com/daytripamaro/"
+      }
+    }
+  },
+  "order": [
+    "hero",
+    "story"
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "sections": {
+    "hero": {
+      "type": "daytrip-hero",
+      "settings": {
+        "video": "daytrip-blueberry-hero.mp4",
+        "poster": "daytrip-blueberry-poster.jpg",
+        "accessibility_label": "Daytrip Blueberry Amaro animated artwork",
+        "brand_color": "#405db1"
+      }
+    },
+    "story": {
+      "type": "daytrip-story",
+      "blocks": {
+        "recipe_1": {
+          "type": "recipe",
+          "settings": {
+            "title": "Blueberry Manhattan",
+            "title_image": "daytrip-blueberry-recipe1.png",
+            "ingredients": "<p>2 oz rye<br>1 oz Blueberry Daytrip<br>3 dashes aromatic bitters</p>",
+            "method": "<p>Add all ingredients to a mixing glass with ice and stir until chilled. Strain into a coupe glass. Garnish with a skewer of blueberries.</p>"
+          }
+        },
+        "recipe_2": {
+          "type": "recipe",
+          "settings": {
+            "title": "Blueberry Kir Royale",
+            "title_image": "daytrip-blueberry-recipe2.png",
+            "ingredients": "<p>1 oz Blueberry Daytrip<br>Cava<br>Blueberries for garnish</p>",
+            "method": "<p>Build in a flute glass with Cava and garnish with blueberries.</p>"
+          }
+        },
+        "recipe_3": {
+          "type": "recipe",
+          "settings": {
+            "title": "El Diablo",
+            "title_image": "daytrip-blueberry-recipe3.png",
+            "ingredients": "<p>1 oz tequila<br>1.5 oz Blueberry Daytrip<br>0.5 oz lime juice<br>Ginger beer</p>",
+            "method": "<p>Build in a Collins glass with ice; stir to combine.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "recipe_1",
+        "recipe_2",
+        "recipe_3"
+      ],
+      "settings": {
+        "brand_color": "#405db1",
+        "intro_image": "daytrip-blueberry-bottle.jpg",
+        "intro_alt": "Daytrip Blueberry Amaro bottle outdoors",
+        "description": "<p>A blueberry wine-based amaro with a wild streak. Real blueberries meet bright citrus, warm vanilla and a nostalgic touch of cornlake sweetness. Deep berry flavor, fragrant botanicals and a lingering bitter finish keep every sip a little unexpected.</p>",
+        "quote_image": "daytrip-blueberry-quote.png",
+        "quote_alt": "“The Amaro I’ll be drinking all summer” — Sam Stone, Bon Appétit",
+        "facts_image": "daytrip-blueberry-facts.jpg",
+        "fact_color": "#b7cfea",
+        "abv": 16,
+        "fact_copy": "Wine-based amaro made with real fruit and botanicals",
+        "volume": "750ml",
+        "callout_background": "daytrip-blueberry-callout_bg.png",
+        "callout_text": "daytrip-blueberry-callout.png",
+        "callout_alt": "Shake it with citrus, stir it with whiskey, or take it into espresso martini territory.",
+        "library_text": "Check out our drinks library for recipe inspo!",
+        "library_url": "/pages/the-cocktail-library",
+        "footer_background": "daytrip-blueberry-footer_bg.jpg",
+        "footer_text_color": "#ffffff",
+        "instagram_handle": "@DAYTRIPAMARO",
+        "instagram_url": "https://www.instagram.com/daytripamaro/"
+      }
+    }
+  },
+  "order": [
+    "hero",
+    "story"
+  ]
+}

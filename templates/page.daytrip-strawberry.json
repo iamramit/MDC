@@ -1,0 +1,76 @@
+{
+  "sections": {
+    "hero": {
+      "type": "daytrip-hero",
+      "settings": {
+        "video": "daytrip-strawberry-hero.mp4",
+        "poster": "daytrip-strawberry-poster.jpg",
+        "accessibility_label": "Daytrip Strawberry Amaro animated artwork",
+        "brand_color": "#ed1b35"
+      }
+    },
+    "story": {
+      "type": "daytrip-story",
+      "blocks": {
+        "recipe_1": {
+          "type": "recipe",
+          "settings": {
+            "title": "Strawberry Cola",
+            "title_image": "daytrip-strawberry-recipe1.png",
+            "ingredients": "<p>2 oz Daytrip Strawberry Amaro<br>2–3 oz cola<br>Lemon peel</p>",
+            "method": "<p>Build over ice, top with cola, express lemon peel.</p>"
+          }
+        },
+        "recipe_2": {
+          "type": "recipe",
+          "settings": {
+            "title": "Daytripper",
+            "title_image": "daytrip-strawberry-recipe2.png",
+            "ingredients": "<p>1.5 oz Daytrip Strawberry Amaro<br>0.25 oz Espadín mezcal<br>0.75 oz fresh grapefruit juice<br>0.25 oz simple syrup</p>",
+            "method": "<p>Shake, strain over rocks and express grapefruit.</p>"
+          }
+        },
+        "recipe_3": {
+          "type": "recipe",
+          "settings": {
+            "title": "Strawberry Soda",
+            "title_image": "daytrip-strawberry-recipe3.png",
+            "ingredients": "<p>2 parts Daytrip Strawberry<br>2 parts soda water</p>",
+            "method": "<p>Pour over ice, mix, garnish and enjoy. Top with heavy cream for an Italian soda or Prosecco for a spritz.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "recipe_1",
+        "recipe_2",
+        "recipe_3"
+      ],
+      "settings": {
+        "brand_color": "#ed1b35",
+        "intro_image": "daytrip-strawberry-bottle.jpg",
+        "intro_alt": "Daytrip Strawberry Amaro bottle with fresh strawberries",
+        "description": "<p>A strawberry wine-based amaro that honors the fruit. Real strawberry, lower sugar, no artificial flavoring. A dry, bittersweet finish, with jammy, juicy strawberry notes and hints of gentian, citrus and toasted coconut.</p>",
+        "quote_image": "daytrip-strawberry-quote.png",
+        "quote_alt": "“The Amaro I’ll be drinking all summer” — Sam Stone, Bon Appétit",
+        "facts_image": "daytrip-strawberry-facts.jpg",
+        "fact_color": "#f3b9d8",
+        "abv": 19,
+        "fact_copy": "Wine-based amaro made with real fruit and botanicals",
+        "volume": "750ml",
+        "callout_background": "daytrip-strawberry-callout_bg.png",
+        "callout_text": "daytrip-strawberry-callout.png",
+        "callout_alt": "Works in spritzes, Negronis and as a sweet vermouth swap.",
+        "library_text": "Check out our drinks library for recipe inspo!",
+        "library_url": "/pages/the-cocktail-library",
+        "footer_background": "daytrip-strawberry-footer_bg.jpg",
+        "footer_text_color": "#ffffff",
+        "instagram_handle": "@DAYTRIPAMARO",
+        "instagram_url": "https://www.instagram.com/daytripamaro/"
+      }
+    }
+  },
+  "order": [
+    "hero",
+    "story"
+  ]
+}
